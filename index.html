@@ -1,0 +1,540 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>ASCII to Unicode Converter - Decode &amp; Encode Online</title>
+    <meta name="description" content="Convert ASCII to Unicode online. Decode \uXXXX, HTML entities, U+ codes, hex escapes, and mojibake, or encode text into Unicode escapes.">
+    <link rel="canonical" href="https://asciitounicode.com/">
+    <meta name="robots" content="index, follow">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://asciitounicode.com/">
+    <meta property="og:title" content="ASCII to Unicode Converter - Decode & Encode Online">
+    <meta property="og:description" content="Convert ASCII to Unicode online. Decode \uXXXX, HTML entities, U+ codes, hex escapes, and mojibake, or encode text into Unicode escapes.">
+    <meta property="og:image" content="https://asciitounicode.com/assets/ascii-unicode-preview.png?v=20260711-2">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="theme-color" content="#0a0b0d">
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+    <link rel="preload" href="styles.css" as="style">
+    <link rel="stylesheet" href="styles.css">
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "ASCII to Unicode Converter",
+        "url": "https://asciitounicode.com/",
+        "applicationCategory": "DeveloperApplication",
+        "operatingSystem": "Any",
+        "description": "A browser-based converter for decoding ASCII-safe escapes, HTML entities, U+ codes, hex escapes, and mojibake into readable Unicode, plus encoding text into Unicode escape formats.",
+        "offers": {
+          "@type": "Offer",
+          "price": "0",
+          "priceCurrency": "USD"
+        },
+        "featureList": [
+          "Decode Unicode escape sequences",
+          "Encode text to Unicode escape formats",
+          "Decode and encode HTML entities",
+          "Repair common mojibake text",
+          "Copy, import, and download converted output"
+        ]
+      }
+    </script>
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "HowTo",
+        "name": "How to convert ASCII to Unicode",
+        "description": "Paste ASCII-safe text, choose a conversion mode, and copy the readable Unicode output.",
+        "step": [
+          {
+            "@type": "HowToStep",
+            "name": "Paste your text",
+            "text": "Paste ASCII-safe text such as \\u0048\\u0069, HTML entities, U+ codes, hex escapes, or mojibake into the input field."
+          },
+          {
+            "@type": "HowToStep",
+            "name": "Choose a mode",
+            "text": "Select Decode to Unicode, Encode to Escapes, HTML Entities, or Repair Mojibake."
+          },
+          {
+            "@type": "HowToStep",
+            "name": "Convert and copy",
+            "text": "Run the conversion in the same page, then copy or download the output."
+          }
+        ]
+      }
+    </script>
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "What is an ASCII to Unicode converter?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "An ASCII to Unicode converter decodes ASCII-safe escape text such as \\u0048, HTML entities, U+ codes, and hex escapes into readable Unicode characters. It can also encode readable text into Unicode escape formats."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Does this converter support \\uXXXX sequences?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Yes. It supports \\uXXXX, \\u{1F600}, surrogate pairs such as \\uD83D\\uDE00, %uXXXX, and U+XXXX notation."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Can it convert emoji and characters outside the basic multilingual plane?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Yes. Emoji and other high code point characters are decoded and encoded with Unicode-aware logic."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Is my text uploaded to a server?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "No. Conversion runs in your browser. Analytics events, if enabled later, should record actions only and not user input."
+            }
+          }
+        ]
+      }
+    </script>
+  </head>
+  <body id="top" data-page="home">
+    <div class="code-stream" aria-hidden="true">
+      <span class="drift-left" style="--y: 6%; --dx: -47vw; --dy: -18px; --dur: 18s; --delay: -12s; --scale: 0.92;">\u0048</span>
+      <span class="drift-left" style="--y: 8%; --dx: -42vw; --dy: 28px; --dur: 22s; --delay: -2s; --scale: 1.08;">ASCII[72]</span>
+      <span class="drift-left" style="--y: 11%; --dx: -49vw; --dy: 12px; --dur: 16s; --delay: -7s; --scale: 0.82;">0x48 0x69</span>
+      <span class="drift-right" style="--y: 7%; --dx: 46vw; --dy: 16px; --dur: 20s; --delay: -15s; --scale: 0.9;">U+0048 = H</span>
+      <span class="drift-right" style="--y: 10%; --dx: 50vw; --dy: -24px; --dur: 17s; --delay: -4s; --scale: 1.05;">decode()</span>
+      <span class="drift-left" style="--y: 17%; --dx: -44vw; --dy: -34px; --dur: 21s; --delay: -18s; --scale: 1.15;">\uD83D\uDE00</span>
+      <span class="drift-right" style="--y: 17%; --dx: 43vw; --dy: 30px; --dur: 19s; --delay: -9s; --scale: 0.86;">😀 U+1F600</span>
+      <span class="drift-left" style="--y: 22%; --dx: -51vw; --dy: 18px; --dur: 15s; --delay: -3s; --scale: 0.78;">&amp;#x2603;</span>
+      <span class="drift-left" style="--y: 24%; --dx: -39vw; --dy: -12px; --dur: 23s; --delay: -14s; --scale: 1.04;">//// UTF-8</span>
+      <span class="drift-right" style="--y: 22%; --dx: 45vw; --dy: -20px; --dur: 18s; --delay: -6s; --scale: 1.12;">☃ &lt;- entity</span>
+      <span class="drift-right" style="--y: 25%; --dx: 52vw; --dy: 26px; --dur: 24s; --delay: -19s; --scale: 0.8;">0xE2 0x98 0x83</span>
+      <span class="drift-left" style="--y: 31%; --dx: -48vw; --dy: 36px; --dur: 20s; --delay: -10s; --scale: 0.96;">cafÃ©</span>
+      <span class="drift-left" style="--y: 33%; --dx: -43vw; --dy: -22px; --dur: 16s; --delay: -1s; --scale: 1.12;">repair mojibake</span>
+      <span class="drift-right" style="--y: 31%; --dx: 48vw; --dy: 14px; --dur: 21s; --delay: -16s; --scale: 0.9;">café</span>
+      <span class="drift-right" style="--y: 35%; --dx: 41vw; --dy: -32px; --dur: 18s; --delay: -8s; --scale: 1.06;">LATIN-1 ?</span>
+      <span class="drift-left" style="--y: 40%; --dx: -50vw; --dy: -28px; --dur: 24s; --delay: -20s; --scale: 0.84;">U+1F680</span>
+      <span class="drift-left" style="--y: 43%; --dx: -41vw; --dy: 24px; --dur: 19s; --delay: -5s; --scale: 1.02;">JSON.stringify</span>
+      <span class="drift-right" style="--y: 41%; --dx: 49vw; --dy: 34px; --dur: 17s; --delay: -13s; --scale: 0.92;">🚀</span>
+      <span class="drift-right" style="--y: 44%; --dx: 44vw; --dy: -16px; --dur: 22s; --delay: -3s; --scale: 1.14;">%u4F60</span>
+      <span class="drift-left" style="--y: 50%; --dx: -45vw; --dy: 32px; --dur: 18s; --delay: -11s; --scale: 0.88;">\u4F60\u597D</span>
+      <span class="drift-left" style="--y: 53%; --dx: -52vw; --dy: -18px; --dur: 21s; --delay: -6s; --scale: 1.1;">payload.text</span>
+      <span class="drift-right" style="--y: 51%; --dx: 46vw; --dy: -30px; --dur: 20s; --delay: -17s; --scale: 0.86;">你好</span>
+      <span class="drift-right" style="--y: 55%; --dx: 40vw; --dy: 22px; --dur: 15s; --delay: -2s; --scale: 1.06;">&gt;&gt;&gt; unicode</span>
+      <span class="drift-left" style="--y: 60%; --dx: -39vw; --dy: -26px; --dur: 22s; --delay: -15s; --scale: 0.94;">charCodeAt()</span>
+      <span class="drift-left" style="--y: 63%; --dx: -47vw; --dy: 18px; --dur: 17s; --delay: -4s; --scale: 1.16;">0b01001000</span>
+      <span class="drift-right" style="--y: 61%; --dx: 51vw; --dy: 28px; --dur: 23s; --delay: -12s; --scale: 0.82;">codePointAt()</span>
+      <span class="drift-right" style="--y: 64%; --dx: 43vw; --dy: -20px; --dur: 18s; --delay: -7s; --scale: 1.08;">U+2603</span>
+      <span class="drift-left" style="--y: 70%; --dx: -50vw; --dy: 20px; --dur: 19s; --delay: -18s; --scale: 0.84;">HTML decimal</span>
+      <span class="drift-left" style="--y: 73%; --dx: -42vw; --dy: -30px; --dur: 24s; --delay: -9s; --scale: 1.12;">&amp;#128512;</span>
+      <span class="drift-right" style="--y: 71%; --dx: 47vw; --dy: -16px; --dur: 16s; --delay: -1s; --scale: 0.92;">200 OK</span>
+      <span class="drift-right" style="--y: 74%; --dx: 52vw; --dy: 26px; --dur: 21s; --delay: -14s; --scale: 1.02;">escape map</span>
+      <span class="drift-left" style="--y: 80%; --dx: -44vw; --dy: 36px; --dur: 18s; --delay: -5s; --scale: 0.98;">bytes -&gt; chars</span>
+      <span class="drift-left" style="--y: 83%; --dx: -49vw; --dy: -18px; --dur: 20s; --delay: -16s; --scale: 0.82;">{ "ok": true }</span>
+      <span class="drift-right" style="--y: 81%; --dx: 41vw; --dy: 20px; --dur: 24s; --delay: -10s; --scale: 1.14;">NFC normalize</span>
+      <span class="drift-right" style="--y: 85%; --dx: 49vw; --dy: -34px; --dur: 17s; --delay: -3s; --scale: 0.9;">0xF0 0x9F 0x9A 0x80</span>
+      <span class="drift-left" style="--y: 91%; --dx: -46vw; --dy: -24px; --dur: 21s; --delay: -13s; --scale: 1.04;">\u{1F680}</span>
+      <span class="drift-right" style="--y: 91%; --dx: 45vw; --dy: 22px; --dur: 19s; --delay: -8s; --scale: 0.86;">readable text</span>
+      <span class="drift-left" style="--y: 4%; --dx: -40vw; --dy: 34px; --dur: 14s; --delay: -5s; --scale: 0.72;">0x7B</span>
+      <span class="drift-right" style="--y: 5%; --dx: 39vw; --dy: -28px; --dur: 16s; --delay: -11s; --scale: 0.78;">parseInt(16)</span>
+      <span class="drift-left" style="--y: 13%; --dx: -53vw; --dy: 42px; --dur: 26s; --delay: -21s; --scale: 1.18;">"\u0048\u0069"</span>
+      <span class="drift-right" style="--y: 14%; --dx: 54vw; --dy: -38px; --dur: 25s; --delay: -18s; --scale: 1.12;">Hi</span>
+      <span class="drift-left" style="--y: 20%; --dx: -37vw; --dy: -42px; --dur: 17s; --delay: -12s; --scale: 0.74;">SAFE_ASCII</span>
+      <span class="drift-right" style="--y: 28%; --dx: 38vw; --dy: 40px; --dur: 18s; --delay: -15s; --scale: 0.76;">SURROGATE_PAIR</span>
+      <span class="drift-left" style="--y: 29%; --dx: -55vw; --dy: 8px; --dur: 28s; --delay: -25s; --scale: 1.22;">Array.from(text)</span>
+      <span class="drift-right" style="--y: 38%; --dx: 55vw; --dy: 10px; --dur: 27s; --delay: -20s; --scale: 1.18;">&#128640;</span>
+      <span class="drift-left" style="--y: 45%; --dx: -36vw; --dy: 46px; --dur: 15s; --delay: -8s; --scale: 0.76;">ENCODE</span>
+      <span class="drift-right" style="--y: 47%; --dx: 37vw; --dy: -44px; --dur: 16s; --delay: -6s; --scale: 0.72;">DECODE</span>
+      <span class="drift-left" style="--y: 57%; --dx: -54vw; --dy: 38px; --dur: 25s; --delay: -22s; --scale: 1.16;">"\u2603"</span>
+      <span class="drift-right" style="--y: 58%; --dx: 53vw; --dy: -36px; --dur: 26s; --delay: -23s; --scale: 1.2;">SNOWMAN</span>
+      <span class="drift-left" style="--y: 66%; --dx: -38vw; --dy: -40px; --dur: 14s; --delay: -3s; --scale: 0.7;">0xC3 0xA9</span>
+      <span class="drift-right" style="--y: 67%; --dx: 39vw; --dy: 42px; --dur: 15s; --delay: -13s; --scale: 0.74;">é</span>
+      <span class="drift-left" style="--y: 77%; --dx: -56vw; --dy: 12px; --dur: 29s; --delay: -26s; --scale: 1.24;">text.normalize()</span>
+      <span class="drift-right" style="--y: 78%; --dx: 56vw; --dy: -14px; --dur: 28s; --delay: -24s; --scale: 1.22;">UTF8.decode</span>
+      <span class="drift-left" style="--y: 87%; --dx: -37vw; --dy: -44px; --dur: 15s; --delay: -9s; --scale: 0.72;">&amp;#9731;</span>
+      <span class="drift-right" style="--y: 88%; --dx: 38vw; --dy: 40px; --dur: 16s; --delay: -4s; --scale: 0.76;">DONE</span>
+    </div>
+    <a class="top-button" href="#top" aria-label="Back to top" data-i18n="topLabel">TOP</a>
+    <a class="skip-link" href="#converter" data-i18n="skip">Skip to converter</a>
+    <header class="site-header">
+      <nav class="nav-shell" aria-label="Primary navigation">
+        <a class="brand" href="#top" aria-label="ASCII to Unicode home">
+          <span class="brand-mark" aria-hidden="true">
+            <svg class="brand-logo" viewBox="0 0 64 64" focusable="false">
+              <rect class="logo-frame" x="5" y="5" width="54" height="54" rx="0"/>
+              <g class="logo-stack" transform="rotate(-8 25 27)">
+                <rect class="logo-shadow" x="13" y="19" width="25" height="20"/>
+                <rect class="logo-pane logo-pane-left" x="11" y="16" width="25" height="20"/>
+                <text class="logo-ascii" x="23.5" y="30" text-anchor="middle">\u</text>
+              </g>
+              <g class="logo-stack" transform="rotate(-8 40 36)">
+                <rect class="logo-shadow" x="28" y="29" width="25" height="20"/>
+                <rect class="logo-pane logo-pane-right" x="30" y="26" width="25" height="20"/>
+                <text class="logo-unicode" x="42.5" y="40" text-anchor="middle">U+</text>
+              </g>
+              <path class="logo-arrow" d="M38 13h6q4 0 4 4v3"/>
+              <path class="logo-arrow-head" d="M45 17l3 3 3-3"/>
+            </svg>
+          </span>
+          <span>ASCII to Unicode</span>
+        </a>
+        <div class="nav-links">
+          <a href="#converter" data-i18n="navConverter">Converter</a>
+          <a href="#examples" data-i18n="navExamples">Examples</a>
+          <a href="#formats" data-i18n="navFormats">Formats</a>
+          <a href="#faq" data-i18n="navFaq">FAQ</a>
+        </div>
+        <div class="nav-actions">
+          <a class="nav-cta" href="#converter" data-i18n="navOpen">Open Converter</a>
+          <div class="language-select custom-select" data-language-select>
+            <button type="button" class="select-button language-select-button" aria-haspopup="listbox" aria-expanded="false" aria-label="Choose language">
+              <span data-language-value>English</span>
+              <span class="select-arrow" aria-hidden="true"></span>
+            </button>
+            <div class="select-menu language-menu" role="listbox" aria-label="Language">
+              <button type="button" class="select-option language-option is-selected" role="option" aria-selected="true" data-lang="en">English</button>
+              <button type="button" class="select-option language-option" role="option" aria-selected="false" data-lang="zh">简体中文</button>
+              <button type="button" class="select-option language-option" role="option" aria-selected="false" data-lang="es">Español</button>
+              <button type="button" class="select-option language-option" role="option" aria-selected="false" data-lang="pt">Português</button>
+              <button type="button" class="select-option language-option" role="option" aria-selected="false" data-lang="fr">Français</button>
+              <button type="button" class="select-option language-option" role="option" aria-selected="false" data-lang="de">Deutsch</button>
+              <button type="button" class="select-option language-option" role="option" aria-selected="false" data-lang="ja">日本語</button>
+              <button type="button" class="select-option language-option" role="option" aria-selected="false" data-lang="ko">한국어</button>
+            </div>
+          </div>
+        </div>
+      </nav>
+    </header>
+
+    <main>
+      <section class="hero-tool" aria-labelledby="page-title">
+        <div class="hero-copy">
+          <p class="eyebrow" data-i18n="eyebrow">Free browser tool for logs, code, JSON, and broken text</p>
+          <h1 id="page-title" data-i18n="heroTitle">ASCII to Unicode Converter</h1>
+          <p class="hero-lede" data-i18n="heroLede">Decode ASCII-safe escapes like <code>\u0048</code>, HTML entities, <code>U+1F680</code>, hex bytes, and mojibake into readable Unicode. Encode text back into Unicode formats without leaving this page.</p>
+          <div class="hero-proof" aria-label="Converter highlights">
+            <span data-i18n="proofNoSignup">No signup</span>
+            <span data-i18n="proofFree">Free online conversion</span>
+          </div>
+        </div>
+
+        <section class="converter-panel" id="converter" aria-labelledby="converter-title">
+          <div class="panel-head">
+            <div>
+              <p class="panel-kicker" data-i18n="toolKicker">Interactive tool</p>
+              <h2 id="converter-title" data-i18n="toolTitle">Convert ASCII-safe text to Unicode in one page</h2>
+            </div>
+            <p class="status-pill" id="status-pill" aria-live="polite" data-i18n="statusReady">Ready</p>
+          </div>
+
+          <div class="mode-tabs" role="tablist" aria-label="Conversion mode">
+            <button type="button" class="mode-tab is-active" data-mode="decode" role="tab" aria-selected="true" data-i18n="modeDecode">Decode to Unicode</button>
+            <button type="button" class="mode-tab" data-mode="encode" role="tab" aria-selected="false" data-i18n="modeEncode">Encode to Escapes</button>
+            <button type="button" class="mode-tab" data-mode="entities" role="tab" aria-selected="false" data-i18n="modeEntities">HTML Entities</button>
+            <button type="button" class="mode-tab" data-mode="mojibake" role="tab" aria-selected="false" data-i18n="modeMojibake">Repair Mojibake</button>
+          </div>
+
+          <div class="option-row">
+            <div class="select-wrap custom-select" data-custom-select>
+              <span id="format-label" data-i18n="formatLabel">Output format</span>
+              <div class="custom-select-control">
+                <select id="format-select" class="native-select" aria-describedby="format-help" tabindex="-1" aria-hidden="true">
+                  <option value="js-short">\uXXXX</option>
+                  <option value="js-brace">\u{1F600}</option>
+                  <option value="html-dec" data-i18n="formatDecimal">HTML decimal</option>
+                  <option value="html-hex" data-i18n="formatHex">HTML hex</option>
+                  <option value="uplus">U+XXXX</option>
+                </select>
+                <button type="button" class="select-button" id="format-select-button" aria-haspopup="listbox" aria-expanded="false" aria-labelledby="format-label format-select-value">
+                  <span id="format-select-value">\uXXXX</span>
+                  <span class="select-arrow" aria-hidden="true"></span>
+                </button>
+                <div class="select-menu" id="format-select-menu" role="listbox" aria-labelledby="format-label">
+                  <button type="button" class="select-option is-selected" role="option" data-value="js-short" aria-selected="true">\uXXXX</button>
+                  <button type="button" class="select-option" role="option" data-value="js-brace" aria-selected="false">\u{1F600}</button>
+                  <button type="button" class="select-option" role="option" data-value="html-dec" aria-selected="false" data-i18n="formatDecimal">HTML decimal</button>
+                  <button type="button" class="select-option" role="option" data-value="html-hex" aria-selected="false" data-i18n="formatHex">HTML hex</button>
+                  <button type="button" class="select-option" role="option" data-value="uplus" aria-selected="false">U+XXXX</button>
+                </div>
+              </div>
+            </div>
+            <label class="switch">
+              <input type="checkbox" id="auto-convert" checked>
+              <span class="switch-ui" aria-hidden="true"></span>
+              <span data-i18n="autoConvert">Auto convert</span>
+            </label>
+          </div>
+          <p class="format-help" id="format-help" data-i18n="formatHelp">The format selector is used when encoding readable text into escapes or entities.</p>
+
+          <div class="text-grid">
+            <label class="text-box" for="input-text">
+              <span data-i18n="inputLabel">ASCII input</span>
+              <textarea id="input-text" spellcheck="false" placeholder="\u0048\u0069" aria-describedby="input-help">\u0048\u0069</textarea>
+              <small id="input-help" data-i18n="inputHelp">Paste escapes, entities, byte text, JSON strings, or mojibake.</small>
+            </label>
+            <label class="text-box" for="output-text">
+              <span data-i18n="outputLabel">Unicode output</span>
+              <textarea id="output-text" spellcheck="false" readonly placeholder="Hi"></textarea>
+              <small><span id="char-count">0</span> <span data-i18n="charsLabel">characters</span></small>
+            </label>
+          </div>
+
+          <div class="tool-actions" aria-label="Converter actions">
+            <button type="button" class="btn btn-primary" id="convert-btn" data-i18n="btnConvert">Convert</button>
+            <button type="button" class="btn" id="copy-btn" data-i18n="btnCopy">Copy</button>
+            <button type="button" class="btn" id="clear-btn" data-i18n="btnClear">Clear</button>
+            <button type="button" class="btn" id="swap-btn" data-i18n="btnSwap">Swap</button>
+            <button type="button" class="btn" id="import-btn" data-i18n="btnImport">Import TXT</button>
+            <button type="button" class="btn" id="download-btn" data-i18n="btnDownload">Download Output</button>
+            <input type="file" id="file-input" accept=".txt,text/plain" hidden>
+          </div>
+
+          <div class="warning-line" id="warning-line" aria-live="polite"></div>
+
+          <div class="sample-row" aria-label="Try examples">
+            <button type="button" class="sample-chip" data-mode="decode" data-sample="\u0048\u0069">\u0048\u0069</button>
+            <button type="button" class="sample-chip" data-mode="decode" data-sample="\u4F60\u597D">\u4F60\u597D</button>
+            <button type="button" class="sample-chip" data-mode="entities" data-sample="&amp;#x2603;">&amp;#x2603;</button>
+            <button type="button" class="sample-chip" data-mode="mojibake" data-sample="cafÃ©">cafÃ©</button>
+          </div>
+        </section>
+      </section>
+
+      <section class="visual-band" aria-labelledby="preview-title">
+        <div class="section-copy">
+          <p class="eyebrow" data-i18n="previewEyebrow">Before and after</p>
+          <h2 id="preview-title" data-i18n="previewTitle">Readable Unicode from ASCII-safe text</h2>
+          <p data-i18n="previewText">A good converter should show the result immediately, keep users on the same URL, and make the page useful before any long explanation begins.</p>
+        </div>
+        <figure class="preview-frame">
+          <img src="assets/ascii-unicode-preview.png?v=20260711-2" width="960" height="540" alt="Before and after preview showing ASCII escape sequences converted into readable Unicode text" data-i18n-alt="previewAlt">
+          <figcaption data-i18n="previewCaption">The preview shows escaped ASCII-safe input becoming readable Unicode output on the same page.</figcaption>
+        </figure>
+      </section>
+
+      <section class="content-section" aria-labelledby="what-title">
+        <div class="section-copy">
+          <p class="eyebrow" data-i18n="landingEyebrow">Landing page content rendered in HTML</p>
+          <h2 id="what-title" data-i18n="whatTitle">What Is an ASCII to Unicode Converter?</h2>
+          <p data-i18n="whatP1">An ASCII to Unicode converter turns ASCII-safe representations of text into the real Unicode characters people expect to read. Developers often see these escaped forms in JSON, logs, configuration files, databases, browser output, and API payloads.</p>
+          <p data-i18n="whatP2">This page keeps the converter, explanation, examples, supported formats, and FAQ on the same canonical URL so you can solve the problem without jumping between pages.</p>
+        </div>
+      </section>
+
+      <section class="content-section split-section" aria-labelledby="how-title">
+        <div class="section-copy">
+          <h2 id="how-title" data-i18n="howTitle">How to Convert ASCII to Unicode</h2>
+          <p data-i18n="howIntro">Paste the text you have, choose the mode that matches the problem, and convert in place. The result appears without opening a separate result page.</p>
+        </div>
+        <ol class="step-list">
+          <li>
+            <h3 data-i18n="step1Title">Paste escaped or broken text</h3>
+            <p data-i18n="step1Text">Use Unicode escapes, HTML entities, U+ notation, hex bytes, or mojibake copied from a log, API, JSON file, or old database export.</p>
+          </li>
+          <li>
+            <h3 data-i18n="step2Title">Pick the right conversion mode</h3>
+            <p data-i18n="step2Text">Decode to readable Unicode, encode readable text to escapes, convert HTML entities, or repair common mojibake.</p>
+          </li>
+          <li>
+            <h3 data-i18n="step3Title">Copy or download the output</h3>
+            <p data-i18n="step3Text">Keep the result in the page, copy it to the clipboard, or download a plain text file for later use.</p>
+          </li>
+        </ol>
+      </section>
+
+      <section class="content-section" id="examples" aria-labelledby="examples-title">
+        <div class="section-copy">
+          <p class="eyebrow" data-i18n="examplesEyebrow">Selected result showcase</p>
+          <h2 id="examples-title" data-i18n="examplesTitle">ASCII to Unicode Converter Examples</h2>
+          <p data-i18n="examplesText">These hand-picked examples act like a result display area. They show what the tool can produce without creating low-quality indexed user pages.</p>
+        </div>
+        <div class="example-grid">
+          <article class="example-card">
+            <h3 data-i18n="exLogTitle">Decode a log escape</h3>
+            <p data-i18n="exLogText">Read escaped text from server logs or diagnostic output.</p>
+            <pre><code>\u0048\u0069</code></pre>
+            <pre><code>Hi</code></pre>
+            <button type="button" class="btn example-btn" data-mode="decode" data-sample="\u0048\u0069" data-i18n="tryExample">Try this example</button>
+          </article>
+          <article class="example-card">
+            <h3 data-i18n="exJsonTitle">Decode JSON Unicode escapes</h3>
+            <p data-i18n="exJsonText">Turn JSON-safe strings back into readable multilingual text.</p>
+            <pre><code>\u4F60\u597D</code></pre>
+            <pre><code>你好</code></pre>
+            <button type="button" class="btn example-btn" data-mode="decode" data-sample="\u4F60\u597D" data-i18n="tryExample">Try this example</button>
+          </article>
+          <article class="example-card">
+            <h3 data-i18n="exEntityTitle">Decode an HTML entity</h3>
+            <p data-i18n="exEntityText">Convert entity text copied from HTML into the visible symbol.</p>
+            <pre><code>&amp;#x2603;</code></pre>
+            <pre><code>☃</code></pre>
+            <button type="button" class="btn example-btn" data-mode="entities" data-sample="&amp;#x2603;" data-i18n="tryExample">Try this example</button>
+          </article>
+          <article class="example-card">
+            <h3 data-i18n="exEmojiTitle">Decode an emoji code point</h3>
+            <p data-i18n="exEmojiText">Use U+ notation for emoji and symbols outside basic ASCII.</p>
+            <pre><code>U+1F680</code></pre>
+            <pre><code>🚀</code></pre>
+            <button type="button" class="btn example-btn" data-mode="decode" data-sample="U+1F680" data-i18n="tryExample">Try this example</button>
+          </article>
+          <article class="example-card">
+            <h3 data-i18n="exMojibakeTitle">Repair mojibake</h3>
+            <p data-i18n="exMojibakeText">Fix common UTF-8 text that was accidentally read as Latin-1.</p>
+            <pre><code>cafÃ©</code></pre>
+            <pre><code>café</code></pre>
+            <button type="button" class="btn example-btn" data-mode="mojibake" data-sample="cafÃ©" data-i18n="tryExample">Try this example</button>
+          </article>
+          <article class="example-card">
+            <h3 data-i18n="exEncodeTitle">Encode readable text</h3>
+            <p data-i18n="exEncodeText">Create Unicode escape formats for code, docs, or tests.</p>
+            <pre><code>A☃😀</code></pre>
+            <pre><code>\u0041\u2603\uD83D\uDE00</code></pre>
+            <button type="button" class="btn example-btn" data-mode="encode" data-sample="A☃😀" data-i18n="tryExample">Try this example</button>
+          </article>
+        </div>
+      </section>
+
+      <section class="content-section split-section" id="formats" aria-labelledby="formats-title">
+        <div class="section-copy">
+          <h2 id="formats-title" data-i18n="formatsTitle">Supported ASCII and Unicode Formats</h2>
+          <p data-i18n="formatsIntro">The converter focuses on formats people actually meet while debugging, parsing, and moving text across systems.</p>
+        </div>
+        <div class="format-grid">
+          <article>
+            <h3 data-i18n="formatUnicodeTitle">Unicode escapes</h3>
+            <p data-i18n="formatUnicodeText"><code>\u0048</code>, <code>\u{1F600}</code>, <code>\uD83D\uDE00</code>, <code>%u4F60</code>, and <code>U+1F680</code>.</p>
+          </article>
+          <article>
+            <h3 data-i18n="formatHtmlTitle">HTML entities</h3>
+            <p data-i18n="formatHtmlText"><code>&amp;#9731;</code> and <code>&amp;#x2603;</code> decode to readable symbols and can also be generated from input text.</p>
+          </article>
+          <article>
+            <h3 data-i18n="formatHexTitle">Hex byte escapes</h3>
+            <p data-i18n="formatHexText"><code>\xE2\x98\x80</code> style byte sequences are decoded as UTF-8 when they form valid byte runs.</p>
+          </article>
+          <article>
+            <h3 data-i18n="formatBrokenTitle">Mojibake text</h3>
+            <p data-i18n="formatBrokenText">Common broken strings such as <code>cafÃ©</code> can be reconstructed when the original bytes were UTF-8.</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="content-section" aria-labelledby="use-title">
+        <div class="section-copy">
+          <h2 id="use-title" data-i18n="useTitle">Common Use Cases</h2>
+          <p data-i18n="useIntro">A single converter page should satisfy both quick tool intent and deeper search intent. These are the main situations this page is built for.</p>
+        </div>
+        <div class="use-grid">
+          <article>
+            <h3 data-i18n="useLogsTitle">Logs and diagnostics</h3>
+            <p data-i18n="useLogsText">Decode escaped payloads so error messages, names, emoji, and symbols become readable during debugging.</p>
+          </article>
+          <article>
+            <h3 data-i18n="useApiTitle">APIs and JSON</h3>
+            <p data-i18n="useApiText">Understand text returned by services that escape non-ASCII characters for transport or compatibility.</p>
+          </article>
+          <article>
+            <h3 data-i18n="useHtmlTitle">HTML cleanup</h3>
+            <p data-i18n="useHtmlText">Convert numeric entities into real characters before editing or publishing content.</p>
+          </article>
+          <article>
+            <h3 data-i18n="useTestsTitle">Test data and code</h3>
+            <p data-i18n="useTestsText">Generate stable escape strings for fixtures, snapshots, docs, and cross-language examples.</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="content-section split-section" aria-labelledby="compare-title">
+        <div class="section-copy">
+          <h2 id="compare-title" data-i18n="compareTitle">ASCII vs Unicode vs UTF-8</h2>
+          <p data-i18n="compareIntro">ASCII is a small character set for basic English letters, digits, and control characters. Unicode is the character standard that covers modern writing systems, emoji, symbols, and more. UTF-8 is a common way to store Unicode as bytes.</p>
+        </div>
+        <div class="terminal-note">
+          <p data-i18n="compareNote">Many confusing strings happen when bytes, characters, and escape formats are mixed. This tool helps you inspect the representation and recover the text you meant to read.</p>
+        </div>
+      </section>
+
+      <section class="content-section" id="faq" aria-labelledby="faq-title">
+        <div class="section-copy">
+          <p class="eyebrow" data-i18n="faqEyebrow">Questions people ask</p>
+          <h2 id="faq-title" data-i18n="faqTitle">ASCII to Unicode FAQ</h2>
+        </div>
+        <div class="faq-list">
+          <details open>
+            <summary data-i18n="faq1Q">What is an ASCII to Unicode converter?</summary>
+            <p data-i18n="faq1A">It decodes ASCII-safe text representations such as Unicode escapes, HTML entities, and U+ codes into readable Unicode. It can also encode readable text back into those formats.</p>
+          </details>
+          <details>
+            <summary data-i18n="faq2Q">Does it support \uXXXX and emoji?</summary>
+            <p data-i18n="faq2A">Yes. It supports \uXXXX, \u{1F600}, surrogate pairs such as \uD83D\uDE00, and U+ notation for emoji and symbols.</p>
+          </details>
+          <details>
+            <summary data-i18n="faq3Q">Can I decode HTML entities?</summary>
+            <p data-i18n="faq3A">Yes. Numeric decimal and hexadecimal entities such as &#9731; and &#x2603; can be decoded into visible Unicode characters.</p>
+          </details>
+          <details>
+            <summary data-i18n="faq4Q">Why does mojibake happen?</summary>
+            <p data-i18n="faq4A">Mojibake often appears when UTF-8 bytes are interpreted as a different encoding. The repair mode tries to reconstruct the original UTF-8 text when that pattern is present.</p>
+          </details>
+          <details>
+            <summary data-i18n="faq5Q">Is the conversion private?</summary>
+            <p data-i18n="faq5A">Yes. The converter runs locally in your browser. The page is designed so analytics can record events without recording your pasted text.</p>
+          </details>
+          <details>
+            <summary data-i18n="faq6Q">Will more related converters be added later?</summary>
+            <p data-i18n="faq6A">Related converters may be added only when they solve a specific text conversion problem. This first version keeps the focus on ASCII to Unicode conversion.</p>
+          </details>
+        </div>
+      </section>
+
+      <section class="content-section trust-section" aria-label="Trust and policy information">
+        <article id="privacy">
+          <h2 data-i18n="privacyTitle">Privacy Note</h2>
+          <p data-i18n="privacyText">Your pasted text stays in your browser. The converter does not require an account, does not upload TXT files, and does not store conversion history on our server.</p>
+          <p data-i18n="privacyText2">The language preference is saved locally in your browser. If analytics is added later, it should record action events such as convert, copy, and download without sending input or output text.</p>
+          <a class="policy-link" href="/privacy.html" data-i18n="privacyLink">Read the Privacy Policy</a>
+        </article>
+        <article id="about">
+          <h2 data-i18n="aboutTitle">About</h2>
+          <p data-i18n="aboutText">ASCII to Unicode is a focused text conversion page for developers, writers, localization editors, QA testers, and operators who need readable Unicode from escaped or broken text.</p>
+          <p data-i18n="aboutText2">The page is intentionally narrow: one converter, selected examples, supported formats, and practical explanations for common text encoding problems.</p>
+        </article>
+        <article id="terms">
+          <h2 data-i18n="termsTitle">Terms</h2>
+          <p data-i18n="termsText">Use this tool for text inspection, debugging, content cleanup, and test data preparation. Verify important output before using it in production, legal, medical, or financial contexts.</p>
+          <p data-i18n="termsText2">You are responsible for the text you process and for following the rules of any system where the converted output is used.</p>
+          <a class="policy-link" href="/terms.html" data-i18n="termsLink">Read the Terms of Use</a>
+        </article>
+        <article id="contact">
+          <h2 data-i18n="contactTitle">Contact</h2>
+          <p><span data-i18n="contactText">For corrections, feature requests, accessibility issues, or privacy questions, contact:</span> <a href="mailto:lisheng3698@gmail.com">lisheng3698@gmail.com</a></p>
+          <p data-i18n="contactText2">When reporting a converter issue, include the conversion mode and expected output. Please do not include secrets or private text.</p>
+          <a class="policy-link" href="/contact.html" data-i18n="contactLink">Open the Contact Page</a>
+        </article>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <p>© 2026 ASCII to Unicode.</p>
+      <nav aria-label="Footer">
+        <a href="/privacy.html" data-i18n="footerPrivacy">Privacy</a>
+        <a href="/terms.html" data-i18n="footerTerms">Terms</a>
+        <a href="/contact.html" data-i18n="footerContact">Contact</a>
+      </nav>
+    </footer>
+
+    <script src="translations.js" defer></script>
+    <script src="site-language.js" defer></script>
+    <script src="app.js" defer></script>
+  </body>
+</html>

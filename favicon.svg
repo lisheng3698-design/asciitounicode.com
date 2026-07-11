@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64" role="img" aria-label="ASCII to Unicode favicon">
+  <rect width="64" height="64" fill="#08090b"/>
+  <rect x="5" y="5" width="54" height="54" fill="#101316" stroke="#32ff66" stroke-width="2.2"/>
+  <g transform="rotate(-8 25 27)">
+    <rect x="13" y="19" width="25" height="20" fill="#000000" fill-opacity="0.34" stroke="#32ff66" stroke-opacity="0.54" stroke-width="1.2"/>
+    <rect x="11" y="16" width="25" height="20" fill="#32ff66" fill-opacity="0.1" stroke="#6ee7ff" stroke-width="1.6"/>
+    <text x="23.5" y="30" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="10" font-weight="900" fill="#32ff66">\u</text>
+  </g>
+  <g transform="rotate(-8 40 36)">
+    <rect x="28" y="29" width="25" height="20" fill="#000000" fill-opacity="0.34" stroke="#32ff66" stroke-opacity="0.54" stroke-width="1.2"/>
+    <rect x="30" y="26" width="25" height="20" fill="#6ee7ff" fill-opacity="0.1" stroke="#6ee7ff" stroke-width="1.6"/>
+    <text x="42.5" y="40" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="10" font-weight="900" fill="#6ee7ff">U+</text>
+  </g>
+  <path d="M38 13h6q4 0 4 4v3" fill="none" stroke="#f4a52c" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M45 17l3 3 3-3" fill="none" stroke="#f4a52c" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
