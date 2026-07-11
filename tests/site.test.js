@@ -22,7 +22,7 @@ test("homepage has compact SEO metadata and one H1", () => {
   assert.ok(title.length <= 60, `title length ${title.length}`);
   assert.ok(description.length <= 160, `description length ${description.length}`);
   assert.match(html, /<link rel="canonical" href="https:\/\/asciitounicode\.com\/">/);
-  assert.match(html, /<link rel="icon" href="\/favicon\.svg" type="image\/svg\+xml">/);
+  assert.match(html, /<link rel="icon" href="favicon\.svg" type="image\/svg\+xml">/);
   assert.match(html, /<body id="top" data-page="home">/);
   assert.equal(countMatches(html, /<h1\b/g), 1);
   assert.equal(countMatches(html, /name="keywords"/g), 0);
@@ -51,9 +51,9 @@ test("homepage source includes crawlable content, examples, image alt, and JSON-
   assert.match(html, /class="language-select custom-select" data-language-select/);
   assert.equal(countMatches(html, /class="select-option language-option(?: is-selected)?"/g), 8);
   assert.doesNotMatch(html, /<select[^>]+language|class="language-toggle"|class="lang-btn/);
-  assert.match(html, /href="\/privacy\.html"/);
-  assert.match(html, /href="\/terms\.html"/);
-  assert.match(html, /href="\/contact\.html"/);
+  assert.match(html, /href="privacy\.html"/);
+  assert.match(html, /href="terms\.html"/);
+  assert.match(html, /href="contact\.html"/);
   assert.match(html, /mailto:lisheng3698@gmail\.com/);
   assert.equal(countMatches(html, /application\/ld\+json/g), 3);
   assert.match(html, /"@type": "WebApplication"/);
@@ -104,7 +104,7 @@ test("404 page is present, useful, and noindexed", () => {
   assert.match(html, /<title>Page Not Found - ASCII to Unicode<\/title>/);
   assert.match(html, /<meta name="robots" content="noindex, follow">/);
   assert.match(html, /<h1 id="not-found-title" data-i18n="notFoundH1">Page Not Found<\/h1>/);
-  assert.match(html, /href="\/#converter"/);
+  assert.match(html, /href="\.\/#converter"/);
   assert.equal(countMatches(html, /<h1\b/g), 1);
 });
 
@@ -119,12 +119,12 @@ test("privacy, terms, and contact pages are complete static trust pages", () => 
     const html = read(file);
     assert.match(html, new RegExp(`<title>${title}<\\/title>`));
     assert.match(html, /<meta name="robots" content="noindex, follow">/);
-    assert.match(html, /<link rel="icon" href="\/favicon\.svg" type="image\/svg\+xml">/);
+    assert.match(html, /<link rel="icon" href="favicon\.svg" type="image\/svg\+xml">/);
     assert.match(html, /class="brand-logo"/);
     assert.match(html, new RegExp(`<h1 data-i18n="[^"]+">${h1}<\\/h1>`));
     assert.match(html, firstNeedle);
     assert.match(html, secondNeedle);
-    assert.match(html, /href="\/#converter"/);
+    assert.match(html, /href="\.\/#converter"/);
     assert.match(html, /href="mailto:lisheng3698@gmail\.com"/);
     assert.equal(countMatches(html, /<h1\b/g), 1);
   }
