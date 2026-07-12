@@ -135,7 +135,7 @@ test("all public pages use the same eight-language custom listbox", () => {
     const html = read(file);
     assert.match(html, /data-language-select/, `${file} language selector`);
     assert.equal(countMatches(html, /class="select-option language-option(?: is-selected)?"/g), 8, `${file} language count`);
-    assert.match(html, /<script src="translations\.js" defer><\/script>/, `${file} translations script`);
+    assert.match(html, /<script src="translations\.js\?v=20260712-ga4" defer><\/script>/, `${file} translations script`);
     assert.match(html, /<script src="site-language\.js" defer><\/script>/, `${file} language script`);
     assert.doesNotMatch(html, /<select[^>]+language/i, `${file} must not use a native language select`);
   }
