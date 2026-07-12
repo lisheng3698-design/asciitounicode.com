@@ -143,6 +143,33 @@
     ko: { topLabel: "위로", formatDecimal: "HTML 10진수", formatHex: "HTML 16진수", formatUnicodeText: "\\u0048, \\u{1F600}, \\uD83D\\uDE00, %u4F60 및 U+1F680.", formatHtmlText: "&#9731; 및 &#x2603;을 읽을 수 있는 기호로 디코딩하고 입력 텍스트에서 생성할 수도 있습니다.", formatHexText: "\\xE2\\x98\\x80 같은 바이트 시퀀스는 유효한 바이트 묶음일 때 UTF-8로 디코딩됩니다.", formatBrokenText: "원래 바이트가 UTF-8이면 cafÃ© 같은 일반적인 깨진 문자열을 복원할 수 있습니다.", previewAlt: "ASCII 이스케이프를 읽기 쉬운 Unicode 텍스트로 변환하는 미리보기" }
   };
   Object.entries(homeExtras).forEach(([lang, values]) => Object.assign(home[lang], values));
+  const analyticsHomeCopy = {
+    es: {
+      faq5A: "Sí. La conversión se ejecuta localmente en tu navegador. Google Analytics registra eventos de página y de acciones, pero no recibe el texto de entrada ni el resultado convertido.",
+      privacyText2: "La preferencia de idioma se guarda localmente. Google Analytics mide el uso de la página y acciones como convertir, copiar y descargar sin enviar la entrada, la salida ni el contenido TXT importado."
+    },
+    pt: {
+      faq5A: "Sim. A conversão é executada localmente no navegador. O Google Analytics registra eventos de página e ações, mas não recebe o texto de entrada nem a saída convertida.",
+      privacyText2: "A preferência de idioma é salva localmente. O Google Analytics mede o uso da página e ações como converter, copiar e baixar sem enviar entrada, saída ou conteúdo TXT importado."
+    },
+    fr: {
+      faq5A: "Oui. La conversion s'exécute localement dans votre navigateur. Google Analytics enregistre des événements de page et d'action, mais ne reçoit ni le texte saisi ni le résultat converti.",
+      privacyText2: "La langue choisie est enregistrée localement. Google Analytics mesure l'utilisation des pages et des actions comme convertir, copier et télécharger, sans envoyer le texte saisi, le résultat ou le contenu TXT importé."
+    },
+    de: {
+      faq5A: "Ja. Die Konvertierung läuft lokal in Ihrem Browser. Google Analytics erfasst Seiten- und Aktionsereignisse, erhält aber weder den Eingabetext noch die konvertierte Ausgabe.",
+      privacyText2: "Die Sprachauswahl wird lokal gespeichert. Google Analytics misst Seitennutzung und Aktionen wie Konvertieren, Kopieren und Herunterladen, ohne Eingabe, Ausgabe oder importierte TXT-Inhalte zu senden."
+    },
+    ja: {
+      faq5A: "はい。変換はブラウザ内でローカルに実行されます。Google Analytics はページと操作のイベントを記録しますが、入力テキストや変換結果は受信しません。",
+      privacyText2: "言語設定はブラウザに保存されます。Google Analytics はページ利用と変換、コピー、ダウンロードなどの操作を測定しますが、入力、出力、読み込んだ TXT の内容は送信しません。"
+    },
+    ko: {
+      faq5A: "예. 변환은 브라우저에서 로컬로 실행됩니다. Google Analytics는 페이지 및 동작 이벤트를 기록하지만 입력 텍스트나 변환된 출력은 수신하지 않습니다.",
+      privacyText2: "언어 설정은 브라우저에 로컬로 저장됩니다. Google Analytics는 페이지 사용과 변환, 복사, 다운로드 같은 동작을 측정하지만 입력, 출력 또는 가져온 TXT 내용은 전송하지 않습니다."
+    }
+  };
+  Object.entries(analyticsHomeCopy).forEach(([lang, values]) => Object.assign(home[lang], values));
   const commonKeys = ["navConverter", "navExamples", "navFormats", "navFaq", "navOpen", "footerPrivacy", "footerTerms", "footerContact"];
   const common = Object.fromEntries(Object.keys(home).map((lang) => [lang, Object.fromEntries(commonKeys.map((key) => [key, home[lang][key]]))]));
   common.zh = {
@@ -200,6 +227,19 @@
     page,
     Object.fromEntries(Object.entries(locales).map(([lang, values]) => [lang, zip(pageKeys[page], values)]))
   ]));
+  const analyticsPrivacyCopy = {
+    zh: ["最后更新：2026年7月12日。", "我们使用 Google Analytics 4 衡量页面浏览、互动时间、滚动、出站点击，以及转换、模式切换、尝试示例、复制、下载、导入和语言切换等操作。转换器不会把你的输入、输出或导入的 TXT 内容发送给 Google Analytics。"],
+    es: ["Última actualización: 12 de julio de 2026.", "Usamos Google Analytics 4 para medir páginas vistas, tiempo de interacción, desplazamientos, clics salientes y acciones como convertir, cambiar de modo, probar ejemplos, copiar, descargar, importar y cambiar de idioma. El convertidor no envía a Google Analytics la entrada, la salida ni el contenido TXT importado."],
+    pt: ["Última atualização: 12 de julho de 2026.", "Usamos o Google Analytics 4 para medir visualizações de página, tempo de engajamento, rolagens, cliques de saída e ações como converter, mudar o modo, testar exemplos, copiar, baixar, importar e trocar o idioma. O conversor não envia entrada, saída ou conteúdo TXT importado ao Google Analytics."],
+    fr: ["Dernière mise à jour : 12 juillet 2026.", "Nous utilisons Google Analytics 4 pour mesurer les pages vues, le temps d'engagement, le défilement, les clics sortants et des actions comme convertir, changer de mode, essayer un exemple, copier, télécharger, importer et changer de langue. Le convertisseur n'envoie ni l'entrée, ni la sortie, ni le contenu TXT importé à Google Analytics."],
+    de: ["Zuletzt aktualisiert: 12. Juli 2026.", "Wir verwenden Google Analytics 4, um Seitenaufrufe, Interaktionszeit, Scrollvorgänge, ausgehende Klicks und Aktionen wie Konvertieren, Moduswechsel, Beispielaufruf, Kopieren, Herunterladen, Importieren und Sprachwechsel zu messen. Der Konverter sendet keine Eingabe, Ausgabe oder importierten TXT-Inhalte an Google Analytics."],
+    ja: ["最終更新日：2026年7月12日。", "Google Analytics 4 を使用して、ページビュー、エンゲージメント時間、スクロール、外部リンクのクリック、変換、モード変更、例の利用、コピー、ダウンロード、読み込み、言語変更などの操作を測定します。入力、出力、読み込んだ TXT の内容は Google Analytics に送信しません。"],
+    ko: ["최종 업데이트: 2026년 7월 12일.", "Google Analytics 4를 사용하여 페이지 조회, 참여 시간, 스크롤, 외부 링크 클릭과 변환, 모드 변경, 예시 사용, 복사, 다운로드, 가져오기, 언어 전환 같은 동작을 측정합니다. 변환기는 입력, 출력 또는 가져온 TXT 내용을 Google Analytics로 보내지 않습니다."]
+  };
+  Object.entries(analyticsPrivacyCopy).forEach(([lang, values]) => {
+    pages.privacy[lang].lastUpdated = values[0];
+    pages.privacy[lang].analyticsText = values[1];
+  });
 
   const meta = {
     home: {

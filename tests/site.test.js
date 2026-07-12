@@ -198,6 +198,20 @@ test("Bing verification and IndexNow key are deployable", () => {
   assert.equal(read(`${key}.txt`).trim(), key);
 });
 
+test("GA4 is installed on every public page and custom events exclude text content", () => {
+  for (const file of ["index.html", "privacy.html", "terms.html", "contact.html", "404.html"]) {
+    const html = read(file);
+    assert.match(html, /googletagmanager\.com\/gtag\/js\?id=G-44TJT1E80H/, `${file} GA4 loader`);
+    assert.match(html, /gtag\('config', 'G-44TJT1E80H'\)/, `${file} GA4 config`);
+  }
+
+  const js = read("app.js");
+  assert.match(js, /window\.gtag\("event", name, analyticsParams\)/);
+  assert.match(js, /delete safeDetails\.input/);
+  assert.match(js, /delete safeDetails\.output/);
+  assert.doesNotMatch(read("privacy.html"), /If analytics is enabled later/);
+});
+
 test("public pages do not expose internal strategy wording", () => {
   const combined = [
     "index.html",

@@ -109,12 +109,12 @@
       faq4Q: "为什么会出现 mojibake 乱码？",
       faq4A: "mojibake 通常是 UTF-8 字节被当成其他编码解释造成的。修复模式会在这种模式存在时尝试恢复原始 UTF-8 文本。",
       faq5Q: "转换过程是私密的吗？",
-      faq5A: "是。转换在你的浏览器本地运行。这个页面的设计允许未来只记录动作事件，而不记录你粘贴的文本。",
+      faq5A: "是。转换在你的浏览器本地运行。Google Analytics 会记录页面和操作事件，但不会接收你粘贴的输入文本或转换后的输出文本。",
       faq6Q: "后续会加入更多相关转换器吗？",
       faq6A: "只有当相关转换器能解决明确的文本转换问题时才会加入。当前第一版会专注于 ASCII to Unicode 转换。",
       privacyTitle: "隐私说明",
       privacyText: "你粘贴的文本会留在浏览器中。转换器不需要账号，不会上传 TXT 文件，也不会把转换历史保存在我们的服务器上。",
-      privacyText2: "语言偏好会保存在你的浏览器本地。如果未来加入分析工具，也应只记录转换、复制、下载等动作事件，不发送输入或输出文本。",
+      privacyText2: "语言偏好会保存在你的浏览器本地。Google Analytics 会记录页面使用情况以及转换、复制、下载等操作，但不会发送输入、输出或导入的 TXT 内容。",
       privacyLink: "阅读完整隐私政策",
       aboutTitle: "关于",
       aboutText: "ASCII to Unicode 是一个聚焦文本转换的页面，服务于需要从转义或乱码文本中读取 Unicode 的开发者、写作者、本地化编辑、QA 测试和运营人员。",
@@ -172,6 +172,16 @@
     const safeDetails = Object.assign({}, details);
     delete safeDetails.input;
     delete safeDetails.output;
+    const analyticsParams = {
+      tool_mode: safeDetails.mode || state.mode,
+      language: safeDetails.language || state.lang
+    };
+    if (safeDetails.format) analyticsParams.output_format = safeDetails.format;
+    if (Number.isFinite(safeDetails.inputLength)) analyticsParams.input_length = safeDetails.inputLength;
+    if (Number.isFinite(safeDetails.outputLength)) analyticsParams.output_length = safeDetails.outputLength;
+    if (Number.isFinite(safeDetails.size)) analyticsParams.file_size = safeDetails.size;
+    if (safeDetails.type) analyticsParams.event_type = safeDetails.type;
+    if (safeDetails.sampleId) analyticsParams.sample_id = safeDetails.sampleId;
     window.asciiUnicodeEvents = window.asciiUnicodeEvents || [];
     window.asciiUnicodeEvents.push({
       event: name,
@@ -181,9 +191,11 @@
     if (Array.isArray(window.dataLayer)) {
       window.dataLayer.push({
         event: name,
-        tool_mode: safeDetails.mode || state.mode,
-        language: state.lang
+        ...analyticsParams
       });
+    }
+    if (typeof window.gtag === "function") {
+      window.gtag("event", name, analyticsParams);
     }
   }
 

@@ -18,6 +18,13 @@
     <link rel="icon" href="favicon.svg" type="image/svg+xml">
     <link rel="preload" href="styles.css" as="style">
     <link rel="stylesheet" href="styles.css">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-44TJT1E80H"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-44TJT1E80H');
+    </script>
     <script type="application/ld+json">
       {
         "@context": "https://schema.org",
@@ -100,7 +107,7 @@
             "name": "Is my text uploaded to a server?",
             "acceptedAnswer": {
               "@type": "Answer",
-              "text": "No. Conversion runs in your browser. Analytics events, if enabled later, should record actions only and not user input."
+              "text": "No. Conversion runs in your browser. Google Analytics records page and action events, but the converter does not send your input or output text."
             }
           }
         ]
@@ -489,7 +496,7 @@
           </details>
           <details>
             <summary data-i18n="faq5Q">Is the conversion private?</summary>
-            <p data-i18n="faq5A">Yes. The converter runs locally in your browser. The page is designed so analytics can record events without recording your pasted text.</p>
+            <p data-i18n="faq5A">Yes. The converter runs locally in your browser. Google Analytics records page and action events, but it does not receive your pasted input or converted output text.</p>
           </details>
           <details>
             <summary data-i18n="faq6Q">Will more related converters be added later?</summary>
@@ -502,7 +509,7 @@
         <article id="privacy">
           <h2 data-i18n="privacyTitle">Privacy Note</h2>
           <p data-i18n="privacyText">Your pasted text stays in your browser. The converter does not require an account, does not upload TXT files, and does not store conversion history on our server.</p>
-          <p data-i18n="privacyText2">The language preference is saved locally in your browser. If analytics is added later, it should record action events such as convert, copy, and download without sending input or output text.</p>
+          <p data-i18n="privacyText2">The language preference is saved locally in your browser. Google Analytics records page use and actions such as convert, copy, and download without sending input, output, or imported TXT content.</p>
           <a class="policy-link" href="privacy.html" data-i18n="privacyLink">Read the Privacy Policy</a>
         </article>
         <article id="about">
