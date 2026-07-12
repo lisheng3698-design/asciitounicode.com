@@ -189,6 +189,41 @@ test("hero proof labels are simplified in Chinese translation", () => {
 test("robots and sitemap point to the canonical production URL", () => {
   assert.match(read("robots.txt"), /Sitemap: https:\/\/asciitounicode\.com\/sitemap\.xml/);
   assert.match(read("sitemap.xml"), /<loc>https:\/\/asciitounicode\.com\/<\/loc>/);
+  assert.match(read("sitemap.xml"), /<loc>https:\/\/asciitounicode\.com\/unicode-to-ascii\/<\/loc>/);
+});
+
+test("unicode to ascii page has independent SEO, deep content, and reciprocal links", () => {
+  const html = read("unicode-to-ascii/index.html");
+  const homepage = read("index.html");
+  const title = html.match(/<title>([^<]+)<\/title>/)?.[1];
+  const description = html.match(/<meta name="description" content="([^"]+)">/)?.[1];
+
+  assert.equal(title, "Unicode to ASCII Converter - Free Online Tool");
+  assert.ok(title.length <= 60, `title length ${title.length}`);
+  assert.ok(description.length <= 160, `description length ${description.length}`);
+  assert.match(html, /<link rel="canonical" href="https:\/\/asciitounicode\.com\/unicode-to-ascii\/">/);
+  assert.match(html, /<body id="top" data-page="unicodeToAscii" data-default-mode="encode" data-preserve-ascii="true">/);
+  assert.equal(countMatches(html, /<h1\b/g), 1);
+  assert.match(html, /<h1 id="page-title">Unicode to ASCII Converter<\/h1>/);
+  assert.match(html, /How Unicode to ASCII Conversion Works/);
+  assert.match(html, /Unicode to ASCII Escapes in JavaScript and JSON/);
+  assert.match(html, /Unicode to ASCII in Python/);
+  assert.match(html, /Unicode to Readable ASCII Transliteration/);
+  assert.match(html, /Common Unicode to ASCII Use Cases/);
+  assert.match(html, /data-mode="transliterate"/);
+  assert.match(html, /data-mode="ascii-replace"/);
+  assert.match(html, /data-mode="ascii-remove"/);
+  assert.match(html, /Hello, \\u4F60\\u597D!/);
+  assert.match(html, /href="\.\.\/">ASCII to Unicode<\/a>/);
+  assert.match(homepage, /href="unicode-to-ascii\/"/);
+  assert.equal(countMatches(html, /application\/ld\+json/g), 2);
+  assert.equal(countMatches(html, /name="keywords"/g), 0);
+});
+
+test("converter supports a page-level default mode", () => {
+  const js = read("app.js");
+  assert.match(js, /document\.body\.dataset\.defaultMode \|\| "decode"/);
+  assert.match(js, /updateMode\(defaultMode\)/);
 });
 
 test("Bing verification and IndexNow key are deployable", () => {
@@ -199,7 +234,7 @@ test("Bing verification and IndexNow key are deployable", () => {
 });
 
 test("GA4 is installed on every public page and custom events exclude text content", () => {
-  for (const file of ["index.html", "privacy.html", "terms.html", "contact.html", "404.html"]) {
+  for (const file of ["index.html", "unicode-to-ascii/index.html", "privacy.html", "terms.html", "contact.html", "404.html"]) {
     const html = read(file);
     assert.match(html, /googletagmanager\.com\/gtag\/js\?id=G-44TJT1E80H/, `${file} GA4 loader`);
     assert.match(html, /gtag\('config', 'G-44TJT1E80H'\)/, `${file} GA4 config`);
@@ -219,6 +254,7 @@ test("public pages do not expose internal strategy wording", () => {
     "privacy.html",
     "terms.html",
     "contact.html",
+    "unicode-to-ascii/index.html",
     "app.js"
   ].map(read).join("\n");
   assert.doesNotMatch(combined, /boutique tool page|One keyword|一个关键词|精品工具页/);

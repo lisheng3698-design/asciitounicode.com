@@ -235,7 +235,7 @@
       btn.classList.toggle("is-active", active);
       btn.setAttribute("aria-selected", String(active));
     });
-    els.format.disabled = mode === "decode" || mode === "mojibake";
+    els.format.disabled = !["encode", "entities"].includes(mode);
     syncCustomSelect();
     trackEvent("mode_change", { mode });
     if (els.auto.checked) {
@@ -355,9 +355,12 @@
     return "\\u" + codePointHex(high) + "\\u" + codePointHex(low);
   }
 
-  function encodeText(input, format) {
+  function encodeText(input, format, preserveAscii = false) {
     return Array.from(input).map((char) => {
       const point = char.codePointAt(0);
+      if (preserveAscii && point <= 0x7f) {
+        return char;
+      }
       if (format === "js-brace") {
         return "\\u{" + codePointHex(point, point > 0xffff ? 5 : 4).replace(/^0+(?=[0-9A-F]{2,}$)/, "") + "}";
       }
@@ -371,7 +374,38 @@
         return "U+" + codePointHex(point, point > 0xffff ? 5 : 4).replace(/^0+(?=[0-9A-F]{4,}$)/, "");
       }
       return toSurrogateEscapes(point);
-    }).join(format === "uplus" ? " " : "");
+    }).join(format === "uplus" && !preserveAscii ? " " : "");
+  }
+
+  const asciiCharacterMap = Object.freeze({
+    "ß": "ss", "ẞ": "SS", "Æ": "AE", "æ": "ae", "Œ": "OE", "œ": "oe",
+    "Ø": "O", "ø": "o", "Ł": "L", "ł": "l", "Đ": "D", "đ": "d",
+    "Ð": "D", "ð": "d", "Þ": "Th", "þ": "th", "ı": "i",
+    "‘": "'", "’": "'", "‚": "'", "“": "\"", "”": "\"", "„": "\"",
+    "–": "-", "—": "-", "−": "-", "…": "...", "•": "*", "·": ".",
+    " ": " ", "×": "x", "÷": "/", "©": "(c)", "®": "(R)", "™": "TM",
+    "€": "EUR", "£": "GBP", "¥": "JPY"
+  });
+
+  function isCombiningMark(char) {
+    return /\p{M}/u.test(char);
+  }
+
+  function transliterateToAscii(input, unsupported = "?") {
+    const mapped = Array.from(input, (char) => asciiCharacterMap[char] || char).join("");
+    return Array.from(mapped.normalize("NFKD"), (char) => {
+      if (char.codePointAt(0) <= 0x7f) {
+        return char;
+      }
+      if (isCombiningMark(char)) {
+        return "";
+      }
+      return unsupported;
+    }).join("");
+  }
+
+  function replaceNonAscii(input, replacement = "?") {
+    return Array.from(input, (char) => char.codePointAt(0) <= 0x7f ? char : replacement).join("");
   }
 
   function convertEntities(input, format) {
@@ -391,7 +425,7 @@
     }
   }
 
-  function convertValue(input, mode, format) {
+  function convertValue(input, mode, format, options = {}) {
     if (!input) {
       return { output: "", warning: "warningEmpty" };
     }
@@ -402,11 +436,17 @@
     if (mode === "decode") {
       output = decodeAsciiToUnicode(input);
     } else if (mode === "encode") {
-      output = encodeText(input, format);
+      output = encodeText(input, format, Boolean(options.preserveAscii));
     } else if (mode === "entities") {
       output = convertEntities(input, format);
     } else if (mode === "mojibake") {
       output = repairMojibake(input);
+    } else if (mode === "transliterate") {
+      output = transliterateToAscii(input);
+    } else if (mode === "ascii-replace") {
+      output = replaceNonAscii(input);
+    } else if (mode === "ascii-remove") {
+      output = replaceNonAscii(input, "");
     }
 
     return {
@@ -416,7 +456,9 @@
   }
 
   function convertNow() {
-    const result = convertValue(els.input.value, state.mode, els.format.value);
+    const result = convertValue(els.input.value, state.mode, els.format.value, {
+      preserveAscii: document.body.dataset.preserveAscii === "true"
+    });
     els.output.value = result.output;
     els.charCount.textContent = Array.from(result.output).length.toString();
     setWarning(result.warning);
@@ -621,7 +663,11 @@
     if (savedLang && translations[savedLang]) {
       applyLanguage(savedLang);
     }
-    updateMode("decode");
+    const requestedMode = document.body.dataset.defaultMode || "decode";
+    const defaultMode = ["decode", "encode", "entities", "mojibake", "transliterate", "ascii-replace", "ascii-remove"].includes(requestedMode)
+      ? requestedMode
+      : "decode";
+    updateMode(defaultMode);
     convertNow();
   }
 
@@ -629,6 +675,8 @@
     convertValue,
     decodeAsciiToUnicode,
     encodeText,
+    transliterateToAscii,
+    replaceNonAscii,
     repairMojibake
   };
 

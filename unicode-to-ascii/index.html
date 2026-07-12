@@ -1,0 +1,331 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Unicode to ASCII Converter - Free Online Tool</title>
+    <meta name="description" content="Convert Unicode to ASCII online. Transliterate accents, replace or remove unsupported characters, or create reversible ASCII-safe \uXXXX escapes.">
+    <link rel="canonical" href="https://asciitounicode.com/unicode-to-ascii/">
+    <meta name="robots" content="index, follow">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://asciitounicode.com/unicode-to-ascii/">
+    <meta property="og:title" content="Unicode to ASCII Converter - Free Online Tool">
+    <meta property="og:description" content="Transliterate Unicode text to readable ASCII or create reversible ASCII-safe escapes in your browser.">
+    <meta property="og:image" content="https://asciitounicode.com/assets/ascii-unicode-preview.png?v=20260711-2">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="theme-color" content="#0a0b0d">
+    <link rel="icon" href="../favicon.svg" type="image/svg+xml">
+    <link rel="preload" href="../styles.css" as="style">
+    <link rel="stylesheet" href="../styles.css">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-44TJT1E80H"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-44TJT1E80H');
+    </script>
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "Unicode to ASCII Converter",
+        "url": "https://asciitounicode.com/unicode-to-ascii/",
+        "applicationCategory": "DeveloperApplication",
+        "operatingSystem": "Any",
+        "description": "A browser-based converter for transliterating Unicode text to readable ASCII, replacing or removing unsupported characters, and creating reversible ASCII-safe escapes.",
+        "offers": {
+          "@type": "Offer",
+          "price": "0",
+          "priceCurrency": "USD"
+        }
+      }
+    </script>
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+          {
+            "@type": "ListItem",
+            "position": 1,
+            "name": "ASCII to Unicode",
+            "item": "https://asciitounicode.com/"
+          },
+          {
+            "@type": "ListItem",
+            "position": 2,
+            "name": "Unicode to ASCII Converter",
+            "item": "https://asciitounicode.com/unicode-to-ascii/"
+          }
+        ]
+      }
+    </script>
+  </head>
+  <body id="top" data-page="unicodeToAscii" data-default-mode="encode" data-preserve-ascii="true">
+    <div class="code-stream" aria-hidden="true">
+      <span class="drift-left" style="--y: 8%; --dx: -46vw; --dy: 18px; --dur: 19s; --delay: -8s; --scale: 0.9;">Unicode text</span>
+      <span class="drift-right" style="--y: 12%; --dx: 47vw; --dy: -20px; --dur: 22s; --delay: -15s; --scale: 1.08;">\u4F60\u597D</span>
+      <span class="drift-left" style="--y: 24%; --dx: -50vw; --dy: -24px; --dur: 18s; --delay: -3s; --scale: 0.84;">ensure_ascii</span>
+      <span class="drift-right" style="--y: 31%; --dx: 44vw; --dy: 30px; --dur: 21s; --delay: -11s; --scale: 1.12;">U+1F600</span>
+      <span class="drift-left" style="--y: 43%; --dx: -42vw; --dy: 34px; --dur: 24s; --delay: -19s; --scale: 1.02;">JSON escape</span>
+      <span class="drift-right" style="--y: 52%; --dx: 51vw; --dy: -28px; --dur: 17s; --delay: -6s; --scale: 0.88;">ASCII-safe</span>
+      <span class="drift-left" style="--y: 64%; --dx: -47vw; --dy: -18px; --dur: 20s; --delay: -13s; --scale: 1.14;">&amp;#x2603;</span>
+      <span class="drift-right" style="--y: 72%; --dx: 43vw; --dy: 24px; --dur: 23s; --delay: -2s; --scale: 0.92;">\uD83D\uDE00</span>
+      <span class="drift-left" style="--y: 84%; --dx: -52vw; --dy: 26px; --dur: 22s; --delay: -16s; --scale: 1.06;">codePointAt()</span>
+      <span class="drift-right" style="--y: 91%; --dx: 49vw; --dy: -22px; --dur: 18s; --delay: -9s; --scale: 0.86;">plain ASCII</span>
+    </div>
+    <a class="top-button" href="#top" aria-label="Back to top">TOP</a>
+    <a class="skip-link" href="#converter">Skip to converter</a>
+
+    <header class="site-header">
+      <nav class="nav-shell" aria-label="Primary navigation">
+        <a class="brand" href="../" aria-label="ASCII to Unicode home">
+          <span class="brand-mark" aria-hidden="true">
+            <svg class="brand-logo" viewBox="0 0 64 64" focusable="false">
+              <rect class="logo-frame" x="5" y="5" width="54" height="54" rx="0"/>
+              <g class="logo-stack" transform="rotate(-8 25 27)">
+                <rect class="logo-shadow" x="13" y="19" width="25" height="20"/>
+                <rect class="logo-pane logo-pane-left" x="11" y="16" width="25" height="20"/>
+                <text class="logo-ascii" x="23.5" y="30" text-anchor="middle">\u</text>
+              </g>
+              <g class="logo-stack" transform="rotate(-8 40 36)">
+                <rect class="logo-shadow" x="28" y="29" width="25" height="20"/>
+                <rect class="logo-pane logo-pane-right" x="30" y="26" width="25" height="20"/>
+                <text class="logo-unicode" x="42.5" y="40" text-anchor="middle">U+</text>
+              </g>
+              <path class="logo-arrow" d="M38 13h6q4 0 4 4v3"/>
+              <path class="logo-arrow-head" d="M45 17l3 3 3-3"/>
+            </svg>
+          </span>
+          <span>ASCII to Unicode</span>
+        </a>
+        <div class="nav-links">
+          <a href="#converter">Converter</a>
+          <a href="#how-it-works">How it works</a>
+          <a href="#code-examples">Code</a>
+          <a href="#use-cases">Use cases</a>
+        </div>
+        <div class="nav-actions">
+          <a class="nav-cta" href="#converter">Open Converter</a>
+        </div>
+      </nav>
+    </header>
+
+    <main>
+      <nav class="breadcrumb" aria-label="Breadcrumb">
+        <a href="../">ASCII to Unicode</a> / <span aria-current="page">Unicode to ASCII Converter</span>
+      </nav>
+
+      <section class="hero-tool" aria-labelledby="page-title">
+        <div class="hero-copy">
+          <p class="eyebrow">Free browser-based text converter</p>
+          <h1 id="page-title">Unicode to ASCII Converter</h1>
+          <p class="hero-lede">Convert Unicode text to readable ASCII, replace or remove unsupported characters, or create reversible <code>\uXXXX</code> escapes. The conversion runs locally in your browser.</p>
+          <div class="hero-proof" aria-label="Converter highlights">
+            <span>No signup</span>
+            <span>Free online conversion</span>
+          </div>
+        </div>
+
+        <section class="converter-panel" id="converter" aria-labelledby="converter-title">
+          <div class="panel-head">
+            <div>
+              <p class="panel-kicker">Interactive tool</p>
+              <h2 id="converter-title">Convert Unicode text to ASCII</h2>
+            </div>
+            <p class="status-pill" id="status-pill" aria-live="polite">Ready</p>
+          </div>
+
+          <div class="mode-tabs" role="tablist" aria-label="Conversion mode">
+            <button type="button" class="mode-tab is-active" data-mode="encode" role="tab" aria-selected="true">Escape Non-ASCII</button>
+            <button type="button" class="mode-tab" data-mode="transliterate" role="tab" aria-selected="false">Transliterate</button>
+            <button type="button" class="mode-tab" data-mode="ascii-replace" role="tab" aria-selected="false">Replace with ?</button>
+            <button type="button" class="mode-tab" data-mode="ascii-remove" role="tab" aria-selected="false">Remove Non-ASCII</button>
+          </div>
+
+          <div class="option-row">
+            <div class="select-wrap custom-select" data-custom-select>
+              <span id="format-label">Escape format</span>
+              <div class="custom-select-control">
+                <select id="format-select" class="native-select" aria-describedby="format-help" tabindex="-1" aria-hidden="true">
+                  <option value="js-short">\uXXXX</option>
+                  <option value="js-brace">\u{1F600}</option>
+                  <option value="html-dec">HTML decimal</option>
+                  <option value="html-hex">HTML hex</option>
+                  <option value="uplus">U+XXXX</option>
+                </select>
+                <button type="button" class="select-button" id="format-select-button" aria-haspopup="listbox" aria-expanded="false" aria-labelledby="format-label format-select-value">
+                  <span id="format-select-value">\uXXXX</span>
+                  <span class="select-arrow" aria-hidden="true"></span>
+                </button>
+                <div class="select-menu" id="format-select-menu" role="listbox" aria-labelledby="format-label">
+                  <button type="button" class="select-option is-selected" role="option" data-value="js-short" aria-selected="true">\uXXXX</button>
+                  <button type="button" class="select-option" role="option" data-value="js-brace" aria-selected="false">\u{1F600}</button>
+                  <button type="button" class="select-option" role="option" data-value="html-dec" aria-selected="false">HTML decimal</button>
+                  <button type="button" class="select-option" role="option" data-value="html-hex" aria-selected="false">HTML hex</button>
+                  <button type="button" class="select-option" role="option" data-value="uplus" aria-selected="false">U+XXXX</button>
+                </div>
+              </div>
+            </div>
+            <label class="switch">
+              <input type="checkbox" id="auto-convert" checked>
+              <span class="switch-ui" aria-hidden="true"></span>
+              <span>Auto convert</span>
+            </label>
+          </div>
+          <p class="format-help" id="format-help">Escape mode preserves existing ASCII characters and converts only non-ASCII characters.</p>
+
+          <div class="text-grid">
+            <label class="text-box" for="input-text">
+              <span>Unicode input</span>
+              <textarea id="input-text" spellcheck="false" placeholder="Hello, 世界! 😀" aria-describedby="input-help">Hello, 世界! 😀</textarea>
+              <small id="input-help">Paste readable text containing accented letters, symbols, non-Latin scripts, or emoji.</small>
+            </label>
+            <label class="text-box" for="output-text">
+              <span>ASCII output</span>
+              <textarea id="output-text" spellcheck="false" readonly placeholder="\u0048\u0065..."></textarea>
+              <small><span id="char-count">0</span> characters</small>
+            </label>
+          </div>
+
+          <div class="tool-actions" aria-label="Converter actions">
+            <button type="button" class="btn btn-primary" id="convert-btn">Convert</button>
+            <button type="button" class="btn" id="copy-btn">Copy</button>
+            <button type="button" class="btn" id="clear-btn">Clear</button>
+            <button type="button" class="btn" id="swap-btn">Swap</button>
+            <button type="button" class="btn" id="import-btn">Import TXT</button>
+            <button type="button" class="btn" id="download-btn">Download Output</button>
+            <input type="file" id="file-input" accept=".txt,text/plain" hidden>
+          </div>
+
+          <div class="warning-line" id="warning-line" aria-live="polite"></div>
+
+          <div class="sample-row" aria-label="Try examples">
+            <button type="button" class="sample-chip" data-mode="transliterate" data-sample="café déjà vu">café déjà vu</button>
+            <button type="button" class="sample-chip" data-mode="encode" data-sample="Hello, 你好!">Hello, 你好!</button>
+            <button type="button" class="sample-chip" data-mode="ascii-replace" data-sample="Price: €25">Price: €25</button>
+            <button type="button" class="sample-chip" data-mode="ascii-remove" data-sample="Hello 😀">Hello 😀</button>
+          </div>
+        </section>
+      </section>
+
+      <section class="content-section" id="how-it-works" aria-labelledby="how-title">
+        <div class="section-copy">
+          <p class="eyebrow">Conversion guide</p>
+          <h2 id="how-title">How Unicode to ASCII Conversion Works</h2>
+          <p>Unicode assigns a code point to every supported character. ASCII only covers 128 basic characters, so text containing characters such as <code>é</code>, <code>你</code>, <code>☃</code>, or emoji cannot be represented directly in plain ASCII. An ASCII-safe escape writes the character using only ASCII symbols while preserving its Unicode value.</p>
+          <p>For example, <code>你</code> has code point <code>U+4F60</code> and can be written as <code>\u4F60</code>. Escape mode leaves ordinary ASCII text unchanged, so <code>Hello, 你好!</code> becomes <code>Hello, \u4F60\u597D!</code>. You can also choose brace escapes, HTML entities, or U+ notation.</p>
+        </div>
+        <div class="conversion-table-wrap">
+          <table class="conversion-table">
+            <thead>
+              <tr><th>Character</th><th>Code point</th><th>\uXXXX</th><th>HTML entity</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>é</td><td><code>U+00E9</code></td><td><code>\u00E9</code></td><td><code>&amp;#xE9;</code></td></tr>
+              <tr><td>你</td><td><code>U+4F60</code></td><td><code>\u4F60</code></td><td><code>&amp;#x4F60;</code></td></tr>
+              <tr><td>☃</td><td><code>U+2603</code></td><td><code>\u2603</code></td><td><code>&amp;#x2603;</code></td></tr>
+              <tr><td>😀</td><td><code>U+1F600</code></td><td><code>\uD83D\uDE00</code></td><td><code>&amp;#x1F600;</code></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="content-section" id="code-examples" aria-labelledby="code-title">
+        <div class="section-copy">
+          <h2 id="code-title">Unicode to ASCII Escapes in JavaScript and JSON</h2>
+          <p>JavaScript strings are Unicode-aware, but JSON and source-code workflows sometimes require ASCII-only source text. The following function preserves existing ASCII and escapes only code points above <code>U+007F</code>. Characters above <code>U+FFFF</code> become the UTF-16 surrogate pairs used by JSON and JavaScript.</p>
+        </div>
+        <pre class="code-example"><code>function toAsciiEscapes(text) {
+  return Array.from(text, (character) =&gt; {
+    const point = character.codePointAt(0);
+    if (point &lt;= 0x7F) return character;
+    if (point &lt;= 0xFFFF) {
+      return "\\u" + point.toString(16).toUpperCase().padStart(4, "0");
+    }
+    const value = point - 0x10000;
+    const high = 0xD800 + (value &gt;&gt; 10);
+    const low = 0xDC00 + (value &amp; 0x3FF);
+    return "\\u" + high.toString(16).toUpperCase()
+      + "\\u" + low.toString(16).toUpperCase();
+  }).join("");
+}</code></pre>
+        <p>The converter above performs the same kind of encoding in the browser. Select <code>\u{1F600}</code> when you want modern JavaScript code point escapes instead of surrogate pairs, or choose HTML entities when the target is HTML content.</p>
+
+        <div class="section-copy">
+          <h2>Unicode to ASCII in Python</h2>
+          <p>Python's JSON encoder can create ASCII-only output with <code>ensure_ascii=True</code>. This is useful for JSON payloads and fixtures because non-ASCII characters become Unicode escape sequences while ordinary JSON quoting remains valid.</p>
+        </div>
+        <pre class="code-example"><code>import json
+
+text = "café 你好 😀"
+ascii_json = json.dumps(text, ensure_ascii=True)
+print(ascii_json)
+# "caf\u00e9 \u4f60\u597d \ud83d\ude00"</code></pre>
+        <p>If you need only the escaped text and not a complete JSON string, account for the surrounding quotes and JSON escaping rules. For production data, keeping the full value returned by <code>json.dumps</code> is usually safer than trimming characters manually.</p>
+      </section>
+
+      <section class="content-section split-section" aria-labelledby="transliteration-title">
+        <div class="section-copy">
+          <h2 id="transliteration-title">Unicode to Readable ASCII Transliteration</h2>
+          <p>Transliterate mode converts accented Latin text and common punctuation into readable ASCII. For example, <code>café déjà vu</code> becomes <code>cafe deja vu</code>, curly quotes become straight quotes, and an em dash becomes a hyphen.</p>
+          <p>Transliteration is lossy and not every writing system has one correct ASCII spelling. This browser-only version does not guess pronunciations for Chinese, Japanese, or other scripts without a direct Latin decomposition. Unsupported characters become <code>?</code>; use Escape Non-ASCII when exact recovery matters.</p>
+        </div>
+        <div class="terminal-note">
+          <strong>Choose the output based on the destination.</strong>
+          <p>Use escapes for reversible code or data, transliteration for readable Latin text, replacement for fixed-width validation, and removal only when losing unsupported characters is acceptable.</p>
+        </div>
+      </section>
+
+      <section class="content-section" id="use-cases" aria-labelledby="use-cases-title">
+        <div class="section-copy">
+          <h2 id="use-cases-title">Common Unicode to ASCII Use Cases</h2>
+          <p>Different systems mean different things by “convert to ASCII.” This page exposes the conversion policy instead of silently dropping data, so you can choose a reversible or intentionally lossy result.</p>
+        </div>
+        <div class="use-grid">
+          <article>
+            <h3>Reversible escapes</h3>
+            <p>Keep ordinary ASCII readable while representing multilingual characters predictably in JSON, fixtures, snapshots, and logs.</p>
+          </article>
+          <article>
+            <h3>Readable ASCII text</h3>
+            <p>Remove Latin accents and normalize punctuation for legacy forms, filenames, search fields, and systems limited to ASCII.</p>
+          </article>
+          <article>
+            <h3>Replacement output</h3>
+            <p>Replace every unsupported code point with <code>?</code> when the destination must reveal where data was lost.</p>
+          </article>
+          <article>
+            <h3>Removal output</h3>
+            <p>Strip non-ASCII characters for strict machine fields only when losing those characters will not change important meaning.</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="content-section related-converters" aria-labelledby="related-title">
+        <div class="section-copy">
+          <p class="eyebrow">Reverse conversion</p>
+          <h2 id="related-title">Convert ASCII Escapes Back to Unicode</h2>
+          <p>Need readable characters again? The homepage decodes <code>\uXXXX</code>, HTML entities, U+ notation, hex byte escapes, and common mojibake.</p>
+        </div>
+        <div class="related-links">
+          <a href="../">
+            <strong>ASCII to Unicode Converter</strong>
+            <span>Decode ASCII-safe escapes into readable Unicode text.</span>
+          </a>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <p>© 2026 ASCII to Unicode.</p>
+      <nav aria-label="Footer">
+        <a href="../privacy.html">Privacy</a>
+        <a href="../terms.html">Terms</a>
+        <a href="../contact.html">Contact</a>
+      </nav>
+    </footer>
+
+    <script src="../app.js?v=20260712-unicode-to-ascii" defer></script>
+  </body>
+</html>

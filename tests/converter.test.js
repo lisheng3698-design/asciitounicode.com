@@ -58,6 +58,19 @@ test("encode mode supports all output formats", () => {
   assert.equal(tools.convertValue("A☃😀", "encode", "uplus").output, "U+0041 U+2603 U+1F600");
 });
 
+test("unicode to ascii mode preserves ASCII and escapes only unsupported characters", () => {
+  const options = { preserveAscii: true };
+  assert.equal(tools.convertValue("Hello, 世界! 😀", "encode", "js-short", options).output, "Hello, \\u4E16\\u754C! \\uD83D\\uDE00");
+  assert.equal(tools.convertValue("café", "encode", "html-hex", options).output, "caf&#xE9;");
+});
+
+test("unicode to ascii modes transliterate, replace, or remove unsupported characters", () => {
+  assert.equal(tools.convertValue("café déjà vu — Straße", "transliterate", "js-short").output, "cafe deja vu - Strasse");
+  assert.equal(tools.convertValue("你好 😀", "transliterate", "js-short").output, "?? ?");
+  assert.equal(tools.convertValue("café 你好", "ascii-replace", "js-short").output, "caf? ??");
+  assert.equal(tools.convertValue("café 你好", "ascii-remove", "js-short").output, "caf ");
+});
+
 test("HTML entity mode decodes entities and encodes plain text", () => {
   assert.equal(tools.convertValue("&#x2603;", "entities", "html-hex").output, "☃");
   assert.equal(tools.convertValue("☃", "entities", "html-hex").output, "&#x2603;");
