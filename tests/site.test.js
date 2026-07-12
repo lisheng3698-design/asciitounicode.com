@@ -191,6 +191,13 @@ test("robots and sitemap point to the canonical production URL", () => {
   assert.match(read("sitemap.xml"), /<loc>https:\/\/asciitounicode\.com\/<\/loc>/);
 });
 
+test("Bing verification and IndexNow key are deployable", () => {
+  const html = read("index.html");
+  const key = "31931f36bb618ff58d3f46b968b13898";
+  assert.match(html, /<meta name="msvalidate\.01" content="0989640E45A1A0DA3F475674FF45B199">/);
+  assert.equal(read(`${key}.txt`).trim(), key);
+});
+
 test("public pages do not expose internal strategy wording", () => {
   const combined = [
     "index.html",
