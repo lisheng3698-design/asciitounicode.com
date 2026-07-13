@@ -8,6 +8,7 @@ function loadTools() {
   const source = fs.readFileSync(path.join(__dirname, "..", "app.js"), "utf8");
   const sandbox = {
     TextDecoder,
+    TextEncoder,
     Blob,
     URL,
     Date,
@@ -69,6 +70,20 @@ test("unicode to ascii modes transliterate, replace, or remove unsupported chara
   assert.equal(tools.convertValue("你好 😀", "transliterate", "js-short").output, "?? ?");
   assert.equal(tools.convertValue("café 你好", "ascii-replace", "js-short").output, "caf? ??");
   assert.equal(tools.convertValue("café 你好", "ascii-remove", "js-short").output, "caf ");
+});
+
+test("ascii to binary mode emits fixed 8-bit groups and flags non-ASCII input", () => {
+  assert.equal(tools.convertValue("A B", "ascii-binary", "binary-space").output, "01000001 00100000 01000010");
+  assert.equal(tools.convertValue("Hi", "ascii-binary", "binary-compact").output, "0100100001101001");
+  assert.equal(tools.convertValue("AB", "ascii-binary", "binary-lines").output, "01000001\n01000010");
+  assert.equal(tools.convertValue("café", "ascii-binary", "binary-space").warning, "warningNonAscii");
+  assert.equal(tools.convertValue("café", "ascii-binary", "binary-space").output, "01100011 01100001 01100110 ????????");
+});
+
+test("utf8 binary mode encodes non-ASCII text as UTF-8 bytes", () => {
+  assert.equal(tools.convertValue("é", "utf8-binary", "binary-space").output, "11000011 10101001");
+  assert.equal(tools.convertValue("你", "utf8-binary", "binary-space").output, "11100100 10111101 10100000");
+  assert.equal(tools.convertValue("😀", "utf8-binary", "binary-compact").output, "11110000100111111001100010000000");
 });
 
 test("HTML entity mode decodes entities and encodes plain text", () => {

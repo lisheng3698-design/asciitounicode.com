@@ -9,6 +9,8 @@
   const page = document.body.dataset.page || "home";
   const selectors = Array.from(document.querySelectorAll("[data-language-select]"));
   const cachedEnglish = new Map();
+  const cachedEnglishHtml = new Map();
+  const cachedEnglishAttributes = new Map();
   const cachedTitle = document.title;
   const descriptionNode = document.querySelector('meta[name="description"]');
   const cachedDescription = descriptionNode ? descriptionNode.getAttribute("content") : "";
@@ -20,6 +22,21 @@
   function cacheEnglish() {
     document.querySelectorAll("[data-i18n]").forEach((node) => {
       cachedEnglish.set(node, node.textContent);
+      node.dataset.en = node.textContent;
+    });
+    document.querySelectorAll("[data-i18n-html]").forEach((node) => {
+      cachedEnglishHtml.set(node, node.innerHTML);
+      node.dataset.enHtml = node.innerHTML;
+    });
+    document.querySelectorAll("[data-i18n-placeholder], [data-i18n-aria-label]").forEach((node) => {
+      const values = {};
+      if (node.dataset.i18nPlaceholder) {
+        values.placeholder = node.getAttribute("placeholder") || "";
+      }
+      if (node.dataset.i18nAriaLabel) {
+        values.ariaLabel = node.getAttribute("aria-label") || "";
+      }
+      cachedEnglishAttributes.set(node, values);
     });
   }
 
@@ -80,6 +97,21 @@
       document.querySelectorAll("[data-i18n]").forEach((node) => {
         const translated = data[node.dataset.i18n];
         node.textContent = nextLang === "en" ? cachedEnglish.get(node) : (translated || cachedEnglish.get(node));
+      });
+      document.querySelectorAll("[data-i18n-html]").forEach((node) => {
+        const translated = data[node.dataset.i18nHtml];
+        node.innerHTML = nextLang === "en" ? cachedEnglishHtml.get(node) : (translated || cachedEnglishHtml.get(node));
+      });
+      document.querySelectorAll("[data-i18n-placeholder], [data-i18n-aria-label]").forEach((node) => {
+        const english = cachedEnglishAttributes.get(node) || {};
+        if (node.dataset.i18nPlaceholder) {
+          const translated = data[node.dataset.i18nPlaceholder];
+          node.setAttribute("placeholder", nextLang === "en" ? english.placeholder : (translated || english.placeholder));
+        }
+        if (node.dataset.i18nAriaLabel) {
+          const translated = data[node.dataset.i18nAriaLabel];
+          node.setAttribute("aria-label", nextLang === "en" ? english.ariaLabel : (translated || english.ariaLabel));
+        }
       });
     }
     updateMetadata(nextLang);

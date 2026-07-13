@@ -25,11 +25,13 @@
 
 html {
   scroll-behavior: smooth;
+  overflow-x: clip;
 }
 
 body {
   margin: 0;
   min-width: 320px;
+  overflow-x: clip;
   background:
     linear-gradient(rgba(50, 255, 102, 0.03) 1px, transparent 1px),
     linear-gradient(90deg, rgba(50, 255, 102, 0.03) 1px, transparent 1px),
@@ -389,7 +391,7 @@ button {
 
 .hero-tool {
   display: grid;
-  grid-template-columns: 1fr;
+  grid-template-columns: minmax(0, 1fr);
   gap: 22px;
   width: var(--page);
   margin: 0 auto;
@@ -1232,10 +1234,13 @@ details p {
 }
 
 @media (max-width: 1000px) {
-  .hero-tool,
   .visual-band,
   .split-section {
     grid-template-columns: 1fr;
+  }
+
+  .hero-tool {
+    grid-template-columns: minmax(0, 1fr);
   }
 
   .hero-copy {

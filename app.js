@@ -135,6 +135,7 @@
   if (window.asciiUnicodeI18n && window.asciiUnicodeI18n.home) {
     Object.assign(translations, window.asciiUnicodeI18n.home);
   }
+  const activePage = document.body && document.body.dataset.page;
   Object.assign(translations.zh, {
     topLabel: "顶部",
     formatDecimal: "HTML 十进制",
@@ -143,8 +144,20 @@
     formatHtmlText: "&#9731; 和 &#x2603; 可以解码为可读符号，也可以从输入文本生成。",
     formatHexText: "\\xE2\\x98\\x80 这类字节序列在组成有效字节流时会按 UTF-8 解码。",
     formatBrokenText: "如果原始字节是 UTF-8，cafÃ© 等常见乱码字符串可以被还原。",
-    previewAlt: "ASCII 转义序列转换为可读 Unicode 文本的前后对比预览图"
+    previewAlt: "ASCII 转义序列转换为可读 Unicode 文本的前后对比预览图",
+    relatedEyebrow: "关联转换器",
+    relatedTitle: "ASCII 与 Unicode 相关转换器",
+    relatedText: "根据你需要的文本方向或表示格式，选择对应的专用转换器。",
+    relatedUnicodeTitle: "Unicode to ASCII 转换器",
+    relatedUnicodeText: "将 Unicode 文本编码为 \\uXXXX、HTML 实体或 U+ 码点。",
+    relatedBinaryTitle: "ASCII to Binary 转换器",
+    relatedBinaryText: "将 ASCII 字符转换为固定 8 位二进制组。"
   });
+  if (activePage && window.asciiUnicodeI18n && window.asciiUnicodeI18n.pages[activePage]) {
+    Object.entries(window.asciiUnicodeI18n.pages[activePage]).forEach(([lang, values]) => {
+      translations[lang] = Object.assign({}, translations[lang] || {}, values);
+    });
+  }
 
   const els = {};
 
@@ -219,7 +232,8 @@
     const fallback = {
       warningMalformed: "Possible malformed escape sequence found. The original text was preserved where needed.",
       warningNoChange: "No convertible content was detected, so the original text is preserved.",
-      warningEmpty: "Enter text to convert."
+      warningEmpty: "Enter text to convert.",
+      warningNonAscii: "Non-ASCII characters are marked as ????????. Use UTF-8 Bytes to encode them without ambiguity."
     };
     const text = key ? (t(key) || fallback[key]) : "";
     els.warning.textContent = text || "";
@@ -235,7 +249,7 @@
       btn.classList.toggle("is-active", active);
       btn.setAttribute("aria-selected", String(active));
     });
-    els.format.disabled = !["encode", "entities"].includes(mode);
+    els.format.disabled = !["encode", "entities", "ascii-binary", "utf8-binary"].includes(mode);
     syncCustomSelect();
     trackEvent("mode_change", { mode });
     if (els.auto.checked) {
@@ -408,6 +422,29 @@
     return Array.from(input, (char) => char.codePointAt(0) <= 0x7f ? char : replacement).join("");
   }
 
+  function joinBinaryBytes(bytes, format) {
+    const separator = format === "binary-compact" ? "" : (format === "binary-lines" ? "\n" : " ");
+    return bytes.join(separator);
+  }
+
+  function asciiToBinary(input, format = "binary-space") {
+    let hasNonAscii = false;
+    const bytes = Array.from(input, (char) => {
+      const point = char.codePointAt(0);
+      if (point > 0x7f) {
+        hasNonAscii = true;
+        return "????????";
+      }
+      return point.toString(2).padStart(8, "0");
+    });
+    return { output: joinBinaryBytes(bytes, format), hasNonAscii };
+  }
+
+  function utf8ToBinary(input, format = "binary-space") {
+    const bytes = Array.from(new TextEncoder().encode(input), (byte) => byte.toString(2).padStart(8, "0"));
+    return joinBinaryBytes(bytes, format);
+  }
+
   function convertEntities(input, format) {
     if (/&#x?[0-9a-fA-F]+;/.test(input)) {
       return decodeAsciiToUnicode(input);
@@ -431,6 +468,7 @@
     }
 
     const warning = isMalformed(input) ? "warningMalformed" : "";
+    let modeWarning = "";
     let output = input;
 
     if (mode === "decode") {
@@ -447,11 +485,17 @@
       output = replaceNonAscii(input);
     } else if (mode === "ascii-remove") {
       output = replaceNonAscii(input, "");
+    } else if (mode === "ascii-binary") {
+      const binary = asciiToBinary(input, format);
+      output = binary.output;
+      modeWarning = binary.hasNonAscii ? "warningNonAscii" : "";
+    } else if (mode === "utf8-binary") {
+      output = utf8ToBinary(input, format);
     }
 
     return {
       output,
-      warning: warning || (output === input && mode !== "encode" ? "warningNoChange" : "")
+      warning: warning || modeWarning || (output === input && !["encode", "ascii-binary", "utf8-binary"].includes(mode) ? "warningNoChange" : "")
     };
   }
 
@@ -554,7 +598,9 @@
 
   function cacheEnglishText() {
     document.querySelectorAll("[data-i18n]").forEach((node) => {
-      node.dataset.en = node.textContent;
+      if (!node.dataset.en) {
+        node.dataset.en = node.textContent;
+      }
     });
     document.querySelectorAll("[data-i18n-alt]").forEach((node) => {
       node.dataset.enAlt = node.alt;
@@ -664,7 +710,7 @@
       applyLanguage(savedLang);
     }
     const requestedMode = document.body.dataset.defaultMode || "decode";
-    const defaultMode = ["decode", "encode", "entities", "mojibake", "transliterate", "ascii-replace", "ascii-remove"].includes(requestedMode)
+    const defaultMode = ["decode", "encode", "entities", "mojibake", "transliterate", "ascii-replace", "ascii-remove", "ascii-binary", "utf8-binary"].includes(requestedMode)
       ? requestedMode
       : "decode";
     updateMode(defaultMode);
@@ -675,6 +721,8 @@
     convertValue,
     decodeAsciiToUnicode,
     encodeText,
+    asciiToBinary,
+    utf8ToBinary,
     transliterateToAscii,
     replaceNonAscii,
     repairMojibake

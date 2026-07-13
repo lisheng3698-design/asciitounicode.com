@@ -66,6 +66,7 @@ test("layout styles keep modules aligned and requested card groups two-up", () =
   assert.match(css, /--page: min\(1180px, calc\(100% - 32px\)\);/);
   assert.match(css, /\.nav-shell\s*\{[\s\S]*?width: var\(--page\);/);
   assert.match(css, /\.hero-tool\s*\{[\s\S]*?width: var\(--page\);/);
+  assert.match(css, /\.hero-tool\s*\{[\s\S]*?grid-template-columns: minmax\(0, 1fr\);/);
   assert.match(css, /\.visual-band,\s*\n\.content-section\s*\{[\s\S]*?width: var\(--page\);/);
   assert.match(css, /\.text-grid\s*\{[\s\S]*?grid-template-columns: repeat\(2, minmax\(0, 1fr\)\);/);
   assert.match(css, /\.step-list\s*\{[\s\S]*?grid-template-columns: repeat\(2, minmax\(0, 1fr\)\);/);
@@ -139,6 +140,19 @@ test("all public pages use the same eight-language custom listbox", () => {
     assert.match(html, /<script src="site-language\.js" defer><\/script>/, `${file} language script`);
     assert.doesNotMatch(html, /<select[^>]+language/i, `${file} must not use a native language select`);
   }
+
+  const innerHtml = read("unicode-to-ascii/index.html");
+  assert.match(innerHtml, /data-language-select/);
+  assert.equal(countMatches(innerHtml, /class="select-option language-option(?: is-selected)?"/g), 8);
+  assert.match(innerHtml, /<script src="\.\.\/translations\.js\?v=20260712-inner-i18n" defer><\/script>/);
+  assert.match(innerHtml, /<script src="\.\.\/site-language\.js\?v=20260712-inner-i18n" defer><\/script>/);
+
+  const binaryHtml = read("ascii-to-binary/index.html");
+  assert.match(binaryHtml, /data-language-select/);
+  assert.equal(countMatches(binaryHtml, /class="select-option language-option(?: is-selected)?"/g), 8);
+  assert.match(binaryHtml, /<script src="\.\.\/translations\.js\?v=20260712-inner-i18n" defer><\/script>/);
+  assert.match(binaryHtml, /<script src="translations\.js\?v=20260713-ascii-binary" defer><\/script>/);
+  assert.match(binaryHtml, /<script src="\.\.\/site-language\.js\?v=20260712-inner-i18n" defer><\/script>/);
 });
 
 test("translation packs cover every key and preserve ASCII to Unicode", () => {
@@ -149,8 +163,9 @@ test("translation packs cover every key and preserve ASCII to Unicode", () => {
   assert.deepEqual(Object.keys(i18n.languages), languages);
 
   for (const lang of ["es", "pt", "fr", "de", "ja", "ko"]) {
-    assert.equal(Object.keys(i18n.home[lang]).length, 130, `${lang} homepage keys`);
+    assert.ok(Object.keys(i18n.home[lang]).length >= 135, `${lang} homepage keys`);
     assert.match(i18n.home[lang].heroTitle, /ASCII to Unicode/, `${lang} fixed keyword`);
+    assert.ok(i18n.home[lang].relatedUnicodeText, `${lang} related converter copy`);
   }
 
   for (const page of ["privacy", "terms", "contact", "notFound"]) {
@@ -160,6 +175,23 @@ test("translation packs cover every key and preserve ASCII to Unicode", () => {
       assert.ok(Object.values(i18n.pages[page][lang]).every(Boolean), `${page}/${lang} has no blank translations`);
       assert.match(i18n.meta[page][lang].title, /ASCII to Unicode/, `${page}/${lang} title keyword`);
     }
+  }
+
+  const innerKeys = Object.keys(i18n.pages.unicodeToAscii.zh);
+  for (const lang of ["zh", "es", "pt", "fr", "de", "ja", "ko"]) {
+    assert.equal(Object.keys(i18n.pages.unicodeToAscii[lang]).length, innerKeys.length, `unicodeToAscii/${lang} keys`);
+    assert.ok(Object.values(i18n.pages.unicodeToAscii[lang]).every(Boolean), `unicodeToAscii/${lang} has no blank translations`);
+    assert.match(i18n.pages.unicodeToAscii[lang].heroTitle, /Unicode to ASCII/, `unicodeToAscii/${lang} keyword`);
+    assert.match(i18n.meta.unicodeToAscii[lang].title, /Unicode to ASCII/, `unicodeToAscii/${lang} title keyword`);
+  }
+
+  vm.runInNewContext(read("ascii-to-binary/translations.js"), context);
+  const binaryKeys = Object.keys(i18n.pages.asciiToBinary.zh);
+  for (const lang of ["zh", "es", "pt", "fr", "de", "ja", "ko"]) {
+    assert.equal(Object.keys(i18n.pages.asciiToBinary[lang]).length, binaryKeys.length, `asciiToBinary/${lang} keys`);
+    assert.ok(Object.values(i18n.pages.asciiToBinary[lang]).every(Boolean), `asciiToBinary/${lang} has no blank translations`);
+    assert.match(i18n.pages.asciiToBinary[lang].heroTitle, /ASCII to Binary/, `asciiToBinary/${lang} keyword`);
+    assert.match(i18n.meta.asciiToBinary[lang].title, /ASCII to Binary/, `asciiToBinary/${lang} title keyword`);
   }
 });
 
@@ -190,6 +222,7 @@ test("robots and sitemap point to the canonical production URL", () => {
   assert.match(read("robots.txt"), /Sitemap: https:\/\/asciitounicode\.com\/sitemap\.xml/);
   assert.match(read("sitemap.xml"), /<loc>https:\/\/asciitounicode\.com\/<\/loc>/);
   assert.match(read("sitemap.xml"), /<loc>https:\/\/asciitounicode\.com\/unicode-to-ascii\/<\/loc>/);
+  assert.match(read("sitemap.xml"), /<loc>https:\/\/asciitounicode\.com\/ascii-to-binary\/<\/loc>/);
 });
 
 test("unicode to ascii page has independent SEO, deep content, and reciprocal links", () => {
@@ -204,7 +237,7 @@ test("unicode to ascii page has independent SEO, deep content, and reciprocal li
   assert.match(html, /<link rel="canonical" href="https:\/\/asciitounicode\.com\/unicode-to-ascii\/">/);
   assert.match(html, /<body id="top" data-page="unicodeToAscii" data-default-mode="encode" data-preserve-ascii="true">/);
   assert.equal(countMatches(html, /<h1\b/g), 1);
-  assert.match(html, /<h1 id="page-title">Unicode to ASCII Converter<\/h1>/);
+  assert.match(html, /<h1 id="page-title" data-i18n="heroTitle">Unicode to ASCII Converter<\/h1>/);
   assert.match(html, /How Unicode to ASCII Conversion Works/);
   assert.match(html, /Unicode to ASCII Escapes in JavaScript and JSON/);
   assert.match(html, /Unicode to ASCII in Python/);
@@ -214,8 +247,38 @@ test("unicode to ascii page has independent SEO, deep content, and reciprocal li
   assert.match(html, /data-mode="ascii-replace"/);
   assert.match(html, /data-mode="ascii-remove"/);
   assert.match(html, /Hello, \\u4F60\\u597D!/);
-  assert.match(html, /href="\.\.\/">ASCII to Unicode<\/a>/);
+  assert.match(html, /href="\.\.\/" data-i18n="breadcrumbHome">ASCII to Unicode<\/a>/);
   assert.match(homepage, /href="unicode-to-ascii\/"/);
+  assert.equal(countMatches(html, /application\/ld\+json/g), 2);
+  assert.equal(countMatches(html, /name="keywords"/g), 0);
+});
+
+test("ascii to binary page has independent SEO, focused content, and reciprocal links", () => {
+  const html = read("ascii-to-binary/index.html");
+  const homepage = read("index.html");
+  const title = html.match(/<title>([^<]+)<\/title>/)?.[1];
+  const description = html.match(/<meta name="description" content="([^"]+)">/)?.[1];
+
+  assert.equal(title, "ASCII to Binary Converter - Free Online Tool");
+  assert.ok(title.length <= 60, `title length ${title.length}`);
+  assert.ok(description.length <= 160, `description length ${description.length}`);
+  assert.match(html, /<link rel="canonical" href="https:\/\/asciitounicode\.com\/ascii-to-binary\/">/);
+  assert.match(html, /<body id="top" data-page="asciiToBinary" data-default-mode="ascii-binary">/);
+  assert.equal(countMatches(html, /<h1\b/g), 1);
+  assert.match(html, /<h1 id="page-title" data-i18n="heroTitle">ASCII to Binary Converter<\/h1>/);
+  assert.match(html, /How to Convert ASCII to Binary/);
+  assert.match(html, /ASCII to Binary in JavaScript/);
+  assert.match(html, /ASCII to Binary in Python/);
+  assert.match(html, /7-bit ASCII vs 8-bit Binary/);
+  assert.match(html, /ASCII Binary vs UTF-8 Binary/);
+  assert.match(html, /data-mode="ascii-binary"/);
+  assert.match(html, /data-mode="utf8-binary"/);
+  assert.match(html, /value="binary-space"/);
+  assert.match(html, /value="binary-compact"/);
+  assert.match(html, /value="binary-lines"/);
+  assert.match(html, /href="\.\.\/" data-i18n="breadcrumbHome">ASCII to Unicode<\/a>/);
+  assert.match(html, /href="\.\.\/unicode-to-ascii\/"/);
+  assert.match(homepage, /href="ascii-to-binary\/"/);
   assert.equal(countMatches(html, /application\/ld\+json/g), 2);
   assert.equal(countMatches(html, /name="keywords"/g), 0);
 });
@@ -234,7 +297,7 @@ test("Bing verification and IndexNow key are deployable", () => {
 });
 
 test("GA4 is installed on every public page and custom events exclude text content", () => {
-  for (const file of ["index.html", "unicode-to-ascii/index.html", "privacy.html", "terms.html", "contact.html", "404.html"]) {
+  for (const file of ["index.html", "unicode-to-ascii/index.html", "ascii-to-binary/index.html", "privacy.html", "terms.html", "contact.html", "404.html"]) {
     const html = read(file);
     assert.match(html, /googletagmanager\.com\/gtag\/js\?id=G-44TJT1E80H/, `${file} GA4 loader`);
     assert.match(html, /gtag\('config', 'G-44TJT1E80H'\)/, `${file} GA4 config`);
@@ -255,6 +318,7 @@ test("public pages do not expose internal strategy wording", () => {
     "terms.html",
     "contact.html",
     "unicode-to-ascii/index.html",
+    "ascii-to-binary/index.html",
     "app.js"
   ].map(read).join("\n");
   assert.doesNotMatch(combined, /boutique tool page|One keyword|一个关键词|精品工具页/);
