@@ -86,6 +86,23 @@ test("utf8 binary mode encodes non-ASCII text as UTF-8 bytes", () => {
   assert.equal(tools.convertValue("😀", "utf8-binary", "binary-compact").output, "11110000100111111001100010000000");
 });
 
+test("hex to text mode parses common byte formats and decodes UTF-8", () => {
+  assert.equal(tools.convertValue("48 65 6C 6C 6F", "hex-to-text", "hex-utf8").output, "Hello");
+  assert.equal(tools.convertValue("48656c6c6f", "hex-to-text", "hex-utf8").output, "Hello");
+  assert.equal(tools.convertValue("0x48, 0x69", "hex-to-text", "hex-utf8").output, "Hi");
+  assert.equal(tools.convertValue("\\x48\\x69", "hex-to-text", "hex-utf8").output, "Hi");
+  assert.equal(tools.convertValue("E4 BD A0 E5 A5 BD", "hex-to-text", "hex-utf8").output, "你好");
+});
+
+test("hex to text mode reports unsupported and malformed bytes", () => {
+  const ascii = tools.convertValue("48 FF 21", "hex-to-text", "hex-ascii");
+  assert.equal(ascii.output, "H?!");
+  assert.equal(ascii.warning, "warningNonAsciiHex");
+  assert.equal(tools.convertValue("4G", "hex-to-text", "hex-utf8").warning, "warningInvalidHex");
+  assert.equal(tools.convertValue("486", "hex-to-text", "hex-utf8").warning, "warningOddHex");
+  assert.equal(tools.convertValue("C3 28", "hex-to-text", "hex-utf8").warning, "warningInvalidUtf8");
+});
+
 test("HTML entity mode decodes entities and encodes plain text", () => {
   assert.equal(tools.convertValue("&#x2603;", "entities", "html-hex").output, "☃");
   assert.equal(tools.convertValue("☃", "entities", "html-hex").output, "&#x2603;");
