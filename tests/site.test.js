@@ -136,7 +136,7 @@ test("all public pages use the same eight-language custom listbox", () => {
     const html = read(file);
     assert.match(html, /data-language-select/, `${file} language selector`);
     assert.equal(countMatches(html, /class="select-option language-option(?: is-selected)?"/g), 8, `${file} language count`);
-    assert.match(html, /<script src="translations\.js\?v=20260712-ga4" defer><\/script>/, `${file} translations script`);
+    assert.match(html, /<script src="translations\.js\?v=[^"]+" defer><\/script>/, `${file} translations script`);
     assert.match(html, /<script src="site-language\.js" defer><\/script>/, `${file} language script`);
     assert.doesNotMatch(html, /<select[^>]+language/i, `${file} must not use a native language select`);
   }
@@ -160,6 +160,13 @@ test("all public pages use the same eight-language custom listbox", () => {
   assert.match(hexHtml, /<script src="\.\.\/translations\.js\?v=20260714-hex-ascii" defer><\/script>/);
   assert.match(hexHtml, /<script src="translations\.js\?v=20260714-hex-ascii" defer><\/script>/);
   assert.match(hexHtml, /<script src="\.\.\/site-language\.js\?v=20260714-hex-ascii" defer><\/script>/);
+
+  const asciiHexHtml = read("ascii-to-hex/index.html");
+  assert.match(asciiHexHtml, /data-language-select/);
+  assert.equal(countMatches(asciiHexHtml, /class="select-option language-option(?: is-selected)?"/g), 8);
+  assert.match(asciiHexHtml, /<script src="\.\.\/translations\.js\?v=20260715-ascii-hex" defer><\/script>/);
+  assert.match(asciiHexHtml, /<script src="translations\.js\?v=20260715-ascii-hex" defer><\/script>/);
+  assert.match(asciiHexHtml, /<script src="\.\.\/site-language\.js\?v=20260715-ascii-hex" defer><\/script>/);
 });
 
 test("translation packs cover every key and preserve ASCII to Unicode", () => {
@@ -208,6 +215,14 @@ test("translation packs cover every key and preserve ASCII to Unicode", () => {
     assert.match(i18n.pages.hexToAscii[lang].heroTitle, /Hex to ASCII/, "hexToAscii/" + lang + " keyword");
     assert.match(i18n.meta.hexToAscii[lang].title, /Hex to ASCII/, "hexToAscii/" + lang + " title keyword");
   }
+  vm.runInNewContext(read("ascii-to-hex/translations.js"), context);
+  const asciiHexKeys = Object.keys(i18n.pages.asciiToHex.zh);
+  for (const lang of ["zh", "es", "pt", "fr", "de", "ja", "ko"]) {
+    assert.equal(Object.keys(i18n.pages.asciiToHex[lang]).length, asciiHexKeys.length, "asciiToHex/" + lang + " keys");
+    assert.ok(Object.values(i18n.pages.asciiToHex[lang]).every(Boolean), "asciiToHex/" + lang + " has no blank translations");
+    assert.match(i18n.pages.asciiToHex[lang].heroTitle, /ASCII to Hex/, "asciiToHex/" + lang + " keyword");
+    assert.match(i18n.meta.asciiToHex[lang].title, /ASCII to Hex/, "asciiToHex/" + lang + " title keyword");
+  }
 });
 
 test("preview image asset is regenerated and kept at the stable public path", () => {
@@ -239,6 +254,7 @@ test("robots and sitemap point to the canonical production URL", () => {
   assert.match(read("sitemap.xml"), /<loc>https:\/\/asciitounicode\.com\/unicode-to-ascii\/<\/loc>/);
   assert.match(read("sitemap.xml"), /<loc>https:\/\/asciitounicode\.com\/ascii-to-binary\/<\/loc>/);
   assert.match(read("sitemap.xml"), /<loc>https:\/\/asciitounicode\.com\/hex-to-ascii\/<\/loc>/);
+  assert.match(read("sitemap.xml"), /<loc>https:\/\/asciitounicode\.com\/ascii-to-hex\/<\/loc>/);
 });
 
 test("unicode to ascii page has independent SEO, deep content, and reciprocal links", () => {
@@ -324,7 +340,43 @@ test("hex to ascii page has independent SEO, focused decoding, and reciprocal li
   assert.match(html, /href="\.\.\/" data-i18n="breadcrumbHome">ASCII to Unicode<\/a>/);
   assert.match(html, /href="\.\.\/ascii-to-binary\/"/);
   assert.match(html, /href="\.\.\/unicode-to-ascii\/"/);
+  assert.match(html, /href="\.\.\/ascii-to-hex\/"/);
   assert.match(homepage, /href="hex-to-ascii\/"/);
+  assert.equal(countMatches(html, /application\/ld\+json/g), 2);
+  assert.equal(countMatches(html, /name="keywords"/g), 0);
+});
+
+test("ascii to hex page has independent SEO, focused encoding, and reciprocal links", () => {
+  const html = read("ascii-to-hex/index.html");
+  const homepage = read("index.html");
+  const reversePage = read("hex-to-ascii/index.html");
+  const title = html.match(/<title>([^<]+)<\/title>/)?.[1];
+  const description = html.match(/<meta name="description" content="([^"]+)">/)?.[1];
+
+  assert.equal(title, "ASCII to Hex Converter - Free Online Tool");
+  assert.ok(title.length <= 60);
+  assert.ok(description.length <= 160);
+  assert.match(html, /<link rel="canonical" href="https:\/\/asciitounicode\.com\/ascii-to-hex\/">/);
+  assert.match(html, /<body id="top" data-page="asciiToHex" data-default-mode="ascii-hex">/);
+  assert.equal(countMatches(html, /<h1\b/g), 1);
+  assert.match(html, /<h1 id="page-title" data-i18n="heroTitle">ASCII to Hex Converter<\/h1>/);
+  assert.match(html, /How to Convert ASCII to Hex/);
+  assert.match(html, /ASCII to Hex in JavaScript/);
+  assert.match(html, /ASCII to Hex in Python/);
+  assert.match(html, /ASCII Hex vs UTF-8 Hex/);
+  assert.match(html, /ASCII to Hex Output Formats/);
+  assert.match(html, /data-mode="ascii-hex"/);
+  assert.match(html, /data-mode="utf8-hex"/);
+  assert.match(html, /value="hex-space"/);
+  assert.match(html, /value="hex-compact"/);
+  assert.match(html, /value="hex-prefix"/);
+  assert.match(html, /value="hex-escape"/);
+  assert.doesNotMatch(html, /id="swap-btn"/);
+  assert.match(html, /href="\.\.\/" data-i18n="breadcrumbHome">ASCII to Unicode<\/a>/);
+  assert.match(html, /href="\.\.\/hex-to-ascii\/"/);
+  assert.match(html, /href="\.\.\/ascii-to-binary\/"/);
+  assert.match(homepage, /href="ascii-to-hex\/"/);
+  assert.match(reversePage, /href="\.\.\/ascii-to-hex\/"/);
   assert.equal(countMatches(html, /application\/ld\+json/g), 2);
   assert.equal(countMatches(html, /name="keywords"/g), 0);
 });
@@ -343,7 +395,7 @@ test("Bing verification and IndexNow key are deployable", () => {
 });
 
 test("GA4 is installed on every public page and custom events exclude text content", () => {
-  for (const file of ["index.html", "unicode-to-ascii/index.html", "ascii-to-binary/index.html", "hex-to-ascii/index.html", "privacy.html", "terms.html", "contact.html", "404.html"]) {
+  for (const file of ["index.html", "unicode-to-ascii/index.html", "ascii-to-binary/index.html", "hex-to-ascii/index.html", "ascii-to-hex/index.html", "privacy.html", "terms.html", "contact.html", "404.html"]) {
     const html = read(file);
     assert.match(html, /googletagmanager\.com\/gtag\/js\?id=G-44TJT1E80H/, `${file} GA4 loader`);
     assert.match(html, /gtag\('config', 'G-44TJT1E80H'\)/, `${file} GA4 config`);
@@ -366,6 +418,7 @@ test("public pages do not expose internal strategy wording", () => {
     "unicode-to-ascii/index.html",
     "ascii-to-binary/index.html",
     "hex-to-ascii/index.html",
+    "ascii-to-hex/index.html",
     "app.js"
   ].map(read).join("\n");
   assert.doesNotMatch(combined, /boutique tool page|One keyword|一个关键词|精品工具页/);

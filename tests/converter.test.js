@@ -86,6 +86,23 @@ test("utf8 binary mode encodes non-ASCII text as UTF-8 bytes", () => {
   assert.equal(tools.convertValue("😀", "utf8-binary", "binary-compact").output, "11110000100111111001100010000000");
 });
 
+test("ascii to hex mode supports common output formats and flags non-ASCII input", () => {
+  assert.equal(tools.convertValue("Hello", "ascii-hex", "hex-space").output, "48 65 6C 6C 6F");
+  assert.equal(tools.convertValue("Hi", "ascii-hex", "hex-compact").output, "4869");
+  assert.equal(tools.convertValue("Hi", "ascii-hex", "hex-prefix").output, "0x48 0x69");
+  assert.equal(tools.convertValue("Hi", "ascii-hex", "hex-escape").output, "\\x48\\x69");
+
+  const nonAscii = tools.convertValue("café", "ascii-hex", "hex-space");
+  assert.equal(nonAscii.output, "63 61 66 ??");
+  assert.equal(nonAscii.warning, "warningNonAsciiHexEncode");
+});
+
+test("utf8 hex mode encodes multilingual text as UTF-8 bytes", () => {
+  assert.equal(tools.convertValue("é", "utf8-hex", "hex-space").output, "C3 A9");
+  assert.equal(tools.convertValue("你", "utf8-hex", "hex-space").output, "E4 BD A0");
+  assert.equal(tools.convertValue("😀", "utf8-hex", "hex-compact").output, "F09F9880");
+});
+
 test("hex to text mode parses common byte formats and decodes UTF-8", () => {
   assert.equal(tools.convertValue("48 65 6C 6C 6F", "hex-to-text", "hex-utf8").output, "Hello");
   assert.equal(tools.convertValue("48656c6c6f", "hex-to-text", "hex-utf8").output, "Hello");

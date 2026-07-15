@@ -1,0 +1,334 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>ASCII to Hex Converter - Free Online Tool</title>
+    <meta name="description" content="Convert ASCII text to hexadecimal bytes online. Choose strict ASCII or UTF-8 and output spaced hex, compact hex, 0x values, or \x escapes.">
+    <link rel="canonical" href="https://asciitounicode.com/ascii-to-hex/">
+    <meta name="robots" content="index, follow">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://asciitounicode.com/ascii-to-hex/">
+    <meta property="og:title" content="ASCII to Hex Converter - Free Online Tool">
+    <meta property="og:description" content="Convert ASCII or UTF-8 text into hexadecimal byte values directly in your browser.">
+    <meta property="og:image" content="https://asciitounicode.com/assets/ascii-unicode-preview.png?v=20260711-2">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="theme-color" content="#0a0b0d">
+    <link rel="icon" href="../favicon.svg" type="image/svg+xml">
+    <link rel="preload" href="../styles.css?v=20260715-ascii-hex" as="style">
+    <link rel="stylesheet" href="../styles.css?v=20260715-ascii-hex">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-44TJT1E80H"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-44TJT1E80H');
+    </script>
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "ASCII to Hex Converter",
+        "url": "https://asciitounicode.com/ascii-to-hex/",
+        "applicationCategory": "DeveloperApplication",
+        "operatingSystem": "Any",
+        "description": "A browser-based converter that turns ASCII characters or UTF-8 text into hexadecimal byte values with multiple output layouts.",
+        "offers": {
+          "@type": "Offer",
+          "price": "0",
+          "priceCurrency": "USD"
+        }
+      }
+    </script>
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+          {
+            "@type": "ListItem",
+            "position": 1,
+            "name": "ASCII to Unicode",
+            "item": "https://asciitounicode.com/"
+          },
+          {
+            "@type": "ListItem",
+            "position": 2,
+            "name": "ASCII to Hex Converter",
+            "item": "https://asciitounicode.com/ascii-to-hex/"
+          }
+        ]
+      }
+    </script>
+  </head>
+  <body id="top" data-page="asciiToHex" data-default-mode="ascii-hex">
+    <div class="code-stream" aria-hidden="true">
+      <span class="drift-left" style="--y: 8%; --dx: -46vw; --dy: 18px; --dur: 19s; --delay: -8s; --scale: 0.9;">ASCII(65) = 41</span>
+      <span class="drift-right" style="--y: 14%; --dx: 47vw; --dy: -20px; --dur: 22s; --delay: -15s; --scale: 1.08;">48 65 6C 6C 6F</span>
+      <span class="drift-left" style="--y: 27%; --dx: -50vw; --dy: -24px; --dur: 18s; --delay: -3s; --scale: 0.84;">HEX BYTE</span>
+      <span class="drift-right" style="--y: 39%; --dx: 44vw; --dy: 30px; --dur: 21s; --delay: -11s; --scale: 1.12;">UTF-8</span>
+      <span class="drift-left" style="--y: 51%; --dx: -42vw; --dy: 34px; --dur: 24s; --delay: -19s; --scale: 1.02;">0x48 = H</span>
+      <span class="drift-right" style="--y: 63%; --dx: 51vw; --dy: -28px; --dur: 17s; --delay: -6s; --scale: 0.88;">\x48\x69</span>
+      <span class="drift-left" style="--y: 76%; --dx: -47vw; --dy: -18px; --dur: 20s; --delay: -13s; --scale: 1.14;">BYTE[0..127]</span>
+      <span class="drift-right" style="--y: 89%; --dx: 43vw; --dy: 24px; --dur: 23s; --delay: -2s; --scale: 0.92;">TEXT -&gt; HEX</span>
+    </div>
+    <a class="top-button" href="#top" aria-label="Back to top" data-i18n="topLabel" data-i18n-aria-label="topAriaLabel">TOP</a>
+    <a class="skip-link" href="#converter" data-i18n="skip">Skip to converter</a>
+
+    <header class="site-header">
+      <nav class="nav-shell" aria-label="Primary navigation">
+        <a class="brand" href="../" aria-label="ASCII to Unicode home">
+          <span class="brand-mark" aria-hidden="true">
+            <svg class="brand-logo" viewBox="0 0 64 64" focusable="false">
+              <rect class="logo-frame" x="5" y="5" width="54" height="54" rx="0"/>
+              <g class="logo-stack" transform="rotate(-8 25 27)">
+                <rect class="logo-shadow" x="13" y="19" width="25" height="20"/>
+                <rect class="logo-pane logo-pane-left" x="11" y="16" width="25" height="20"/>
+                <text class="logo-ascii" x="23.5" y="30" text-anchor="middle">A</text>
+              </g>
+              <g class="logo-stack" transform="rotate(-8 40 36)">
+                <rect class="logo-shadow" x="28" y="29" width="25" height="20"/>
+                <rect class="logo-pane logo-pane-right" x="30" y="26" width="25" height="20"/>
+                <text class="logo-unicode" x="42.5" y="40" text-anchor="middle">01</text>
+              </g>
+              <path class="logo-arrow" d="M38 13h6q4 0 4 4v3"/>
+              <path class="logo-arrow-head" d="M45 17l3 3 3-3"/>
+            </svg>
+          </span>
+          <span>ASCII to Unicode</span>
+        </a>
+        <div class="nav-links">
+          <a href="#converter" data-i18n="navConverter">Converter</a>
+          <a href="#how-it-works" data-i18n="navHow">How it works</a>
+          <a href="#code-examples" data-i18n="navCode">Code</a>
+          <a href="#encoding-boundary" data-i18n="navBoundary">ASCII vs UTF-8</a>
+        </div>
+        <div class="nav-actions">
+          <a class="nav-cta" href="#converter" data-i18n="navOpen">Open Converter</a>
+          <div class="language-select custom-select" data-language-select>
+            <button type="button" class="select-button language-select-button" aria-haspopup="listbox" aria-expanded="false" aria-label="Choose language" data-i18n-aria-label="languageLabel">
+              <span data-language-value>English</span>
+              <span class="select-arrow" aria-hidden="true"></span>
+            </button>
+            <div class="select-menu language-menu" role="listbox" aria-label="Language" data-i18n-aria-label="languageMenuLabel">
+              <button type="button" class="select-option language-option is-selected" role="option" aria-selected="true" data-lang="en">English</button>
+              <button type="button" class="select-option language-option" role="option" aria-selected="false" data-lang="zh">简体中文</button>
+              <button type="button" class="select-option language-option" role="option" aria-selected="false" data-lang="es">Español</button>
+              <button type="button" class="select-option language-option" role="option" aria-selected="false" data-lang="pt">Português</button>
+              <button type="button" class="select-option language-option" role="option" aria-selected="false" data-lang="fr">Français</button>
+              <button type="button" class="select-option language-option" role="option" aria-selected="false" data-lang="de">Deutsch</button>
+              <button type="button" class="select-option language-option" role="option" aria-selected="false" data-lang="ja">日本語</button>
+              <button type="button" class="select-option language-option" role="option" aria-selected="false" data-lang="ko">한국어</button>
+            </div>
+          </div>
+        </div>
+      </nav>
+    </header>
+
+    <main>
+      <nav class="breadcrumb" aria-label="Breadcrumb" data-i18n-aria-label="breadcrumbLabel">
+        <a href="../" data-i18n="breadcrumbHome">ASCII to Unicode</a> / <span aria-current="page" data-i18n="breadcrumbCurrent">ASCII to Hex Converter</span>
+      </nav>
+
+      <section class="hero-tool" aria-labelledby="page-title">
+        <div class="hero-copy">
+          <p class="eyebrow" data-i18n="heroEyebrow">Free browser-based hexadecimal converter</p>
+          <h1 id="page-title" data-i18n="heroTitle">ASCII to Hex Converter</h1>
+          <p class="hero-lede" data-i18n="heroLede">Convert ASCII text into hexadecimal byte values instantly. Use UTF-8 Bytes when your text includes accents, non-Latin scripts, symbols, or emoji.</p>
+          <div class="hero-proof" aria-label="Converter highlights" data-i18n-aria-label="proofLabel">
+            <span data-i18n="proofNoSignup">No signup</span>
+            <span data-i18n="proofFree">Free online conversion</span>
+          </div>
+        </div>
+
+        <section class="converter-panel" id="converter" aria-labelledby="converter-title">
+          <div class="panel-head">
+            <div>
+              <p class="panel-kicker" data-i18n="toolKicker">Interactive tool</p>
+              <h2 id="converter-title" data-i18n="toolTitle">Convert ASCII characters to hexadecimal</h2>
+            </div>
+            <p class="status-pill" id="status-pill" aria-live="polite" data-i18n="statusReady">Ready</p>
+          </div>
+
+          <div class="mode-tabs" role="tablist" aria-label="Conversion mode">
+            <button type="button" class="mode-tab is-active" data-mode="ascii-hex" role="tab" aria-selected="true" data-i18n="modeAscii">Standard ASCII</button>
+            <button type="button" class="mode-tab" data-mode="utf8-hex" role="tab" aria-selected="false" data-i18n="modeUtf8">UTF-8 Bytes</button>
+          </div>
+
+          <div class="option-row">
+            <div class="select-wrap custom-select" data-custom-select>
+              <span id="format-label" data-i18n="formatLabel">Output layout</span>
+              <div class="custom-select-control">
+                <select id="format-select" class="native-select" aria-describedby="format-help" tabindex="-1" aria-hidden="true">
+                  <option value="hex-space" data-i18n="formatSpace">Space-separated</option>
+                  <option value="hex-compact" data-i18n="formatCompact">Compact</option>
+                  <option value="hex-prefix" data-i18n="formatPrefix">0x prefixed</option>
+                  <option value="hex-escape" data-i18n="formatEscape">\x escaped</option>
+                </select>
+                <button type="button" class="select-button" id="format-select-button" aria-haspopup="listbox" aria-expanded="false" aria-labelledby="format-label format-select-value">
+                  <span id="format-select-value">Space-separated</span>
+                  <span class="select-arrow" aria-hidden="true"></span>
+                </button>
+                <div class="select-menu" id="format-select-menu" role="listbox" aria-labelledby="format-label">
+                  <button type="button" class="select-option is-selected" role="option" data-value="hex-space" aria-selected="true" data-i18n="formatSpace">Space-separated</button>
+                  <button type="button" class="select-option" role="option" data-value="hex-compact" aria-selected="false" data-i18n="formatCompact">Compact</button>
+                  <button type="button" class="select-option" role="option" data-value="hex-prefix" aria-selected="false" data-i18n="formatPrefix">0x prefixed</button>
+                  <button type="button" class="select-option" role="option" data-value="hex-escape" aria-selected="false" data-i18n="formatEscape">\x escaped</button>
+                </div>
+              </div>
+            </div>
+            <label class="switch">
+              <input type="checkbox" id="auto-convert" checked>
+              <span class="switch-ui" aria-hidden="true"></span>
+              <span data-i18n="autoConvert">Auto convert</span>
+            </label>
+          </div>
+          <p class="format-help" id="format-help" data-i18n="formatHelp">ASCII mode emits one two-digit hex byte per character and marks unsupported characters instead of guessing an encoding.</p>
+
+          <div class="text-grid">
+            <label class="text-box" for="input-text">
+              <span data-i18n="inputLabel">ASCII input</span>
+              <textarea id="input-text" spellcheck="false" placeholder="Hello" data-i18n-placeholder="inputPlaceholder" aria-describedby="input-help">Hello</textarea>
+              <small id="input-help" data-i18n="inputHelp">Enter ASCII text, or switch to UTF-8 Bytes for multilingual text.</small>
+            </label>
+            <label class="text-box" for="output-text">
+              <span data-i18n="outputLabel">Hex output</span>
+              <textarea id="output-text" spellcheck="false" readonly placeholder="48 65 6C 6C 6F" data-i18n-placeholder="outputPlaceholder"></textarea>
+              <small><span id="char-count">0</span> <span data-i18n="charsLabel">characters</span></small>
+            </label>
+          </div>
+
+          <div class="tool-actions" aria-label="Converter actions" data-i18n-aria-label="actionsLabel">
+            <button type="button" class="btn btn-primary" id="convert-btn" data-i18n="btnConvert">Convert</button>
+            <button type="button" class="btn" id="copy-btn" data-i18n="btnCopy">Copy</button>
+            <button type="button" class="btn" id="clear-btn" data-i18n="btnClear">Clear</button>
+            <button type="button" class="btn" id="import-btn" data-i18n="btnImport">Import TXT</button>
+            <button type="button" class="btn" id="download-btn" data-i18n="btnDownload">Download Output</button>
+            <input type="file" id="file-input" accept=".txt,text/plain" hidden>
+          </div>
+
+          <div class="warning-line" id="warning-line" aria-live="polite"></div>
+
+          <div class="sample-row" aria-label="Try examples" data-i18n-aria-label="examplesLabel">
+            <button type="button" class="sample-chip" data-mode="ascii-hex" data-sample="Hello">Hello</button>
+            <button type="button" class="sample-chip" data-mode="ascii-hex" data-sample="ASCII">ASCII</button>
+            <button type="button" class="sample-chip" data-mode="ascii-hex" data-sample="A B">A B</button>
+            <button type="button" class="sample-chip" data-mode="utf8-hex" data-sample="café">café</button>
+          </div>
+        </section>
+      </section>
+
+      <section class="content-section" id="how-it-works" aria-labelledby="how-title">
+        <div class="section-copy">
+          <p class="eyebrow" data-i18n="howEyebrow">Conversion guide</p>
+          <h2 id="how-title" data-i18n="howTitle">How to Convert ASCII to Hex</h2>
+          <p data-i18n-html="howP1">Each ASCII character has a numeric value from <code>0</code> to <code>127</code>. Convert that value from decimal to base 16 and pad it to two digits. The capital letter <code>A</code> is decimal <code>65</code>, so its hexadecimal byte is <code>41</code>.</p>
+          <p data-i18n-html="howP2">The converter repeats this for every character, including spaces and control characters. For example, <code>Hi</code> becomes <code>48 69</code>. Spaced output makes byte boundaries clear, while compact output represents the same bytes as <code>4869</code>.</p>
+        </div>
+        <div class="conversion-table-wrap">
+          <table class="conversion-table">
+            <thead>
+              <tr><th data-i18n="thCharacter">Character</th><th data-i18n="thDecimal">ASCII decimal</th><th data-i18n="thHex">Hex byte</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>A</td><td><code>65</code></td><td><code>41</code></td></tr>
+              <tr><td>B</td><td><code>66</code></td><td><code>42</code></td></tr>
+              <tr><td>a</td><td><code>97</code></td><td><code>61</code></td></tr>
+              <tr><td>0</td><td><code>48</code></td><td><code>30</code></td></tr>
+              <tr><td data-i18n="spaceCharacter">Space</td><td><code>32</code></td><td><code>20</code></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="content-section" id="code-examples" aria-labelledby="code-title">
+        <div class="section-copy">
+          <h2 id="code-title" data-i18n="codeTitle">ASCII to Hex in JavaScript</h2>
+          <p data-i18n-html="codeP1">JavaScript can read each character with <code>charCodeAt</code>, reject values above <code>127</code>, convert the value with <code>toString(16)</code>, and use <code>padStart(2, "0")</code> to produce a complete hex byte.</p>
+        </div>
+        <pre class="code-example"><code>function asciiToHex(text) {
+  return Array.from(text, (character) =&gt; {
+    const value = character.charCodeAt(0);
+    if (value &gt; 127) throw new Error("Non-ASCII character");
+    return value.toString(16).padStart(2, "0").toUpperCase();
+  }).join(" ");
+}
+
+asciiToHex("Hi");
+// 48 69</code></pre>
+
+        <div class="section-copy">
+          <h2 data-i18n="pythonTitle">ASCII to Hex in Python</h2>
+          <p data-i18n-html="pythonP1">Python's <code>ord</code> returns the numeric value of a character, and <code>format(value, "02X")</code> writes an uppercase two-digit hex byte. Checking every value below <code>128</code> keeps the result strictly ASCII.</p>
+        </div>
+        <pre class="code-example"><code>def ascii_to_hex(text):
+    if any(ord(char) &gt; 127 for char in text):
+        raise ValueError("Non-ASCII character")
+    return " ".join(format(ord(char), "02X") for char in text)
+
+print(ascii_to_hex("Hi"))
+# 48 69</code></pre>
+      </section>
+
+      <section class="content-section split-section" id="encoding-boundary" aria-labelledby="boundary-title">
+        <div class="section-copy">
+          <h2 id="boundary-title" data-i18n="boundaryTitle">ASCII Hex vs UTF-8 Hex</h2>
+          <p data-i18n-html="boundaryP1">Standard ASCII covers code points <code>00</code> through <code>7F</code>, so every ASCII character maps to one hex byte. ASCII is also a subset of UTF-8, which means English letters, digits, punctuation, and control characters produce identical hex in both modes.</p>
+          <p data-i18n-html="boundaryP2">Characters above <code>U+007F</code> are not ASCII. In UTF-8 they may use multiple bytes: <code>é</code> becomes <code>C3 A9</code>, and <code>你</code> becomes <code>E4 BD A0</code>. Use UTF-8 Bytes for multilingual text, symbols, or emoji.</p>
+        </div>
+        <div class="terminal-note">
+          <strong data-i18n="boundaryNoteTitle">One ASCII character equals one two-digit hex byte.</strong>
+          <p data-i18n="boundaryNoteText">This rule is reliable only for standard ASCII. UTF-8 may use two, three, or four hex bytes for one Unicode character.</p>
+        </div>
+      </section>
+
+      <section class="content-section" aria-labelledby="utf8-title">
+        <div class="section-copy">
+          <h2 id="utf8-title" data-i18n="utf8Title">ASCII to Hex Output Formats</h2>
+          <p data-i18n-html="utf8P1">The bytes for <code>Hi</code> can be written as spaced hex <code>48 69</code>, compact hex <code>4869</code>, prefixed values <code>0x48 0x69</code>, or byte escapes <code>\x48\x69</code>. The underlying byte values do not change.</p>
+          <p data-i18n="utf8P2">Use spaced output for inspection, compact output for storage or protocols, 0x prefixes in programming contexts, and byte escapes in source strings or debugging fixtures.</p>
+        </div>
+      </section>
+
+      <section class="content-section related-converters" aria-labelledby="related-title">
+        <div class="section-copy">
+          <p class="eyebrow" data-i18n="relatedEyebrow">Related converters</p>
+          <h2 id="related-title" data-i18n="relatedTitle">Continue Converting ASCII and Unicode</h2>
+          <p data-i18n="relatedText">Decode the result back to text, compare binary output, or create Unicode-safe escapes with a focused converter.</p>
+        </div>
+        <div class="related-links">
+          <a href="../">
+            <strong data-i18n="relatedHomeTitle">ASCII to Unicode Converter</strong>
+            <span data-i18n="relatedHomeText">Decode ASCII-safe escapes into readable Unicode text.</span>
+          </a>
+          <a href="../unicode-to-ascii/">
+            <strong data-i18n="relatedUnicodeTitle">Unicode to ASCII Converter</strong>
+            <span data-i18n="relatedUnicodeText">Escape, transliterate, replace, or remove non-ASCII characters.</span>
+          </a>
+          <a href="../hex-to-ascii/">
+            <strong data-i18n="relatedReverseTitle">Hex to ASCII Converter</strong>
+            <span data-i18n="relatedReverseText">Decode hexadecimal bytes back into ASCII or UTF-8 text.</span>
+          </a>
+          <a href="../ascii-to-binary/">
+            <strong data-i18n="relatedBinaryTitle">ASCII to Binary Converter</strong>
+            <span data-i18n="relatedBinaryText">Convert the same ASCII characters into fixed 8-bit binary groups.</span>
+          </a>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <p>© 2026 ASCII to Unicode.</p>
+      <nav aria-label="Footer">
+        <a href="../privacy.html" data-i18n="footerPrivacy">Privacy</a>
+        <a href="../terms.html" data-i18n="footerTerms">Terms</a>
+        <a href="../contact.html" data-i18n="footerContact">Contact</a>
+      </nav>
+    </footer>
+
+    <script src="../translations.js?v=20260715-ascii-hex" defer></script>
+    <script src="translations.js?v=20260715-ascii-hex" defer></script>
+    <script src="../site-language.js?v=20260715-ascii-hex" defer></script>
+    <script src="../app.js?v=20260715-ascii-hex" defer></script>
+  </body>
+</html>

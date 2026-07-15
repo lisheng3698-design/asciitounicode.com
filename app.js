@@ -154,7 +154,9 @@
     relatedBinaryTitle: "ASCII to Binary 转换器",
     relatedBinaryText: "将 ASCII 字符转换为固定 8 位二进制组。",
     relatedHexTitle: "Hex to ASCII 转换器",
-    relatedHexText: "将十六进制字节转换为 ASCII 或 UTF-8 文本。"
+    relatedHexText: "将十六进制字节转换为 ASCII 或 UTF-8 文本。",
+    relatedAsciiHexTitle: "ASCII to Hex 转换器",
+    relatedAsciiHexText: "将 ASCII 或 UTF-8 文本编码为十六进制字节。"
   });
   if (activePage && window.asciiUnicodeI18n && window.asciiUnicodeI18n.pages[activePage]) {
     Object.entries(window.asciiUnicodeI18n.pages[activePage]).forEach(([lang, values]) => {
@@ -241,7 +243,8 @@
       warningInvalidHex: "Use hexadecimal digits only. Separators and 0x or \\x prefixes are supported.",
       warningOddHex: "A byte needs two hexadecimal digits. Add the missing digit and try again.",
       warningInvalidUtf8: "The bytes are not valid UTF-8 throughout. Replacement characters mark invalid sequences.",
-      warningNonAsciiHex: "Bytes above 7F are not standard ASCII and are shown as ?. Choose UTF-8 when the bytes encode multilingual text."
+      warningNonAsciiHex: "Bytes above 7F are not standard ASCII and are shown as ?. Choose UTF-8 when the bytes encode multilingual text.",
+      warningNonAsciiHexEncode: "Non-ASCII characters are marked as ??. Use UTF-8 Bytes to encode them without ambiguity."
     };
     const text = key ? (t(key) || fallback[key]) : "";
     els.warning.textContent = text || "";
@@ -257,7 +260,7 @@
       btn.classList.toggle("is-active", active);
       btn.setAttribute("aria-selected", String(active));
     });
-    els.format.disabled = !["encode", "entities", "ascii-binary", "utf8-binary", "hex-to-text"].includes(mode);
+    els.format.disabled = !["encode", "entities", "ascii-binary", "utf8-binary", "ascii-hex", "utf8-hex", "hex-to-text"].includes(mode);
     syncCustomSelect();
     trackEvent("mode_change", { mode });
     if (els.auto.checked) {
@@ -453,6 +456,37 @@
     return joinBinaryBytes(bytes, format);
   }
 
+  function formatHexBytes(bytes, format = "hex-space") {
+    const pairs = bytes.map((byte) => byte === null ? "??" : byte.toString(16).toUpperCase().padStart(2, "0"));
+    if (format === "hex-compact") {
+      return pairs.join("");
+    }
+    if (format === "hex-prefix") {
+      return pairs.map((pair) => "0x" + pair).join(" ");
+    }
+    if (format === "hex-escape") {
+      return pairs.map((pair) => "\\x" + pair).join("");
+    }
+    return pairs.join(" ");
+  }
+
+  function asciiToHex(input, format = "hex-space") {
+    let hasNonAscii = false;
+    const bytes = Array.from(input, (char) => {
+      const point = char.codePointAt(0);
+      if (point > 0x7f) {
+        hasNonAscii = true;
+        return null;
+      }
+      return point;
+    });
+    return { output: formatHexBytes(bytes, format), hasNonAscii };
+  }
+
+  function utf8ToHex(input, format = "hex-space") {
+    return formatHexBytes(Array.from(new TextEncoder().encode(input)), format);
+  }
+
   function hexToText(input, format = "hex-utf8") {
     const compact = input
       .replace(/(?:0x|\\x)/gi, "")
@@ -528,6 +562,12 @@
       modeWarning = binary.hasNonAscii ? "warningNonAscii" : "";
     } else if (mode === "utf8-binary") {
       output = utf8ToBinary(input, format);
+    } else if (mode === "ascii-hex") {
+      const hex = asciiToHex(input, format);
+      output = hex.output;
+      modeWarning = hex.hasNonAscii ? "warningNonAsciiHexEncode" : "";
+    } else if (mode === "utf8-hex") {
+      output = utf8ToHex(input, format);
     } else if (mode === "hex-to-text") {
       const decoded = hexToText(input, format);
       output = decoded.output;
@@ -536,7 +576,7 @@
 
     return {
       output,
-      warning: warning || modeWarning || (output === input && !["encode", "ascii-binary", "utf8-binary", "hex-to-text"].includes(mode) ? "warningNoChange" : "")
+      warning: warning || modeWarning || (output === input && !["encode", "ascii-binary", "utf8-binary", "ascii-hex", "utf8-hex", "hex-to-text"].includes(mode) ? "warningNoChange" : "")
     };
   }
 
@@ -705,7 +745,10 @@
     byId("convert-btn").addEventListener("click", convertNow);
     byId("copy-btn").addEventListener("click", copyOutput);
     byId("clear-btn").addEventListener("click", clearAll);
-    byId("swap-btn").addEventListener("click", swapValues);
+    const swapButton = byId("swap-btn");
+    if (swapButton) {
+      swapButton.addEventListener("click", swapValues);
+    }
     byId("download-btn").addEventListener("click", downloadOutput);
     byId("import-btn").addEventListener("click", () => els.fileInput.click());
     els.input.addEventListener("input", () => {
@@ -754,7 +797,7 @@
       applyLanguage(savedLang);
     }
     const requestedMode = document.body.dataset.defaultMode || "decode";
-    const defaultMode = ["decode", "encode", "entities", "mojibake", "transliterate", "ascii-replace", "ascii-remove", "ascii-binary", "utf8-binary", "hex-to-text"].includes(requestedMode)
+    const defaultMode = ["decode", "encode", "entities", "mojibake", "transliterate", "ascii-replace", "ascii-remove", "ascii-binary", "utf8-binary", "ascii-hex", "utf8-hex", "hex-to-text"].includes(requestedMode)
       ? requestedMode
       : "decode";
     updateMode(defaultMode);
@@ -767,6 +810,8 @@
     encodeText,
     asciiToBinary,
     utf8ToBinary,
+    asciiToHex,
+    utf8ToHex,
     hexToText,
     transliterateToAscii,
     replaceNonAscii,
