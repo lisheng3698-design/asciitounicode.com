@@ -78,6 +78,17 @@
     }
   };
 
+  const reverseCopy = {
+    zh: { relatedReverseTitle: "Binary to ASCII 转换器", relatedReverseText: "将 7 位或 8 位二进制组解码为 ASCII 或 UTF-8 文本。" },
+    es: { relatedReverseTitle: "Convertidor Binary to ASCII", relatedReverseText: "Decodifica grupos binarios de 7 u 8 bits como texto ASCII o UTF-8." },
+    pt: { relatedReverseTitle: "Conversor Binary to ASCII", relatedReverseText: "Decodifique grupos binários de 7 ou 8 bits como texto ASCII ou UTF-8." },
+    fr: { relatedReverseTitle: "Convertisseur Binary to ASCII", relatedReverseText: "Décodez des groupes binaires de 7 ou 8 bits en texte ASCII ou UTF-8." },
+    de: { relatedReverseTitle: "Binary to ASCII Konverter", relatedReverseText: "7- oder 8-Bit-Binärgruppen als ASCII- oder UTF-8-Text decodieren." },
+    ja: { relatedReverseTitle: "Binary to ASCII コンバーター", relatedReverseText: "7/8 ビットのバイナリグループを ASCII または UTF-8 テキストに戻します。" },
+    ko: { relatedReverseTitle: "Binary to ASCII 변환기", relatedReverseText: "7비트 또는 8비트 이진 그룹을 ASCII나 UTF-8 텍스트로 디코딩합니다." }
+  };
+  Object.entries(reverseCopy).forEach(([lang, values]) => Object.assign(config.pages.asciiToBinary[lang], values));
+
   config.meta.asciiToBinary = {
     zh: { title: "ASCII to Binary 转换器 - 免费在线工具", description: "在线将 ASCII 文本转为 8 位二进制，支持空格分隔、连续和逐行输出，并为非 ASCII 文本提供 UTF-8 字节模式。" },
     es: { title: "Convertidor ASCII to Binary - Herramienta gratuita", description: "Convierte texto ASCII a binario de 8 bits con salida separada, compacta o por líneas y un modo de bytes UTF-8 para texto no ASCII." },

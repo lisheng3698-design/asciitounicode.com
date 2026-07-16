@@ -228,6 +228,20 @@
       Object.assign(home[lang], values);
     }
   });
+  const binaryAsciiHomeCopy = {
+    zh: { relatedBinaryAsciiTitle: "Binary to ASCII 转换器", relatedBinaryAsciiText: "将 7 位或 8 位二进制组解码为 ASCII 或 UTF-8 文本。" },
+    es: { relatedBinaryAsciiTitle: "Convertidor Binary to ASCII", relatedBinaryAsciiText: "Decodifica grupos binarios de 7 u 8 bits como texto ASCII o UTF-8." },
+    pt: { relatedBinaryAsciiTitle: "Conversor Binary to ASCII", relatedBinaryAsciiText: "Decodifique grupos binários de 7 ou 8 bits como texto ASCII ou UTF-8." },
+    fr: { relatedBinaryAsciiTitle: "Convertisseur Binary to ASCII", relatedBinaryAsciiText: "Décodez des groupes binaires de 7 ou 8 bits en texte ASCII ou UTF-8." },
+    de: { relatedBinaryAsciiTitle: "Binary to ASCII Konverter", relatedBinaryAsciiText: "7- oder 8-Bit-Binärgruppen als ASCII- oder UTF-8-Text decodieren." },
+    ja: { relatedBinaryAsciiTitle: "Binary to ASCII コンバーター", relatedBinaryAsciiText: "7/8 ビットのバイナリグループを ASCII または UTF-8 テキストに戻します。" },
+    ko: { relatedBinaryAsciiTitle: "Binary to ASCII 변환기", relatedBinaryAsciiText: "7비트 또는 8비트 이진 그룹을 ASCII나 UTF-8 텍스트로 디코딩합니다." }
+  };
+  Object.entries(binaryAsciiHomeCopy).forEach(([lang, values]) => {
+    if (home[lang]) {
+      Object.assign(home[lang], values);
+    }
+  });
   const commonKeys = ["navConverter", "navExamples", "navFormats", "navFaq", "navOpen", "footerPrivacy", "footerTerms", "footerContact"];
   const common = Object.fromEntries(Object.keys(home).map((lang) => [lang, Object.fromEntries(commonKeys.map((key) => [key, home[lang][key]]))]));
   common.zh = {

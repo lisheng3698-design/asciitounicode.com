@@ -244,7 +244,11 @@
       warningOddHex: "A byte needs two hexadecimal digits. Add the missing digit and try again.",
       warningInvalidUtf8: "The bytes are not valid UTF-8 throughout. Replacement characters mark invalid sequences.",
       warningNonAsciiHex: "Bytes above 7F are not standard ASCII and are shown as ?. Choose UTF-8 when the bytes encode multilingual text.",
-      warningNonAsciiHexEncode: "Non-ASCII characters are marked as ??. Use UTF-8 Bytes to encode them without ambiguity."
+      warningNonAsciiHexEncode: "Non-ASCII characters are marked as ??. Use UTF-8 Bytes to encode them without ambiguity.",
+      warningInvalidBinary: "Use binary digits only. Spaces, commas, line breaks, colons, hyphens, and 0b prefixes are supported.",
+      warningIncompleteBinary: "Use complete 7-bit or 8-bit groups for ASCII, or complete 8-bit bytes for UTF-8.",
+      warningInvalidUtf8Binary: "The binary bytes are not valid UTF-8 throughout. Replacement characters mark invalid sequences.",
+      warningNonAsciiBinary: "Values above 127 are not standard ASCII and are shown as ?. Choose UTF-8 when the bytes encode multilingual text."
     };
     const text = key ? (t(key) || fallback[key]) : "";
     els.warning.textContent = text || "";
@@ -260,7 +264,7 @@
       btn.classList.toggle("is-active", active);
       btn.setAttribute("aria-selected", String(active));
     });
-    els.format.disabled = !["encode", "entities", "ascii-binary", "utf8-binary", "ascii-hex", "utf8-hex", "hex-to-text"].includes(mode);
+    els.format.disabled = !["encode", "entities", "ascii-binary", "utf8-binary", "ascii-hex", "utf8-hex", "hex-to-text", "binary-to-text"].includes(mode);
     syncCustomSelect();
     trackEvent("mode_change", { mode });
     if (els.auto.checked) {
@@ -516,6 +520,54 @@
     return { output, warning: output.includes("\uFFFD") ? "warningInvalidUtf8" : "" };
   }
 
+  function binaryToText(input, format = "binary-ascii") {
+    const normalized = input.trim().replace(/\b0b(?=[01])/gi, "");
+    if (!normalized || /[^01\s,;:_-]/.test(normalized)) {
+      return { output: "", warning: "warningInvalidBinary" };
+    }
+
+    const hasSeparators = /[\s,;:_-]/.test(normalized);
+    let groups;
+    if (hasSeparators) {
+      groups = normalized.split(/[\s,;:_-]+/).filter(Boolean);
+      const validGroups = format === "binary-utf8"
+        ? groups.every((group) => group.length === 8)
+        : groups.every((group) => group.length === 7 || group.length === 8);
+      if (!validGroups) {
+        return { output: "", warning: "warningIncompleteBinary" };
+      }
+    } else {
+      let width = 0;
+      if (format === "binary-utf8") {
+        width = normalized.length % 8 === 0 ? 8 : 0;
+      } else if (normalized.length % 8 === 0) {
+        width = 8;
+      } else if (normalized.length % 7 === 0) {
+        width = 7;
+      }
+      if (!width) {
+        return { output: "", warning: "warningIncompleteBinary" };
+      }
+      groups = normalized.match(new RegExp(`.{${width}}`, "g"));
+    }
+
+    const bytes = groups.map((group) => Number.parseInt(group, 2));
+    if (format === "binary-ascii") {
+      let hasNonAscii = false;
+      const output = bytes.map((byte) => {
+        if (byte > 0x7f) {
+          hasNonAscii = true;
+          return "?";
+        }
+        return String.fromCharCode(byte);
+      }).join("");
+      return { output, warning: hasNonAscii ? "warningNonAsciiBinary" : "" };
+    }
+
+    const output = new TextDecoder("utf-8", { fatal: false }).decode(new Uint8Array(bytes));
+    return { output, warning: output.includes("\uFFFD") ? "warningInvalidUtf8Binary" : "" };
+  }
+
   function convertEntities(input, format) {
     if (/&#x?[0-9a-fA-F]+;/.test(input)) {
       return decodeAsciiToUnicode(input);
@@ -572,11 +624,15 @@
       const decoded = hexToText(input, format);
       output = decoded.output;
       modeWarning = decoded.warning;
+    } else if (mode === "binary-to-text") {
+      const decoded = binaryToText(input, format);
+      output = decoded.output;
+      modeWarning = decoded.warning;
     }
 
     return {
       output,
-      warning: warning || modeWarning || (output === input && !["encode", "ascii-binary", "utf8-binary", "ascii-hex", "utf8-hex", "hex-to-text"].includes(mode) ? "warningNoChange" : "")
+      warning: warning || modeWarning || (output === input && !["encode", "ascii-binary", "utf8-binary", "ascii-hex", "utf8-hex", "hex-to-text", "binary-to-text"].includes(mode) ? "warningNoChange" : "")
     };
   }
 
@@ -797,7 +853,7 @@
       applyLanguage(savedLang);
     }
     const requestedMode = document.body.dataset.defaultMode || "decode";
-    const defaultMode = ["decode", "encode", "entities", "mojibake", "transliterate", "ascii-replace", "ascii-remove", "ascii-binary", "utf8-binary", "ascii-hex", "utf8-hex", "hex-to-text"].includes(requestedMode)
+    const defaultMode = ["decode", "encode", "entities", "mojibake", "transliterate", "ascii-replace", "ascii-remove", "ascii-binary", "utf8-binary", "ascii-hex", "utf8-hex", "hex-to-text", "binary-to-text"].includes(requestedMode)
       ? requestedMode
       : "decode";
     updateMode(defaultMode);
@@ -813,6 +869,7 @@
     asciiToHex,
     utf8ToHex,
     hexToText,
+    binaryToText,
     transliterateToAscii,
     replaceNonAscii,
     repairMojibake

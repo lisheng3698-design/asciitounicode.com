@@ -150,9 +150,9 @@ test("all public pages use the same eight-language custom listbox", () => {
   const binaryHtml = read("ascii-to-binary/index.html");
   assert.match(binaryHtml, /data-language-select/);
   assert.equal(countMatches(binaryHtml, /class="select-option language-option(?: is-selected)?"/g), 8);
-  assert.match(binaryHtml, /<script src="\.\.\/translations\.js\?v=20260712-inner-i18n" defer><\/script>/);
-  assert.match(binaryHtml, /<script src="translations\.js\?v=20260713-ascii-binary" defer><\/script>/);
-  assert.match(binaryHtml, /<script src="\.\.\/site-language\.js\?v=20260712-inner-i18n" defer><\/script>/);
+  assert.match(binaryHtml, /<script src="\.\.\/translations\.js\?v=20260716-binary-ascii" defer><\/script>/);
+  assert.match(binaryHtml, /<script src="translations\.js\?v=20260716-binary-ascii" defer><\/script>/);
+  assert.match(binaryHtml, /<script src="\.\.\/site-language\.js\?v=20260716-binary-ascii" defer><\/script>/);
 
   const hexHtml = read("hex-to-ascii/index.html");
   assert.match(hexHtml, /data-language-select/);
@@ -167,6 +167,13 @@ test("all public pages use the same eight-language custom listbox", () => {
   assert.match(asciiHexHtml, /<script src="\.\.\/translations\.js\?v=20260715-ascii-hex" defer><\/script>/);
   assert.match(asciiHexHtml, /<script src="translations\.js\?v=20260715-ascii-hex" defer><\/script>/);
   assert.match(asciiHexHtml, /<script src="\.\.\/site-language\.js\?v=20260715-ascii-hex" defer><\/script>/);
+
+  const binaryAsciiHtml = read("binary-to-ascii/index.html");
+  assert.match(binaryAsciiHtml, /data-language-select/);
+  assert.equal(countMatches(binaryAsciiHtml, /class="select-option language-option(?: is-selected)?"/g), 8);
+  assert.match(binaryAsciiHtml, /<script src="\.\.\/translations\.js\?v=20260716-binary-ascii" defer><\/script>/);
+  assert.match(binaryAsciiHtml, /<script src="translations\.js\?v=20260716-binary-ascii" defer><\/script>/);
+  assert.match(binaryAsciiHtml, /<script src="\.\.\/site-language\.js\?v=20260716-binary-ascii" defer><\/script>/);
 });
 
 test("translation packs cover every key and preserve ASCII to Unicode", () => {
@@ -180,6 +187,7 @@ test("translation packs cover every key and preserve ASCII to Unicode", () => {
     assert.ok(Object.keys(i18n.home[lang]).length >= 135, `${lang} homepage keys`);
     assert.match(i18n.home[lang].heroTitle, /ASCII to Unicode/, `${lang} fixed keyword`);
     assert.ok(i18n.home[lang].relatedUnicodeText, `${lang} related converter copy`);
+    assert.ok(i18n.home[lang].relatedBinaryAsciiText, `${lang} binary to ASCII copy`);
   }
 
   for (const page of ["privacy", "terms", "contact", "notFound"]) {
@@ -223,6 +231,14 @@ test("translation packs cover every key and preserve ASCII to Unicode", () => {
     assert.match(i18n.pages.asciiToHex[lang].heroTitle, /ASCII to Hex/, "asciiToHex/" + lang + " keyword");
     assert.match(i18n.meta.asciiToHex[lang].title, /ASCII to Hex/, "asciiToHex/" + lang + " title keyword");
   }
+  vm.runInNewContext(read("binary-to-ascii/translations.js"), context);
+  const binaryAsciiKeys = Object.keys(i18n.pages.binaryToAscii.zh);
+  for (const lang of ["zh", "es", "pt", "fr", "de", "ja", "ko"]) {
+    assert.equal(Object.keys(i18n.pages.binaryToAscii[lang]).length, binaryAsciiKeys.length, "binaryToAscii/" + lang + " keys");
+    assert.ok(Object.values(i18n.pages.binaryToAscii[lang]).every(Boolean), "binaryToAscii/" + lang + " has no blank translations");
+    assert.match(i18n.pages.binaryToAscii[lang].heroTitle, /Binary to ASCII/, "binaryToAscii/" + lang + " keyword");
+    assert.match(i18n.meta.binaryToAscii[lang].title, /Binary to ASCII/, "binaryToAscii/" + lang + " title keyword");
+  }
 });
 
 test("preview image asset is regenerated and kept at the stable public path", () => {
@@ -255,6 +271,7 @@ test("robots and sitemap point to the canonical production URL", () => {
   assert.match(read("sitemap.xml"), /<loc>https:\/\/asciitounicode\.com\/ascii-to-binary\/<\/loc>/);
   assert.match(read("sitemap.xml"), /<loc>https:\/\/asciitounicode\.com\/hex-to-ascii\/<\/loc>/);
   assert.match(read("sitemap.xml"), /<loc>https:\/\/asciitounicode\.com\/ascii-to-hex\/<\/loc>/);
+  assert.match(read("sitemap.xml"), /<loc>https:\/\/asciitounicode\.com\/binary-to-ascii\/<\/loc>/);
 });
 
 test("unicode to ascii page has independent SEO, deep content, and reciprocal links", () => {
@@ -310,7 +327,40 @@ test("ascii to binary page has independent SEO, focused content, and reciprocal 
   assert.match(html, /value="binary-lines"/);
   assert.match(html, /href="\.\.\/" data-i18n="breadcrumbHome">ASCII to Unicode<\/a>/);
   assert.match(html, /href="\.\.\/unicode-to-ascii\/"/);
+  assert.match(html, /href="\.\.\/binary-to-ascii\/"/);
   assert.match(homepage, /href="ascii-to-binary\/"/);
+  assert.equal(countMatches(html, /application\/ld\+json/g), 2);
+  assert.equal(countMatches(html, /name="keywords"/g), 0);
+});
+
+test("binary to ascii page has independent SEO, focused decoding, and reciprocal links", () => {
+  const html = read("binary-to-ascii/index.html");
+  const homepage = read("index.html");
+  const reversePage = read("ascii-to-binary/index.html");
+  const title = html.match(/<title>([^<]+)<\/title>/)?.[1];
+  const description = html.match(/<meta name="description" content="([^"]+)">/)?.[1];
+
+  assert.equal(title, "Binary to ASCII Converter - Free Online Tool");
+  assert.ok(title.length <= 60);
+  assert.ok(description.length <= 160);
+  assert.match(html, /<link rel="canonical" href="https:\/\/asciitounicode\.com\/binary-to-ascii\/">/);
+  assert.match(html, /<body id="top" data-page="binaryToAscii" data-default-mode="binary-to-text">/);
+  assert.equal(countMatches(html, /<h1\b/g), 1);
+  assert.match(html, /<h1 id="page-title" data-i18n="heroTitle">Binary to ASCII Converter<\/h1>/);
+  assert.match(html, /How Binary to ASCII Conversion Works/);
+  assert.match(html, /Binary to ASCII in JavaScript/);
+  assert.match(html, /Binary to ASCII in Python/);
+  assert.match(html, /7-bit ASCII, 8-bit Bytes, and UTF-8/);
+  assert.match(html, /Invalid Binary and Incomplete Groups/);
+  assert.match(html, /value="binary-ascii"/);
+  assert.match(html, /value="binary-utf8"/);
+  assert.match(html, /data-mode="binary-to-text"/);
+  assert.match(html, /11100100 10111101 10100000/);
+  assert.match(html, /href="\.\.\/" data-i18n="breadcrumbHome">ASCII to Unicode<\/a>/);
+  assert.match(html, /href="\.\.\/ascii-to-binary\/"/);
+  assert.match(html, /href="\.\.\/hex-to-ascii\/"/);
+  assert.match(homepage, /href="binary-to-ascii\/"/);
+  assert.match(reversePage, /href="\.\.\/binary-to-ascii\/"/);
   assert.equal(countMatches(html, /application\/ld\+json/g), 2);
   assert.equal(countMatches(html, /name="keywords"/g), 0);
 });
@@ -395,7 +445,7 @@ test("Bing verification and IndexNow key are deployable", () => {
 });
 
 test("GA4 is installed on every public page and custom events exclude text content", () => {
-  for (const file of ["index.html", "unicode-to-ascii/index.html", "ascii-to-binary/index.html", "hex-to-ascii/index.html", "ascii-to-hex/index.html", "privacy.html", "terms.html", "contact.html", "404.html"]) {
+  for (const file of ["index.html", "unicode-to-ascii/index.html", "ascii-to-binary/index.html", "hex-to-ascii/index.html", "ascii-to-hex/index.html", "binary-to-ascii/index.html", "privacy.html", "terms.html", "contact.html", "404.html"]) {
     const html = read(file);
     assert.match(html, /googletagmanager\.com\/gtag\/js\?id=G-44TJT1E80H/, `${file} GA4 loader`);
     assert.match(html, /gtag\('config', 'G-44TJT1E80H'\)/, `${file} GA4 config`);
@@ -419,6 +469,7 @@ test("public pages do not expose internal strategy wording", () => {
     "ascii-to-binary/index.html",
     "hex-to-ascii/index.html",
     "ascii-to-hex/index.html",
+    "binary-to-ascii/index.html",
     "app.js"
   ].map(read).join("\n");
   assert.doesNotMatch(combined, /boutique tool page|One keyword|一个关键词|精品工具页/);

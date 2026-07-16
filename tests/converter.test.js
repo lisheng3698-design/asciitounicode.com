@@ -120,6 +120,24 @@ test("hex to text mode reports unsupported and malformed bytes", () => {
   assert.equal(tools.convertValue("C3 28", "hex-to-text", "hex-utf8").warning, "warningInvalidUtf8");
 });
 
+test("binary to text mode decodes separated and compact ASCII groups", () => {
+  assert.equal(tools.convertValue("01001000 01101001", "binary-to-text", "binary-ascii").output, "Hi");
+  assert.equal(tools.convertValue("0100000101000010", "binary-to-text", "binary-ascii").output, "AB");
+  assert.equal(tools.convertValue("1000001, 1000010", "binary-to-text", "binary-ascii").output, "AB");
+  assert.equal(tools.convertValue("0b01001000:0b01101001", "binary-to-text", "binary-ascii").output, "Hi");
+});
+
+test("binary to text mode decodes UTF-8 bytes and reports invalid input", () => {
+  assert.equal(
+    tools.convertValue("11100100 10111101 10100000 11100101 10100101 10111101", "binary-to-text", "binary-utf8").output,
+    "你好"
+  );
+  assert.equal(tools.convertValue("10000000", "binary-to-text", "binary-ascii").warning, "warningNonAsciiBinary");
+  assert.equal(tools.convertValue("0100000", "binary-to-text", "binary-utf8").warning, "warningIncompleteBinary");
+  assert.equal(tools.convertValue("0100000x", "binary-to-text", "binary-ascii").warning, "warningInvalidBinary");
+  assert.equal(tools.convertValue("11111111", "binary-to-text", "binary-utf8").warning, "warningInvalidUtf8Binary");
+});
+
 test("HTML entity mode decodes entities and encodes plain text", () => {
   assert.equal(tools.convertValue("&#x2603;", "entities", "html-hex").output, "☃");
   assert.equal(tools.convertValue("☃", "entities", "html-hex").output, "&#x2603;");
