@@ -156,7 +156,9 @@
     relatedHexTitle: "Hex to ASCII 转换器",
     relatedHexText: "将十六进制字节转换为 ASCII 或 UTF-8 文本。",
     relatedAsciiHexTitle: "ASCII to Hex 转换器",
-    relatedAsciiHexText: "将 ASCII 或 UTF-8 文本编码为十六进制字节。"
+    relatedAsciiHexText: "将 ASCII 或 UTF-8 文本编码为十六进制字节。",
+    relatedDecimalTitle: "ASCII to Decimal 转换器",
+    relatedDecimalText: "将 ASCII 或 UTF-8 文本转换为十进制字节值。"
   });
   if (activePage && window.asciiUnicodeI18n && window.asciiUnicodeI18n.pages[activePage]) {
     Object.entries(window.asciiUnicodeI18n.pages[activePage]).forEach(([lang, values]) => {
@@ -245,6 +247,7 @@
       warningInvalidUtf8: "The bytes are not valid UTF-8 throughout. Replacement characters mark invalid sequences.",
       warningNonAsciiHex: "Bytes above 7F are not standard ASCII and are shown as ?. Choose UTF-8 when the bytes encode multilingual text.",
       warningNonAsciiHexEncode: "Non-ASCII characters are marked as ??. Use UTF-8 Bytes to encode them without ambiguity.",
+      warningNonAsciiDecimal: "Non-ASCII characters are marked as ?. Use UTF-8 Bytes to encode them without ambiguity.",
       warningInvalidBinary: "Use binary digits only. Spaces, commas, line breaks, colons, hyphens, and 0b prefixes are supported.",
       warningIncompleteBinary: "Use complete 7-bit or 8-bit groups for ASCII, or complete 8-bit bytes for UTF-8.",
       warningInvalidUtf8Binary: "The binary bytes are not valid UTF-8 throughout. Replacement characters mark invalid sequences.",
@@ -264,7 +267,7 @@
       btn.classList.toggle("is-active", active);
       btn.setAttribute("aria-selected", String(active));
     });
-    els.format.disabled = !["encode", "entities", "ascii-binary", "utf8-binary", "ascii-hex", "utf8-hex", "hex-to-text", "binary-to-text"].includes(mode);
+    els.format.disabled = !["encode", "entities", "ascii-binary", "utf8-binary", "ascii-hex", "utf8-hex", "ascii-decimal", "utf8-decimal", "hex-to-text", "binary-to-text"].includes(mode);
     syncCustomSelect();
     trackEvent("mode_change", { mode });
     if (els.auto.checked) {
@@ -491,6 +494,28 @@
     return formatHexBytes(Array.from(new TextEncoder().encode(input)), format);
   }
 
+  function formatDecimalValues(values, format = "decimal-space") {
+    const separator = format === "decimal-comma" ? ", " : (format === "decimal-lines" ? "\n" : " ");
+    return values.map((value) => value === null ? "?" : String(value)).join(separator);
+  }
+
+  function asciiToDecimal(input, format = "decimal-space") {
+    let hasNonAscii = false;
+    const values = Array.from(input, (char) => {
+      const point = char.codePointAt(0);
+      if (point > 0x7f) {
+        hasNonAscii = true;
+        return null;
+      }
+      return point;
+    });
+    return { output: formatDecimalValues(values, format), hasNonAscii };
+  }
+
+  function utf8ToDecimal(input, format = "decimal-space") {
+    return formatDecimalValues(Array.from(new TextEncoder().encode(input)), format);
+  }
+
   function hexToText(input, format = "hex-utf8") {
     const compact = input
       .replace(/(?:0x|\\x)/gi, "")
@@ -620,6 +645,12 @@
       modeWarning = hex.hasNonAscii ? "warningNonAsciiHexEncode" : "";
     } else if (mode === "utf8-hex") {
       output = utf8ToHex(input, format);
+    } else if (mode === "ascii-decimal") {
+      const decimal = asciiToDecimal(input, format);
+      output = decimal.output;
+      modeWarning = decimal.hasNonAscii ? "warningNonAsciiDecimal" : "";
+    } else if (mode === "utf8-decimal") {
+      output = utf8ToDecimal(input, format);
     } else if (mode === "hex-to-text") {
       const decoded = hexToText(input, format);
       output = decoded.output;
@@ -632,7 +663,7 @@
 
     return {
       output,
-      warning: warning || modeWarning || (output === input && !["encode", "ascii-binary", "utf8-binary", "ascii-hex", "utf8-hex", "hex-to-text", "binary-to-text"].includes(mode) ? "warningNoChange" : "")
+      warning: warning || modeWarning || (output === input && !["encode", "ascii-binary", "utf8-binary", "ascii-hex", "utf8-hex", "ascii-decimal", "utf8-decimal", "hex-to-text", "binary-to-text"].includes(mode) ? "warningNoChange" : "")
     };
   }
 
@@ -853,7 +884,7 @@
       applyLanguage(savedLang);
     }
     const requestedMode = document.body.dataset.defaultMode || "decode";
-    const defaultMode = ["decode", "encode", "entities", "mojibake", "transliterate", "ascii-replace", "ascii-remove", "ascii-binary", "utf8-binary", "ascii-hex", "utf8-hex", "hex-to-text", "binary-to-text"].includes(requestedMode)
+    const defaultMode = ["decode", "encode", "entities", "mojibake", "transliterate", "ascii-replace", "ascii-remove", "ascii-binary", "utf8-binary", "ascii-hex", "utf8-hex", "ascii-decimal", "utf8-decimal", "hex-to-text", "binary-to-text"].includes(requestedMode)
       ? requestedMode
       : "decode";
     updateMode(defaultMode);
@@ -868,6 +899,8 @@
     utf8ToBinary,
     asciiToHex,
     utf8ToHex,
+    asciiToDecimal,
+    utf8ToDecimal,
     hexToText,
     binaryToText,
     transliterateToAscii,

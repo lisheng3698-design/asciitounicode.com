@@ -103,6 +103,25 @@ test("utf8 hex mode encodes multilingual text as UTF-8 bytes", () => {
   assert.equal(tools.convertValue("😀", "utf8-hex", "hex-compact").output, "F09F9880");
 });
 
+test("ascii to decimal mode emits separated base-10 values", () => {
+  assert.equal(tools.convertValue("Hello", "ascii-decimal", "decimal-space").output, "72 101 108 108 111");
+  assert.equal(tools.convertValue("A B", "ascii-decimal", "decimal-comma").output, "65, 32, 66");
+  assert.equal(tools.convertValue("A\tB", "ascii-decimal", "decimal-lines").output, "65\n9\n66");
+});
+
+test("ascii to decimal mode flags unsupported characters", () => {
+  const result = tools.convertValue("café", "ascii-decimal", "decimal-space");
+  assert.equal(result.output, "99 97 102 ?");
+  assert.equal(result.warning, "warningNonAsciiDecimal");
+  assert.equal(tools.convertValue("", "ascii-decimal", "decimal-space").warning, "warningEmpty");
+});
+
+test("utf8 decimal mode emits unambiguous encoded bytes", () => {
+  assert.equal(tools.convertValue("é", "utf8-decimal", "decimal-space").output, "195 169");
+  assert.equal(tools.convertValue("你", "utf8-decimal", "decimal-space").output, "228 189 160");
+  assert.equal(tools.convertValue("😀", "utf8-decimal", "decimal-comma").output, "240, 159, 152, 128");
+});
+
 test("hex to text mode parses common byte formats and decodes UTF-8", () => {
   assert.equal(tools.convertValue("48 65 6C 6C 6F", "hex-to-text", "hex-utf8").output, "Hello");
   assert.equal(tools.convertValue("48656c6c6f", "hex-to-text", "hex-utf8").output, "Hello");

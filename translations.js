@@ -411,5 +411,15 @@
     }
   };
 
+  const decimalHomeCopy = {
+    es: { relatedDecimalTitle: "Convertidor ASCII to Decimal", relatedDecimalText: "Convierte texto ASCII o UTF-8 en valores decimales de bytes." },
+    pt: { relatedDecimalTitle: "Conversor ASCII to Decimal", relatedDecimalText: "Converta texto ASCII ou UTF-8 em valores decimais de bytes." },
+    fr: { relatedDecimalTitle: "Convertisseur ASCII to Decimal", relatedDecimalText: "Convertissez le texte ASCII ou UTF-8 en valeurs décimales d’octets." },
+    de: { relatedDecimalTitle: "ASCII to Decimal Konverter", relatedDecimalText: "ASCII- oder UTF-8-Text in dezimale Bytewerte umwandeln." },
+    ja: { relatedDecimalTitle: "ASCII to Decimal コンバーター", relatedDecimalText: "ASCII または UTF-8 テキストを 10 進バイト値に変換します。" },
+    ko: { relatedDecimalTitle: "ASCII to Decimal 변환기", relatedDecimalText: "ASCII 또는 UTF-8 텍스트를 10진 바이트 값으로 변환합니다." }
+  };
+  Object.entries(decimalHomeCopy).forEach(([lang, values]) => Object.assign(home[lang], values));
+
   window.asciiUnicodeI18n = { languages, home, common, pages, meta };
 })();
