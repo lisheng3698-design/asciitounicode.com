@@ -217,10 +217,9 @@ button {
 
 .skip-link {
   position: fixed;
-  left: 16px;
+  left: -9999px;
   top: 12px;
   z-index: 20;
-  transform: translateY(-160%);
   padding: 10px 14px;
   background: var(--amber);
   color: #130c03;
@@ -229,7 +228,7 @@ button {
 }
 
 .skip-link:focus {
-  transform: translateY(0);
+  left: 16px;
 }
 
 .site-header {

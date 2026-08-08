@@ -157,8 +157,18 @@
     relatedHexText: "将十六进制字节转换为 ASCII 或 UTF-8 文本。",
     relatedAsciiHexTitle: "ASCII to Hex 转换器",
     relatedAsciiHexText: "将 ASCII 或 UTF-8 文本编码为十六进制字节。",
-    relatedDecimalTitle: "ASCII to Decimal 转换器",
-    relatedDecimalText: "将 ASCII 或 UTF-8 文本转换为十进制字节值。"
+      relatedDecimalTitle: "ASCII to Decimal 转换器",
+      relatedDecimalText: "将 ASCII 或 UTF-8 文本转换为十进制字节值。",
+      relatedDecimalAsciiTitle: "Decimal to ASCII 转换器",
+      relatedDecimalAsciiText: "将十进制值按严格 ASCII 或已验证的 UTF-8 字节解码。",
+      relatedAsciiOctalTitle: "ASCII to Octal 转换器",
+      relatedAsciiOctalText: "将 ASCII 字符或 UTF-8 字节写成三位八进制值。",
+      relatedOctalAsciiTitle: "Octal to ASCII 转换器",
+      relatedOctalAsciiText: "将分隔或连续八进制组解码为 ASCII 或 UTF-8 文本。",
+      relatedUnicodeHexTitle: "Unicode to Hex 转换器",
+      relatedUnicodeHexText: "对比 Unicode 码点十六进制与真实 UTF-8 十六进制字节。",
+      relatedUnicodeBinaryTitle: "Unicode to Binary 转换器",
+      relatedUnicodeBinaryText: "对比 Unicode 码点二进制与真实 UTF-8 字节组。"
   });
   if (activePage && window.asciiUnicodeI18n && window.asciiUnicodeI18n.pages[activePage]) {
     Object.entries(window.asciiUnicodeI18n.pages[activePage]).forEach(([lang, values]) => {
@@ -251,7 +261,14 @@
       warningInvalidBinary: "Use binary digits only. Spaces, commas, line breaks, colons, hyphens, and 0b prefixes are supported.",
       warningIncompleteBinary: "Use complete 7-bit or 8-bit groups for ASCII, or complete 8-bit bytes for UTF-8.",
       warningInvalidUtf8Binary: "The binary bytes are not valid UTF-8 throughout. Replacement characters mark invalid sequences.",
-      warningNonAsciiBinary: "Values above 127 are not standard ASCII and are shown as ?. Choose UTF-8 when the bytes encode multilingual text."
+      warningNonAsciiBinary: "Values above 127 are not standard ASCII and are shown as ?. Choose UTF-8 when the bytes encode multilingual text.",
+      warningInvalidDecimal: "Use whole decimal values separated by spaces, commas, semicolons, or line breaks.",
+      warningDecimalRange: "ASCII values must be 0-127 and UTF-8 bytes must be 0-255.",
+      warningInvalidUtf8Decimal: "The decimal bytes are not valid UTF-8 throughout. Replacement characters mark invalid sequences.",
+      warningNonAsciiOctal: "Non-ASCII characters are marked as ???. Use UTF-8 Bytes to encode them without ambiguity.",
+      warningInvalidOctal: "Use octal digits 0-7. Separators and 0o prefixes are supported.",
+      warningOctalRange: "ASCII octal values must be 000-177 and UTF-8 octal bytes must be 000-377.",
+      warningInvalidUtf8Octal: "The octal bytes are not valid UTF-8 throughout. Replacement characters mark invalid sequences."
     };
     const text = key ? (t(key) || fallback[key]) : "";
     els.warning.textContent = text || "";
@@ -267,7 +284,7 @@
       btn.classList.toggle("is-active", active);
       btn.setAttribute("aria-selected", String(active));
     });
-    els.format.disabled = !["encode", "entities", "ascii-binary", "utf8-binary", "ascii-hex", "utf8-hex", "ascii-decimal", "utf8-decimal", "hex-to-text", "binary-to-text"].includes(mode);
+    els.format.disabled = !["encode", "entities", "ascii-binary", "utf8-binary", "ascii-hex", "utf8-hex", "ascii-decimal", "utf8-decimal", "hex-to-text", "binary-to-text", "decimal-to-text", "ascii-octal", "utf8-octal", "octal-to-text", "unicode-codepoint-hex", "unicode-codepoint-binary"].includes(mode);
     syncCustomSelect();
     trackEvent("mode_change", { mode });
     if (els.auto.checked) {
@@ -441,7 +458,7 @@
   }
 
   function joinBinaryBytes(bytes, format) {
-    const separator = format === "binary-compact" ? "" : (format === "binary-lines" ? "\n" : " ");
+    const separator = format === "binary-compact" ? "" : (format.endsWith("-lines") ? "\n" : " ");
     return bytes.join(separator);
   }
 
@@ -471,8 +488,14 @@
     if (format === "hex-prefix") {
       return pairs.map((pair) => "0x" + pair).join(" ");
     }
+    if (format === "codepoint-0x") {
+      return pairs.map((pair) => "0x" + pair).join(" ");
+    }
     if (format === "hex-escape") {
       return pairs.map((pair) => "\\x" + pair).join("");
+    }
+    if (format.endsWith("-lines")) {
+      return pairs.join("\n");
     }
     return pairs.join(" ");
   }
@@ -514,6 +537,106 @@
 
   function utf8ToDecimal(input, format = "decimal-space") {
     return formatDecimalValues(Array.from(new TextEncoder().encode(input)), format);
+  }
+
+  function parseSeparatedIntegers(input, radix, invalidWarning) {
+    const normalized = input.trim().replace(radix === 8 ? /\b0o(?=[0-7])/gi : /\b0d(?=[0-9])/gi, "");
+    const validPattern = radix === 8 ? /^[0-7\s,;:_-]+$/ : /^[0-9\s,;:_-]+$/;
+    if (!normalized || !validPattern.test(normalized)) {
+      return { values: [], warning: invalidWarning };
+    }
+    return {
+      values: normalized.split(/[\s,;:_-]+/).filter(Boolean).map((token) => Number.parseInt(token, radix)),
+      warning: ""
+    };
+  }
+
+  function decimalToText(input, format = "decimal-ascii") {
+    const parsed = parseSeparatedIntegers(input, 10, "warningInvalidDecimal");
+    if (parsed.warning) return { output: "", warning: parsed.warning };
+    const utf8 = format === "decimal-utf8";
+    const limit = utf8 ? 255 : 127;
+    if (parsed.values.some((value) => !Number.isInteger(value) || value < 0 || value > limit)) {
+      return { output: "", warning: "warningDecimalRange" };
+    }
+    if (!utf8) {
+      return { output: parsed.values.map((value) => String.fromCharCode(value)).join(""), warning: "" };
+    }
+    const output = new TextDecoder("utf-8", { fatal: false }).decode(new Uint8Array(parsed.values));
+    return { output, warning: output.includes("\uFFFD") ? "warningInvalidUtf8Decimal" : "" };
+  }
+
+  function formatOctalValues(values, format = "octal-space") {
+    const groups = values.map((value) => value === null ? "???" : value.toString(8).padStart(3, "0"));
+    if (format === "octal-compact") return groups.join("");
+    if (format === "octal-prefix") return groups.map((group) => "0o" + group).join(" ");
+    if (format === "octal-lines") return groups.join("\n");
+    return groups.join(" ");
+  }
+
+  function asciiToOctal(input, format = "octal-space") {
+    let hasNonAscii = false;
+    const values = Array.from(input, (char) => {
+      const point = char.codePointAt(0);
+      if (point > 0x7f) {
+        hasNonAscii = true;
+        return null;
+      }
+      return point;
+    });
+    return { output: formatOctalValues(values, format), hasNonAscii };
+  }
+
+  function utf8ToOctal(input, format = "octal-space") {
+    return formatOctalValues(Array.from(new TextEncoder().encode(input)), format);
+  }
+
+  function octalToText(input, format = "octal-ascii") {
+    let normalized = input.trim().replace(/\b0o(?=[0-7])/gi, "");
+    if (!normalized || /[^0-7\s,;:_-]/.test(normalized)) {
+      return { output: "", warning: "warningInvalidOctal" };
+    }
+    const hasSeparators = /[\s,;:_-]/.test(normalized);
+    let groups;
+    if (hasSeparators) {
+      groups = normalized.split(/[\s,;:_-]+/).filter(Boolean);
+      if (!groups.every((group) => group.length >= 1 && group.length <= 3)) {
+        return { output: "", warning: "warningInvalidOctal" };
+      }
+    } else {
+      if (normalized.length % 3 !== 0) return { output: "", warning: "warningInvalidOctal" };
+      groups = normalized.match(/.{3}/g);
+    }
+    const values = groups.map((group) => Number.parseInt(group, 8));
+    const utf8 = format === "octal-utf8";
+    const limit = utf8 ? 255 : 127;
+    if (values.some((value) => value > limit)) {
+      return { output: "", warning: "warningOctalRange" };
+    }
+    if (!utf8) return { output: values.map((value) => String.fromCharCode(value)).join(""), warning: "" };
+    const output = new TextDecoder("utf-8", { fatal: false }).decode(new Uint8Array(values));
+    return { output, warning: output.includes("\uFFFD") ? "warningInvalidUtf8Octal" : "" };
+  }
+
+  function joinCodePoints(values, format, prefix) {
+    const separator = format.endsWith("-lines") ? "\n" : " ";
+    return values.map((value) => prefix + value).join(separator);
+  }
+
+  function unicodeToCodePointHex(input, format = "codepoint-uplus") {
+    const values = Array.from(input, (char) => codePointHex(char.codePointAt(0), char.codePointAt(0) > 0xffff ? 5 : 4));
+    if (format === "codepoint-0x") return joinCodePoints(values, format, "0x");
+    if (format === "codepoint-hex-lines") return joinCodePoints(values, format, "");
+    return joinCodePoints(values, format, "U+");
+  }
+
+  function unicodeToCodePointBinary(input, format = "codepoint-binary-space") {
+    const values = Array.from(input, (char) => {
+      const point = char.codePointAt(0);
+      const width = point <= 0xff ? 8 : (point <= 0xffff ? 16 : 21);
+      return point.toString(2).padStart(width, "0");
+    });
+    return values.join(format === "codepoint-binary-lines" ? "\n" : " ");
   }
 
   function hexToText(input, format = "hex-utf8") {
@@ -651,6 +774,24 @@
       modeWarning = decimal.hasNonAscii ? "warningNonAsciiDecimal" : "";
     } else if (mode === "utf8-decimal") {
       output = utf8ToDecimal(input, format);
+    } else if (mode === "decimal-to-text") {
+      const decoded = decimalToText(input, format);
+      output = decoded.output;
+      modeWarning = decoded.warning;
+    } else if (mode === "ascii-octal") {
+      const octal = asciiToOctal(input, format);
+      output = octal.output;
+      modeWarning = octal.hasNonAscii ? "warningNonAsciiOctal" : "";
+    } else if (mode === "utf8-octal") {
+      output = utf8ToOctal(input, format);
+    } else if (mode === "octal-to-text") {
+      const decoded = octalToText(input, format);
+      output = decoded.output;
+      modeWarning = decoded.warning;
+    } else if (mode === "unicode-codepoint-hex") {
+      output = unicodeToCodePointHex(input, format);
+    } else if (mode === "unicode-codepoint-binary") {
+      output = unicodeToCodePointBinary(input, format);
     } else if (mode === "hex-to-text") {
       const decoded = hexToText(input, format);
       output = decoded.output;
@@ -663,7 +804,7 @@
 
     return {
       output,
-      warning: warning || modeWarning || (output === input && !["encode", "ascii-binary", "utf8-binary", "ascii-hex", "utf8-hex", "ascii-decimal", "utf8-decimal", "hex-to-text", "binary-to-text"].includes(mode) ? "warningNoChange" : "")
+      warning: warning || modeWarning || (output === input && !["encode", "ascii-binary", "utf8-binary", "ascii-hex", "utf8-hex", "ascii-decimal", "utf8-decimal", "hex-to-text", "binary-to-text", "decimal-to-text", "ascii-octal", "utf8-octal", "octal-to-text", "unicode-codepoint-hex", "unicode-codepoint-binary"].includes(mode) ? "warningNoChange" : "")
     };
   }
 
@@ -884,7 +1025,7 @@
       applyLanguage(savedLang);
     }
     const requestedMode = document.body.dataset.defaultMode || "decode";
-    const defaultMode = ["decode", "encode", "entities", "mojibake", "transliterate", "ascii-replace", "ascii-remove", "ascii-binary", "utf8-binary", "ascii-hex", "utf8-hex", "ascii-decimal", "utf8-decimal", "hex-to-text", "binary-to-text"].includes(requestedMode)
+    const defaultMode = ["decode", "encode", "entities", "mojibake", "transliterate", "ascii-replace", "ascii-remove", "ascii-binary", "utf8-binary", "ascii-hex", "utf8-hex", "ascii-decimal", "utf8-decimal", "hex-to-text", "binary-to-text", "decimal-to-text", "ascii-octal", "utf8-octal", "octal-to-text", "unicode-codepoint-hex", "unicode-codepoint-binary"].includes(requestedMode)
       ? requestedMode
       : "decode";
     updateMode(defaultMode);
@@ -901,6 +1042,12 @@
     utf8ToHex,
     asciiToDecimal,
     utf8ToDecimal,
+    decimalToText,
+    asciiToOctal,
+    utf8ToOctal,
+    octalToText,
+    unicodeToCodePointHex,
+    unicodeToCodePointBinary,
     hexToText,
     binaryToText,
     transliterateToAscii,

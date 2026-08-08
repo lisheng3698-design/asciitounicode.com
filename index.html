@@ -25,6 +25,30 @@
       gtag('js', new Date());
       gtag('config', 'G-44TJT1E80H');
     </script>
+    <!-- shared-entity-schema -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@graph": [
+          {
+            "@type": "Organization",
+            "@id": "https://asciitounicode.com/#organization",
+            "name": "ASCII to Unicode",
+            "url": "https://asciitounicode.com/"
+          },
+          {
+            "@type": "WebSite",
+            "@id": "https://asciitounicode.com/#website",
+            "name": "ASCII to Unicode",
+            "url": "https://asciitounicode.com/",
+            "publisher": {
+              "@id": "https://asciitounicode.com/#organization"
+            }
+          }
+        ]
+      }
+    </script>
+
     <script type="application/ld+json">
       {
         "@context": "https://schema.org",
@@ -535,6 +559,26 @@
           <a href="ascii-to-decimal/">
             <strong data-i18n="relatedDecimalTitle">ASCII to Decimal Converter</strong>
             <span data-i18n="relatedDecimalText">Convert ASCII or UTF-8 text into decimal byte values.</span>
+          </a>
+          <a href="decimal-to-ascii/">
+            <strong data-i18n="relatedDecimalAsciiTitle">Decimal to ASCII Converter</strong>
+            <span data-i18n="relatedDecimalAsciiText">Decode decimal values as strict ASCII or validated UTF-8 bytes.</span>
+          </a>
+          <a href="ascii-to-octal/">
+            <strong data-i18n="relatedAsciiOctalTitle">ASCII to Octal Converter</strong>
+            <span data-i18n="relatedAsciiOctalText">Write ASCII characters or UTF-8 bytes as three-digit octal values.</span>
+          </a>
+          <a href="octal-to-ascii/">
+            <strong data-i18n="relatedOctalAsciiTitle">Octal to ASCII Converter</strong>
+            <span data-i18n="relatedOctalAsciiText">Decode separated or compact octal groups into ASCII or UTF-8 text.</span>
+          </a>
+          <a href="unicode-to-hex/">
+            <strong data-i18n="relatedUnicodeHexTitle">Unicode to Hex Converter</strong>
+            <span data-i18n="relatedUnicodeHexText">Compare Unicode code point hex with actual UTF-8 hexadecimal bytes.</span>
+          </a>
+          <a href="unicode-to-binary/">
+            <strong data-i18n="relatedUnicodeBinaryTitle">Unicode to Binary Converter</strong>
+            <span data-i18n="relatedUnicodeBinaryText">Compare binary code point values with actual UTF-8 byte groups.</span>
           </a>
         </div>
       </section>

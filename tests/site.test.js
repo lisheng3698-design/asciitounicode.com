@@ -56,7 +56,7 @@ test("homepage source includes crawlable content, examples, image alt, and JSON-
   assert.match(html, /href="contact\.html"/);
   assert.match(html, /href="ascii-to-decimal\/"/);
   assert.match(html, /mailto:lisheng3698@gmail\.com/);
-  assert.equal(countMatches(html, /application\/ld\+json/g), 3);
+  assert.equal(countMatches(html, /application\/ld\+json/g), 4);
   assert.match(html, /"@type": "WebApplication"/);
   assert.match(html, /"@type": "HowTo"/);
   assert.match(html, /"@type": "FAQPage"/);
@@ -182,6 +182,13 @@ test("all public pages use the same eight-language custom listbox", () => {
   assert.match(asciiDecimalHtml, /<script src="\.\.\/translations\.js\?v=20260718-ascii-decimal" defer><\/script>/);
   assert.match(asciiDecimalHtml, /<script src="translations\.js\?v=20260718-ascii-decimal" defer><\/script>/);
   assert.match(asciiDecimalHtml, /<script src="\.\.\/site-language\.js\?v=20260718-ascii-decimal" defer><\/script>/);
+
+  for (const file of ["decimal-to-ascii/index.html", "ascii-to-octal/index.html", "octal-to-ascii/index.html", "unicode-to-hex/index.html", "unicode-to-binary/index.html"]) {
+    const html = read(file);
+    assert.match(html, /data-language-select/, `${file} language selector`);
+    assert.equal(countMatches(html, /class="select-option language-option(?: is-selected)?"/g), 8, `${file} language count`);
+    assert.match(html, /<script src="\.\.\/batch-page-translations\.js\?v=20260808-inner-batch" defer><\/script>/);
+  }
 });
 
 test("translation packs cover every key and preserve ASCII to Unicode", () => {
@@ -257,6 +264,15 @@ test("translation packs cover every key and preserve ASCII to Unicode", () => {
     assert.match(i18n.pages.asciiToDecimal[lang].howTitle, /ASCII/, "asciiToDecimal/" + lang + " localized how title");
     assert.match(i18n.meta.asciiToDecimal[lang].title, /ASCII to Decimal/, "asciiToDecimal/" + lang + " title keyword");
   }
+
+  vm.runInNewContext(read("batch-page-translations.js"), context);
+  for (const page of ["decimalToAscii", "asciiToOctal", "octalToAscii", "unicodeToHex", "unicodeToBinary"]) {
+    const expectedKeys = Object.keys(i18n.pages[page].zh);
+    for (const lang of ["zh", "es", "pt", "fr", "de", "ja", "ko"]) {
+      assert.equal(Object.keys(i18n.pages[page][lang]).length, expectedKeys.length, `${page}/${lang} keys`);
+      assert.ok(Object.values(i18n.pages[page][lang]).every(Boolean), `${page}/${lang} has no blank translations`);
+    }
+  }
 });
 
 test("preview image asset is regenerated and kept at the stable public path", () => {
@@ -291,6 +307,9 @@ test("robots and sitemap point to the canonical production URL", () => {
   assert.match(read("sitemap.xml"), /<loc>https:\/\/asciitounicode\.com\/ascii-to-hex\/<\/loc>/);
   assert.match(read("sitemap.xml"), /<loc>https:\/\/asciitounicode\.com\/binary-to-ascii\/<\/loc>/);
   assert.match(read("sitemap.xml"), /<loc>https:\/\/asciitounicode\.com\/ascii-to-decimal\/<\/loc>/);
+  for (const slug of ["decimal-to-ascii", "ascii-to-octal", "octal-to-ascii", "unicode-to-hex", "unicode-to-binary"]) {
+    assert.match(read("sitemap.xml"), new RegExp(`<loc>https:\\/\\/asciitounicode\\.com\\/${slug}\\/<\\/loc>`));
+  }
 });
 
 test("unicode to ascii page has independent SEO, deep content, and reciprocal links", () => {
@@ -317,7 +336,7 @@ test("unicode to ascii page has independent SEO, deep content, and reciprocal li
   assert.match(html, /Hello, \\u4F60\\u597D!/);
   assert.match(html, /href="\.\.\/" data-i18n="breadcrumbHome">ASCII to Unicode<\/a>/);
   assert.match(homepage, /href="unicode-to-ascii\/"/);
-  assert.equal(countMatches(html, /application\/ld\+json/g), 2);
+  assert.equal(countMatches(html, /application\/ld\+json/g), 3);
   assert.equal(countMatches(html, /name="keywords"/g), 0);
 });
 
@@ -348,7 +367,7 @@ test("ascii to binary page has independent SEO, focused content, and reciprocal 
   assert.match(html, /href="\.\.\/unicode-to-ascii\/"/);
   assert.match(html, /href="\.\.\/binary-to-ascii\/"/);
   assert.match(homepage, /href="ascii-to-binary\/"/);
-  assert.equal(countMatches(html, /application\/ld\+json/g), 2);
+  assert.equal(countMatches(html, /application\/ld\+json/g), 3);
   assert.equal(countMatches(html, /name="keywords"/g), 0);
 });
 
@@ -380,7 +399,7 @@ test("binary to ascii page has independent SEO, focused decoding, and reciprocal
   assert.match(html, /href="\.\.\/hex-to-ascii\/"/);
   assert.match(homepage, /href="binary-to-ascii\/"/);
   assert.match(reversePage, /href="\.\.\/binary-to-ascii\/"/);
-  assert.equal(countMatches(html, /application\/ld\+json/g), 2);
+  assert.equal(countMatches(html, /application\/ld\+json/g), 3);
   assert.equal(countMatches(html, /name="keywords"/g), 0);
 });
 
@@ -411,7 +430,7 @@ test("hex to ascii page has independent SEO, focused decoding, and reciprocal li
   assert.match(html, /href="\.\.\/unicode-to-ascii\/"/);
   assert.match(html, /href="\.\.\/ascii-to-hex\/"/);
   assert.match(homepage, /href="hex-to-ascii\/"/);
-  assert.equal(countMatches(html, /application\/ld\+json/g), 2);
+  assert.equal(countMatches(html, /application\/ld\+json/g), 3);
   assert.equal(countMatches(html, /name="keywords"/g), 0);
 });
 
@@ -446,7 +465,7 @@ test("ascii to hex page has independent SEO, focused encoding, and reciprocal li
   assert.match(html, /href="\.\.\/ascii-to-binary\/"/);
   assert.match(homepage, /href="ascii-to-hex\/"/);
   assert.match(reversePage, /href="\.\.\/ascii-to-hex\/"/);
-  assert.equal(countMatches(html, /application\/ld\+json/g), 2);
+  assert.equal(countMatches(html, /application\/ld\+json/g), 3);
   assert.equal(countMatches(html, /name="keywords"/g), 0);
 });
 
@@ -479,7 +498,7 @@ test("ascii to decimal page has independent SEO, focused encoding, and reciproca
   assert.match(html, /href="\.\.\/ascii-to-hex\/"/);
   assert.match(html, /href="\.\.\/ascii-to-binary\/"/);
   assert.match(homepage, /href="ascii-to-decimal\/"/);
-  assert.equal(countMatches(html, /application\/ld\+json/g), 2);
+  assert.equal(countMatches(html, /application\/ld\+json/g), 3);
   assert.equal(countMatches(html, /name="keywords"/g), 0);
 });
 
@@ -487,6 +506,49 @@ test("converter supports a page-level default mode", () => {
   const js = read("app.js");
   assert.match(js, /document\.body\.dataset\.defaultMode \|\| "decode"/);
   assert.match(js, /updateMode\(defaultMode\)/);
+});
+
+test("today's five inner pages have unique SEO, visible tools, crawl paths, and entity schema", () => {
+  const definitions = [
+    ["decimal-to-ascii", "Decimal to ASCII", "decimal-to-text"],
+    ["ascii-to-octal", "ASCII to Octal", "ascii-octal"],
+    ["octal-to-ascii", "Octal to ASCII", "octal-to-text"],
+    ["unicode-to-hex", "Unicode to Hex", "unicode-codepoint-hex"],
+    ["unicode-to-binary", "Unicode to Binary", "unicode-codepoint-binary"]
+  ];
+  const homepage = read("index.html");
+  const sitemap = read("sitemap.xml");
+  for (const [slug, keyword, mode] of definitions) {
+    const html = read(`${slug}/index.html`);
+    const title = html.match(/<title>([^<]+)<\/title>/)?.[1];
+    const description = html.match(/<meta name="description" content="([^"]+)">/)?.[1];
+    assert.ok(title.includes(keyword) && title.length <= 60, `${slug} title`);
+    assert.ok(description.length <= 160, `${slug} description`);
+    assert.equal(countMatches(html, /<h1\b/g), 1, `${slug} one H1`);
+    assert.match(html, new RegExp(`<link rel="canonical" href="https:\\/\\/asciitounicode\\.com\\/${slug}\\/">`));
+    assert.match(html, new RegExp(`data-default-mode="${mode}"`));
+    assert.match(html, /id="input-text"/);
+    assert.match(html, /id="output-text"/);
+    assert.match(html, /<h2[^>]*>/);
+    assert.match(html, /<h3|<table/);
+    assert.match(html, /href="\.\.\/"/);
+    assert.match(homepage, new RegExp(`href="${slug}\\/"`));
+    assert.match(sitemap, new RegExp(`<loc>https:\\/\\/asciitounicode\\.com\\/${slug}\\/<\\/loc>[\\s\\S]*?<lastmod>2026-08-08<\\/lastmod>`));
+    const jsonLd = [...html.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)].map((match) => JSON.parse(match[1]));
+    const types = new Set(jsonLd.flatMap((item) => (item["@graph"] || [item]).map((node) => node["@type"])));
+    for (const type of ["Organization", "WebSite", "WebApplication", "Article", "BreadcrumbList"]) assert.ok(types.has(type), `${slug} ${type}`);
+  }
+});
+
+test("all indexable inner pages include Organization, WebSite, and Article structured data", () => {
+  for (const file of ["unicode-to-ascii/index.html", "ascii-to-binary/index.html", "hex-to-ascii/index.html", "ascii-to-hex/index.html", "binary-to-ascii/index.html", "ascii-to-decimal/index.html", "decimal-to-ascii/index.html", "ascii-to-octal/index.html", "octal-to-ascii/index.html", "unicode-to-hex/index.html", "unicode-to-binary/index.html"]) {
+    const html = read(file);
+    const schemas = [...html.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)].map((match) => JSON.parse(match[1]));
+    const types = new Set(schemas.flatMap((item) => (item["@graph"] || [item]).map((node) => node["@type"])));
+    assert.ok(types.has("Organization"), `${file} Organization`);
+    assert.ok(types.has("WebSite"), `${file} WebSite`);
+    assert.ok(types.has("Article"), `${file} Article`);
+  }
 });
 
 test("Bing verification and IndexNow key are deployable", () => {
@@ -497,7 +559,7 @@ test("Bing verification and IndexNow key are deployable", () => {
 });
 
 test("GA4 is installed on every public page and custom events exclude text content", () => {
-  for (const file of ["index.html", "unicode-to-ascii/index.html", "ascii-to-binary/index.html", "hex-to-ascii/index.html", "ascii-to-hex/index.html", "binary-to-ascii/index.html", "ascii-to-decimal/index.html", "privacy.html", "terms.html", "contact.html", "404.html"]) {
+  for (const file of ["index.html", "unicode-to-ascii/index.html", "ascii-to-binary/index.html", "hex-to-ascii/index.html", "ascii-to-hex/index.html", "binary-to-ascii/index.html", "ascii-to-decimal/index.html", "decimal-to-ascii/index.html", "ascii-to-octal/index.html", "octal-to-ascii/index.html", "unicode-to-hex/index.html", "unicode-to-binary/index.html", "privacy.html", "terms.html", "contact.html", "404.html"]) {
     const html = read(file);
     assert.match(html, /googletagmanager\.com\/gtag\/js\?id=G-44TJT1E80H/, `${file} GA4 loader`);
     assert.match(html, /gtag\('config', 'G-44TJT1E80H'\)/, `${file} GA4 config`);
@@ -523,6 +585,11 @@ test("public pages do not expose internal strategy wording", () => {
     "ascii-to-hex/index.html",
     "binary-to-ascii/index.html",
     "ascii-to-decimal/index.html",
+    "decimal-to-ascii/index.html",
+    "ascii-to-octal/index.html",
+    "octal-to-ascii/index.html",
+    "unicode-to-hex/index.html",
+    "unicode-to-binary/index.html",
     "app.js"
   ].map(read).join("\n");
   assert.doesNotMatch(combined, /boutique tool page|One keyword|一个关键词|精品工具页/);

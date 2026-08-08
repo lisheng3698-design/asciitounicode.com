@@ -122,6 +122,41 @@ test("utf8 decimal mode emits unambiguous encoded bytes", () => {
   assert.equal(tools.convertValue("😀", "utf8-decimal", "decimal-comma").output, "240, 159, 152, 128");
 });
 
+test("decimal to ASCII and UTF-8 modes validate ranges and malformed input", () => {
+  assert.equal(tools.convertValue("72 101 108 108 111", "decimal-to-text", "decimal-ascii").output, "Hello");
+  assert.equal(tools.convertValue("195, 169", "decimal-to-text", "decimal-utf8").output, "é");
+  assert.equal(tools.convertValue("128", "decimal-to-text", "decimal-ascii").warning, "warningDecimalRange");
+  assert.equal(tools.convertValue("72 nope", "decimal-to-text", "decimal-ascii").warning, "warningInvalidDecimal");
+  assert.equal(tools.convertValue("255", "decimal-to-text", "decimal-utf8").warning, "warningInvalidUtf8Decimal");
+});
+
+test("ASCII to octal supports strict ASCII and UTF-8 byte output", () => {
+  assert.equal(tools.convertValue("Hello", "ascii-octal", "octal-space").output, "110 145 154 154 157");
+  assert.equal(tools.convertValue("A B", "ascii-octal", "octal-prefix").output, "0o101 0o040 0o102");
+  assert.equal(tools.convertValue("é", "utf8-octal", "octal-space").output, "303 251");
+  assert.equal(tools.convertValue("é", "ascii-octal", "octal-space").warning, "warningNonAsciiOctal");
+});
+
+test("octal to ASCII parses separated and compact input with strict validation", () => {
+  assert.equal(tools.convertValue("110 145 154 154 157", "octal-to-text", "octal-ascii").output, "Hello");
+  assert.equal(tools.convertValue("110145154154157", "octal-to-text", "octal-ascii").output, "Hello");
+  assert.equal(tools.convertValue("0o110, 0o151", "octal-to-text", "octal-ascii").output, "Hi");
+  assert.equal(tools.convertValue("303 251", "octal-to-text", "octal-utf8").output, "é");
+  assert.equal(tools.convertValue("178", "octal-to-text", "octal-ascii").warning, "warningInvalidOctal");
+  assert.equal(tools.convertValue("200", "octal-to-text", "octal-ascii").warning, "warningOctalRange");
+});
+
+test("Unicode code point hex and binary stay distinct from UTF-8 bytes", () => {
+  assert.equal(tools.convertValue("Aé你😀", "unicode-codepoint-hex", "codepoint-uplus").output, "U+0041 U+00E9 U+4F60 U+1F600");
+  assert.equal(tools.convertValue("😀", "utf8-hex", "codepoint-uplus").output, "F0 9F 98 80");
+  assert.equal(tools.convertValue("é", "utf8-hex", "codepoint-0x").output, "0xC3 0xA9");
+  assert.equal(tools.convertValue("é", "utf8-hex", "codepoint-hex-lines").output, "C3\nA9");
+  assert.equal(tools.convertValue("é", "unicode-codepoint-binary", "codepoint-binary-space").output, "11101001");
+  assert.equal(tools.convertValue("é", "utf8-binary", "codepoint-binary-space").output, "11000011 10101001");
+  assert.equal(tools.convertValue("é", "utf8-binary", "codepoint-binary-lines").output, "11000011\n10101001");
+  assert.equal(tools.convertValue("😀", "unicode-codepoint-binary", "codepoint-binary-space").output, "000011111011000000000");
+});
+
 test("hex to text mode parses common byte formats and decodes UTF-8", () => {
   assert.equal(tools.convertValue("48 65 6C 6C 6F", "hex-to-text", "hex-utf8").output, "Hello");
   assert.equal(tools.convertValue("48656c6c6f", "hex-to-text", "hex-utf8").output, "Hello");
