@@ -602,13 +602,18 @@ test("2026-08-10 five radix pages have unique SEO, real tools, translated copy, 
 
   const context = { window: { asciiUnicodeI18n: { pages: {}, meta: {}, home: {} } } };
   vm.runInNewContext(read("radix-page-translations.js"), context);
-  for (const [, , , pageKey] of definitions) {
+  for (const [slug, , , pageKey] of definitions) {
     const page = context.window.asciiUnicodeI18n.pages[pageKey];
+    const html = read(`${slug}/index.html`);
+    const englishTitle = html.match(/<title>([^<]+)<\/title>/)?.[1];
+    const englishDescription = html.match(/<meta name="description" content="([^"]+)">/)?.[1];
     const expectedKeys = Object.keys(page.zh);
     for (const lang of ["zh", "es", "pt", "fr", "de", "ja", "ko"]) {
       assert.equal(Object.keys(page[lang]).length, expectedKeys.length, `${pageKey}/${lang} keys`);
       assert.ok(Object.values(page[lang]).every(Boolean), `${pageKey}/${lang} has no blank translations`);
       assert.match(page[lang].heroTitle, new RegExp(definitions.find((item) => item[3] === pageKey)[1]), `${pageKey}/${lang} keyword`);
+      assert.notEqual(context.window.asciiUnicodeI18n.meta[pageKey][lang].title, englishTitle, `${pageKey}/${lang} localized title`);
+      assert.notEqual(context.window.asciiUnicodeI18n.meta[pageKey][lang].description, englishDescription, `${pageKey}/${lang} localized description`);
     }
   }
 });
