@@ -192,6 +192,41 @@ test("hex to binary preserves every nibble and rejects invalid input", () => {
   assert.equal(tools.convertValue("2G", "hex-to-binary", "hex-binary-nibbles").warning, "warningInvalidHex");
 });
 
+test("binary to hex preserves nibble width and rejects invalid input", () => {
+  assert.equal(tools.convertValue("1111 0000", "binary-to-hex", "binary-hex-upper").output, "F0");
+  assert.equal(tools.convertValue("0b00001111", "binary-to-hex", "binary-hex-prefix").output, "0x0F");
+  assert.equal(tools.convertValue("101", "binary-to-hex", "binary-hex-lower").output, "5");
+  assert.equal(tools.convertValue("10201", "binary-to-hex", "binary-hex-upper").warning, "warningInvalidBinary");
+});
+
+test("hex to decimal handles prefixes, large integers, and malformed input", () => {
+  assert.equal(tools.convertValue("0xFF", "hex-to-decimal", "base-decimal").output, "255");
+  assert.equal(tools.convertValue("FFFFFFFFFFFFFFFF", "hex-to-decimal", "base-decimal").output, "18446744073709551615");
+  assert.equal(tools.convertValue("1A_2B", "hex-to-decimal", "base-decimal").output, "6699");
+  assert.equal(tools.convertValue("-FF", "hex-to-decimal", "base-decimal").warning, "warningInvalidHexInteger");
+});
+
+test("octal to decimal validates base-8 digits and keeps large integers exact", () => {
+  assert.equal(tools.convertValue("0o755", "octal-to-decimal", "base-decimal").output, "493");
+  assert.equal(tools.convertValue("1777777777777777777777", "octal-to-decimal", "base-decimal").output, "18446744073709551615");
+  assert.equal(tools.convertValue("7_55", "octal-to-decimal", "base-decimal").output, "493");
+  assert.equal(tools.convertValue("789", "octal-to-decimal", "base-decimal").warning, "warningInvalidOctalInteger");
+});
+
+test("octal to hex supports output casing and prefix", () => {
+  assert.equal(tools.convertValue("755", "octal-to-hex", "octal-hex-upper").output, "1ED");
+  assert.equal(tools.convertValue("0o377", "octal-to-hex", "octal-hex-prefix").output, "0xFF");
+  assert.equal(tools.convertValue("17", "octal-to-hex", "octal-hex-lower").output, "f");
+  assert.equal(tools.convertValue("128", "octal-to-hex", "octal-hex-upper").warning, "warningInvalidOctalInteger");
+});
+
+test("hex to octal converts exact integers and rejects unsupported signs", () => {
+  assert.equal(tools.convertValue("0x1ED", "hex-to-octal", "hex-octal-plain").output, "755");
+  assert.equal(tools.convertValue("FF", "hex-to-octal", "hex-octal-prefix").output, "0o377");
+  assert.equal(tools.convertValue("FFFFFFFFFFFFFFFF", "hex-to-octal", "hex-octal-plain").output, "1777777777777777777777");
+  assert.equal(tools.convertValue("+FF", "hex-to-octal", "hex-octal-plain").warning, "warningInvalidHexInteger");
+});
+
 test("hex to text mode parses common byte formats and decodes UTF-8", () => {
   assert.equal(tools.convertValue("48 65 6C 6C 6F", "hex-to-text", "hex-utf8").output, "Hello");
   assert.equal(tools.convertValue("48656c6c6f", "hex-to-text", "hex-utf8").output, "Hello");

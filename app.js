@@ -269,6 +269,8 @@
       warningInvalidOctal: "Use octal digits 0-7. Separators and 0o prefixes are supported.",
       warningOctalRange: "ASCII octal values must be 000-177 and UTF-8 octal bytes must be 000-377.",
       warningInvalidUtf8Octal: "The octal bytes are not valid UTF-8 throughout. Replacement characters mark invalid sequences.",
+      warningInvalidHexInteger: "Enter one non-negative hexadecimal integer using digits 0-9 and A-F; optional 0x, spaces, and underscores are supported.",
+      warningInvalidOctalInteger: "Enter one non-negative octal integer using digits 0-7; optional 0o, spaces, and underscores are supported.",
       warningInvalidUnicodeCodePoint: "Enter complete hexadecimal or decimal Unicode scalar values separated by spaces, commas, semicolons, or line breaks.",
       warningUnicodeRange: "Unicode scalar values must be between 0 and U+10FFFF.",
       warningUnicodeSurrogate: "Surrogate values U+D800 through U+DFFF are not Unicode scalar values."
@@ -287,7 +289,7 @@
       btn.classList.toggle("is-active", active);
       btn.setAttribute("aria-selected", String(active));
     });
-    els.format.disabled = !["encode", "entities", "ascii-binary", "utf8-binary", "ascii-hex", "utf8-hex", "ascii-decimal", "utf8-decimal", "hex-to-text", "binary-to-text", "decimal-to-text", "ascii-octal", "utf8-octal", "octal-to-text", "unicode-codepoint-hex", "unicode-codepoint-binary", "hex-to-unicode", "decimal-to-unicode", "unicode-codepoint-decimal", "unicode-utf8-decimal", "character-to-unicode", "hex-to-binary"].includes(mode);
+    els.format.disabled = !["encode", "entities", "ascii-binary", "utf8-binary", "ascii-hex", "utf8-hex", "ascii-decimal", "utf8-decimal", "hex-to-text", "binary-to-text", "decimal-to-text", "ascii-octal", "utf8-octal", "octal-to-text", "unicode-codepoint-hex", "unicode-codepoint-binary", "hex-to-unicode", "decimal-to-unicode", "unicode-codepoint-decimal", "unicode-utf8-decimal", "character-to-unicode", "hex-to-binary", "binary-to-hex", "octal-to-hex", "hex-to-octal"].includes(mode);
     syncCustomSelect();
     trackEvent("mode_change", { mode });
     if (els.auto.checked) {
@@ -703,6 +705,55 @@
     return { output: nibbles.join(" "), warning: "" };
   }
 
+  function binaryToHex(input, format = "binary-hex-upper") {
+    const compact = input.trim().replace(/0b/gi, "").replace(/[\s,;:_-]+/g, "");
+    if (!compact || /[^01]/.test(compact)) return { output: "", warning: "warningInvalidBinary" };
+    const padded = compact.padStart(Math.ceil(compact.length / 4) * 4, "0");
+    let output = padded.match(/.{4}/g).map((bits) => Number.parseInt(bits, 2).toString(16)).join("");
+    if (format !== "binary-hex-lower") output = output.toUpperCase();
+    if (format === "binary-hex-prefix") output = "0x" + output;
+    return { output, warning: "" };
+  }
+
+  function parseBaseInteger(input, radix, warning) {
+    const prefixes = { 2: /^0b/i, 8: /^0o/i, 16: /^0x/i };
+    const patterns = { 2: /^[01]+$/, 8: /^[0-7]+$/, 16: /^[0-9a-f]+$/i };
+    const compact = input.trim().replace(prefixes[radix], "").replace(/[\s_]+/g, "");
+    if (!compact || !patterns[radix].test(compact)) return { value: null, warning };
+    const prefix = radix === 2 ? "0b" : (radix === 8 ? "0o" : "0x");
+    try {
+      return { value: BigInt(prefix + compact), warning: "" };
+    } catch (error) {
+      return { value: null, warning };
+    }
+  }
+
+  function hexToDecimal(input) {
+    const parsed = parseBaseInteger(input, 16, "warningInvalidHexInteger");
+    return parsed.warning ? { output: "", warning: parsed.warning } : { output: parsed.value.toString(10), warning: "" };
+  }
+
+  function octalToDecimal(input) {
+    const parsed = parseBaseInteger(input, 8, "warningInvalidOctalInteger");
+    return parsed.warning ? { output: "", warning: parsed.warning } : { output: parsed.value.toString(10), warning: "" };
+  }
+
+  function octalToHex(input, format = "octal-hex-upper") {
+    const parsed = parseBaseInteger(input, 8, "warningInvalidOctalInteger");
+    if (parsed.warning) return { output: "", warning: parsed.warning };
+    let output = parsed.value.toString(16);
+    if (format !== "octal-hex-lower") output = output.toUpperCase();
+    if (format === "octal-hex-prefix") output = "0x" + output;
+    return { output, warning: "" };
+  }
+
+  function hexToOctal(input, format = "hex-octal-plain") {
+    const parsed = parseBaseInteger(input, 16, "warningInvalidHexInteger");
+    if (parsed.warning) return { output: "", warning: parsed.warning };
+    const value = parsed.value.toString(8);
+    return { output: format === "hex-octal-prefix" ? "0o" + value : value, warning: "" };
+  }
+
   function hexToText(input, format = "hex-utf8") {
     const compact = input
       .replace(/(?:0x|\\x)/gi, "")
@@ -874,6 +925,26 @@
       const converted = hexToBinary(input, format);
       output = converted.output;
       modeWarning = converted.warning;
+    } else if (mode === "binary-to-hex") {
+      const converted = binaryToHex(input, format);
+      output = converted.output;
+      modeWarning = converted.warning;
+    } else if (mode === "hex-to-decimal") {
+      const converted = hexToDecimal(input);
+      output = converted.output;
+      modeWarning = converted.warning;
+    } else if (mode === "octal-to-decimal") {
+      const converted = octalToDecimal(input);
+      output = converted.output;
+      modeWarning = converted.warning;
+    } else if (mode === "octal-to-hex") {
+      const converted = octalToHex(input, format);
+      output = converted.output;
+      modeWarning = converted.warning;
+    } else if (mode === "hex-to-octal") {
+      const converted = hexToOctal(input, format);
+      output = converted.output;
+      modeWarning = converted.warning;
     } else if (mode === "hex-to-text") {
       const decoded = hexToText(input, format);
       output = decoded.output;
@@ -886,7 +957,7 @@
 
     return {
       output,
-      warning: warning || modeWarning || (output === input && !["encode", "ascii-binary", "utf8-binary", "ascii-hex", "utf8-hex", "ascii-decimal", "utf8-decimal", "hex-to-text", "binary-to-text", "decimal-to-text", "ascii-octal", "utf8-octal", "octal-to-text", "unicode-codepoint-hex", "unicode-codepoint-binary", "hex-to-unicode", "decimal-to-unicode", "unicode-codepoint-decimal", "unicode-utf8-decimal", "character-to-unicode", "hex-to-binary"].includes(mode) ? "warningNoChange" : "")
+      warning: warning || modeWarning || (output === input && !["encode", "ascii-binary", "utf8-binary", "ascii-hex", "utf8-hex", "ascii-decimal", "utf8-decimal", "hex-to-text", "binary-to-text", "decimal-to-text", "ascii-octal", "utf8-octal", "octal-to-text", "unicode-codepoint-hex", "unicode-codepoint-binary", "hex-to-unicode", "decimal-to-unicode", "unicode-codepoint-decimal", "unicode-utf8-decimal", "character-to-unicode", "hex-to-binary", "binary-to-hex", "hex-to-decimal", "octal-to-decimal", "octal-to-hex", "hex-to-octal"].includes(mode) ? "warningNoChange" : "")
     };
   }
 
@@ -1111,7 +1182,7 @@
       applyLanguage(savedLang);
     }
     const requestedMode = document.body.dataset.defaultMode || "decode";
-    const defaultMode = ["decode", "encode", "entities", "mojibake", "transliterate", "ascii-replace", "ascii-remove", "ascii-binary", "utf8-binary", "ascii-hex", "utf8-hex", "ascii-decimal", "utf8-decimal", "hex-to-text", "binary-to-text", "decimal-to-text", "ascii-octal", "utf8-octal", "octal-to-text", "unicode-codepoint-hex", "unicode-codepoint-binary", "hex-to-unicode", "decimal-to-unicode", "unicode-codepoint-decimal", "unicode-utf8-decimal", "character-to-unicode", "hex-to-binary"].includes(requestedMode)
+    const defaultMode = ["decode", "encode", "entities", "mojibake", "transliterate", "ascii-replace", "ascii-remove", "ascii-binary", "utf8-binary", "ascii-hex", "utf8-hex", "ascii-decimal", "utf8-decimal", "hex-to-text", "binary-to-text", "decimal-to-text", "ascii-octal", "utf8-octal", "octal-to-text", "unicode-codepoint-hex", "unicode-codepoint-binary", "hex-to-unicode", "decimal-to-unicode", "unicode-codepoint-decimal", "unicode-utf8-decimal", "character-to-unicode", "hex-to-binary", "binary-to-hex", "hex-to-decimal", "octal-to-decimal", "octal-to-hex", "hex-to-octal"].includes(requestedMode)
       ? requestedMode
       : "decode";
     updateMode(defaultMode);
@@ -1139,6 +1210,11 @@
     unicodeToCodePointDecimal,
     characterToUnicode,
     hexToBinary,
+    binaryToHex,
+    hexToDecimal,
+    octalToDecimal,
+    octalToHex,
+    hexToOctal,
     hexToText,
     binaryToText,
     transliterateToAscii,

@@ -55,7 +55,7 @@ test("homepage source includes crawlable content, examples, image alt, and JSON-
   assert.match(html, /href="terms\.html"/);
   assert.match(html, /href="contact\.html"/);
   assert.match(html, /href="ascii-to-decimal\/"/);
-  for (const slug of ["hex-to-unicode", "character-to-unicode", "decimal-to-unicode", "unicode-to-decimal", "hex-to-binary"]) {
+  for (const slug of ["hex-to-unicode", "character-to-unicode", "decimal-to-unicode", "unicode-to-decimal", "hex-to-binary", "binary-to-hex", "hex-to-decimal", "octal-to-decimal", "octal-to-hex", "hex-to-octal"]) {
     assert.match(html, new RegExp(`href="${slug}\\/"`), `${slug} homepage crawl path`);
   }
   assert.match(html, /mailto:lisheng3698@gmail\.com/);
@@ -191,6 +191,12 @@ test("all public pages use the same eight-language custom listbox", () => {
     assert.match(html, /data-language-select/, `${file} language selector`);
     assert.equal(countMatches(html, /class="select-option language-option(?: is-selected)?"/g), 8, `${file} language count`);
     assert.match(html, /<script src="\.\.\/batch-page-translations\.js\?v=20260808-inner-batch" defer><\/script>/);
+  }
+  for (const file of ["binary-to-hex/index.html", "hex-to-decimal/index.html", "octal-to-decimal/index.html", "octal-to-hex/index.html", "hex-to-octal/index.html"]) {
+    const html = read(file);
+    assert.match(html, /data-language-select/, `${file} language selector`);
+    assert.equal(countMatches(html, /class="select-option language-option(?: is-selected)?"/g), 8, `${file} language count`);
+    assert.match(html, /<script src="\.\.\/radix-page-translations\.js\?v=20260810-radix-batch" defer><\/script>/);
   }
 });
 
@@ -560,8 +566,55 @@ test("2026-08-09 five inner pages have unique SEO, visible tools, crawl paths, a
   }
 });
 
+test("2026-08-10 five radix pages have unique SEO, real tools, translated copy, and crawl paths", () => {
+  const definitions = [
+    ["binary-to-hex", "Binary to Hex", "binary-to-hex", "binaryToHex"],
+    ["hex-to-decimal", "Hex to Decimal", "hex-to-decimal", "hexToDecimal"],
+    ["octal-to-decimal", "Octal to Decimal", "octal-to-decimal", "octalToDecimal"],
+    ["octal-to-hex", "Octal to Hex", "octal-to-hex", "octalToHex"],
+    ["hex-to-octal", "Hex to Octal", "hex-to-octal", "hexToOctal"]
+  ];
+  const homepage = read("index.html");
+  const sitemap = read("sitemap.xml");
+  for (const [slug, keyword, mode, pageKey] of definitions) {
+    const html = read(`${slug}/index.html`);
+    const title = html.match(/<title>([^<]+)<\/title>/)?.[1];
+    const description = html.match(/<meta name="description" content="([^"]+)">/)?.[1];
+    assert.ok(title.includes(keyword) && title.length <= 60, `${slug} title`);
+    assert.ok(description.length >= 100 && description.length <= 160, `${slug} description`);
+    assert.equal(countMatches(html, /<h1\b/g), 1, `${slug} one H1`);
+    assert.match(html, new RegExp(`<link rel="canonical" href="https:\\/\\/asciitounicode\\.com\\/${slug}\\/">`));
+    assert.match(html, new RegExp(`data-page="${pageKey}"[^>]+data-default-mode="${mode}"`));
+    assert.match(html, /<meta name="robots" content="index, follow">/);
+    assert.match(html, /id="input-text"/);
+    assert.match(html, /id="output-text"/);
+    assert.match(html, /<table/);
+    assert.match(html, /<pre><code>/);
+    assert.match(html, /<h2[^>]*>/);
+    assert.match(html, /href="\.\.\/"/);
+    assert.match(html, /radix-page-translations\.js/);
+    assert.match(homepage, new RegExp(`href="${slug}\\/"`));
+    assert.match(sitemap, new RegExp(`<loc>https:\\/\\/asciitounicode\\.com\\/${slug}\\/<\\/loc>[\\s\\S]*?<lastmod>2026-08-10<\\/lastmod>`));
+    const jsonLd = [...html.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)].map((match) => JSON.parse(match[1]));
+    const types = new Set(jsonLd.flatMap((item) => (item["@graph"] || [item]).map((node) => node["@type"])));
+    for (const type of ["Organization", "WebSite", "WebApplication", "Article", "BreadcrumbList"]) assert.ok(types.has(type), `${slug} ${type}`);
+  }
+
+  const context = { window: { asciiUnicodeI18n: { pages: {}, meta: {}, home: {} } } };
+  vm.runInNewContext(read("radix-page-translations.js"), context);
+  for (const [, , , pageKey] of definitions) {
+    const page = context.window.asciiUnicodeI18n.pages[pageKey];
+    const expectedKeys = Object.keys(page.zh);
+    for (const lang of ["zh", "es", "pt", "fr", "de", "ja", "ko"]) {
+      assert.equal(Object.keys(page[lang]).length, expectedKeys.length, `${pageKey}/${lang} keys`);
+      assert.ok(Object.values(page[lang]).every(Boolean), `${pageKey}/${lang} has no blank translations`);
+      assert.match(page[lang].heroTitle, new RegExp(definitions.find((item) => item[3] === pageKey)[1]), `${pageKey}/${lang} keyword`);
+    }
+  }
+});
+
 test("all indexable inner pages include Organization, WebSite, and Article structured data", () => {
-  for (const file of ["unicode-to-ascii/index.html", "ascii-to-binary/index.html", "hex-to-ascii/index.html", "ascii-to-hex/index.html", "binary-to-ascii/index.html", "ascii-to-decimal/index.html", "decimal-to-ascii/index.html", "ascii-to-octal/index.html", "octal-to-ascii/index.html", "unicode-to-hex/index.html", "unicode-to-binary/index.html", "hex-to-unicode/index.html", "character-to-unicode/index.html", "decimal-to-unicode/index.html", "unicode-to-decimal/index.html", "hex-to-binary/index.html"]) {
+  for (const file of ["unicode-to-ascii/index.html", "ascii-to-binary/index.html", "hex-to-ascii/index.html", "ascii-to-hex/index.html", "binary-to-ascii/index.html", "ascii-to-decimal/index.html", "decimal-to-ascii/index.html", "ascii-to-octal/index.html", "octal-to-ascii/index.html", "unicode-to-hex/index.html", "unicode-to-binary/index.html", "hex-to-unicode/index.html", "character-to-unicode/index.html", "decimal-to-unicode/index.html", "unicode-to-decimal/index.html", "hex-to-binary/index.html", "binary-to-hex/index.html", "hex-to-decimal/index.html", "octal-to-decimal/index.html", "octal-to-hex/index.html", "hex-to-octal/index.html"]) {
     const html = read(file);
     const schemas = [...html.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)].map((match) => JSON.parse(match[1]));
     const types = new Set(schemas.flatMap((item) => (item["@graph"] || [item]).map((node) => node["@type"])));
@@ -579,7 +632,7 @@ test("Bing verification and IndexNow key are deployable", () => {
 });
 
 test("GA4 is installed on every public page and custom events exclude text content", () => {
-  for (const file of ["index.html", "unicode-to-ascii/index.html", "ascii-to-binary/index.html", "hex-to-ascii/index.html", "ascii-to-hex/index.html", "binary-to-ascii/index.html", "ascii-to-decimal/index.html", "decimal-to-ascii/index.html", "ascii-to-octal/index.html", "octal-to-ascii/index.html", "unicode-to-hex/index.html", "unicode-to-binary/index.html", "hex-to-unicode/index.html", "character-to-unicode/index.html", "decimal-to-unicode/index.html", "unicode-to-decimal/index.html", "hex-to-binary/index.html", "privacy.html", "terms.html", "contact.html", "404.html"]) {
+  for (const file of ["index.html", "unicode-to-ascii/index.html", "ascii-to-binary/index.html", "hex-to-ascii/index.html", "ascii-to-hex/index.html", "binary-to-ascii/index.html", "ascii-to-decimal/index.html", "decimal-to-ascii/index.html", "ascii-to-octal/index.html", "octal-to-ascii/index.html", "unicode-to-hex/index.html", "unicode-to-binary/index.html", "hex-to-unicode/index.html", "character-to-unicode/index.html", "decimal-to-unicode/index.html", "unicode-to-decimal/index.html", "hex-to-binary/index.html", "binary-to-hex/index.html", "hex-to-decimal/index.html", "octal-to-decimal/index.html", "octal-to-hex/index.html", "hex-to-octal/index.html", "privacy.html", "terms.html", "contact.html", "404.html"]) {
     const html = read(file);
     assert.match(html, /googletagmanager\.com\/gtag\/js\?id=G-44TJT1E80H/, `${file} GA4 loader`);
     assert.match(html, /gtag\('config', 'G-44TJT1E80H'\)/, `${file} GA4 config`);
@@ -615,6 +668,11 @@ test("public pages do not expose internal strategy wording", () => {
     "decimal-to-unicode/index.html",
     "unicode-to-decimal/index.html",
     "hex-to-binary/index.html",
+    "binary-to-hex/index.html",
+    "hex-to-decimal/index.html",
+    "octal-to-decimal/index.html",
+    "octal-to-hex/index.html",
+    "hex-to-octal/index.html",
     "app.js"
   ].map(read).join("\n");
   assert.doesNotMatch(combined, /boutique tool page|One keyword|一个关键词|精品工具页/);
