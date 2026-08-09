@@ -157,6 +157,41 @@ test("Unicode code point hex and binary stay distinct from UTF-8 bytes", () => {
   assert.equal(tools.convertValue("😀", "unicode-codepoint-binary", "codepoint-binary-space").output, "000011111011000000000");
 });
 
+test("hex to Unicode decodes scalar values separately from UTF-8 bytes", () => {
+  assert.equal(tools.convertValue("U+4F60 U+597D", "hex-to-unicode", "unicode-hex-codepoints").output, "你好");
+  assert.equal(tools.convertValue("1F600", "hex-to-unicode", "unicode-hex-codepoints").output, "😀");
+  assert.equal(tools.convertValue("E4 BD A0", "hex-to-unicode", "unicode-hex-utf8").output, "你");
+  assert.equal(tools.convertValue("110000", "hex-to-unicode", "unicode-hex-codepoints").warning, "warningUnicodeRange");
+  assert.equal(tools.convertValue("D800", "hex-to-unicode", "unicode-hex-codepoints").warning, "warningUnicodeSurrogate");
+});
+
+test("decimal to Unicode supports code points and UTF-8 decimal bytes", () => {
+  assert.equal(tools.convertValue("20320 22909", "decimal-to-unicode", "unicode-decimal-codepoints").output, "你好");
+  assert.equal(tools.convertValue("128512", "decimal-to-unicode", "unicode-decimal-codepoints").output, "😀");
+  assert.equal(tools.convertValue("228 189 160", "decimal-to-unicode", "unicode-decimal-utf8").output, "你");
+  assert.equal(tools.convertValue("1114112", "decimal-to-unicode", "unicode-decimal-codepoints").warning, "warningUnicodeRange");
+  assert.equal(tools.convertValue("55296", "decimal-to-unicode", "unicode-decimal-codepoints").warning, "warningUnicodeSurrogate");
+});
+
+test("Unicode to decimal distinguishes scalar values from UTF-8 bytes", () => {
+  assert.equal(tools.convertValue("Aé你😀", "unicode-codepoint-decimal", "unicode-decimal-space").output, "65 233 20320 128512");
+  assert.equal(tools.convertValue("é", "unicode-codepoint-decimal", "unicode-decimal-comma").output, "233");
+  assert.equal(tools.convertValue("é", "unicode-utf8-decimal", "unicode-decimal-space").output, "195 169");
+});
+
+test("character to Unicode exposes U+, decimal, and UTF-8 hex representations", () => {
+  assert.equal(tools.convertValue("A你😀", "character-to-unicode", "character-uplus").output, "U+0041 U+4F60 U+1F600");
+  assert.equal(tools.convertValue("A你😀", "character-to-unicode", "character-decimal").output, "65 20320 128512");
+  assert.equal(tools.convertValue("é", "character-to-unicode", "character-utf8-hex").output, "C3 A9");
+});
+
+test("hex to binary preserves every nibble and rejects invalid input", () => {
+  assert.equal(tools.convertValue("2F A0", "hex-to-binary", "hex-binary-nibbles").output, "0010 1111 1010 0000");
+  assert.equal(tools.convertValue("0x02FA", "hex-to-binary", "hex-binary-compact").output, "0000001011111010");
+  assert.equal(tools.convertValue("00 FF", "hex-to-binary", "hex-binary-bytes").output, "00000000 11111111");
+  assert.equal(tools.convertValue("2G", "hex-to-binary", "hex-binary-nibbles").warning, "warningInvalidHex");
+});
+
 test("hex to text mode parses common byte formats and decodes UTF-8", () => {
   assert.equal(tools.convertValue("48 65 6C 6C 6F", "hex-to-text", "hex-utf8").output, "Hello");
   assert.equal(tools.convertValue("48656c6c6f", "hex-to-text", "hex-utf8").output, "Hello");

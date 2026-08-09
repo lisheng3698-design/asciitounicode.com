@@ -268,7 +268,10 @@
       warningNonAsciiOctal: "Non-ASCII characters are marked as ???. Use UTF-8 Bytes to encode them without ambiguity.",
       warningInvalidOctal: "Use octal digits 0-7. Separators and 0o prefixes are supported.",
       warningOctalRange: "ASCII octal values must be 000-177 and UTF-8 octal bytes must be 000-377.",
-      warningInvalidUtf8Octal: "The octal bytes are not valid UTF-8 throughout. Replacement characters mark invalid sequences."
+      warningInvalidUtf8Octal: "The octal bytes are not valid UTF-8 throughout. Replacement characters mark invalid sequences.",
+      warningInvalidUnicodeCodePoint: "Enter complete hexadecimal or decimal Unicode scalar values separated by spaces, commas, semicolons, or line breaks.",
+      warningUnicodeRange: "Unicode scalar values must be between 0 and U+10FFFF.",
+      warningUnicodeSurrogate: "Surrogate values U+D800 through U+DFFF are not Unicode scalar values."
     };
     const text = key ? (t(key) || fallback[key]) : "";
     els.warning.textContent = text || "";
@@ -284,7 +287,7 @@
       btn.classList.toggle("is-active", active);
       btn.setAttribute("aria-selected", String(active));
     });
-    els.format.disabled = !["encode", "entities", "ascii-binary", "utf8-binary", "ascii-hex", "utf8-hex", "ascii-decimal", "utf8-decimal", "hex-to-text", "binary-to-text", "decimal-to-text", "ascii-octal", "utf8-octal", "octal-to-text", "unicode-codepoint-hex", "unicode-codepoint-binary"].includes(mode);
+    els.format.disabled = !["encode", "entities", "ascii-binary", "utf8-binary", "ascii-hex", "utf8-hex", "ascii-decimal", "utf8-decimal", "hex-to-text", "binary-to-text", "decimal-to-text", "ascii-octal", "utf8-octal", "octal-to-text", "unicode-codepoint-hex", "unicode-codepoint-binary", "hex-to-unicode", "decimal-to-unicode", "unicode-codepoint-decimal", "unicode-utf8-decimal", "character-to-unicode", "hex-to-binary"].includes(mode);
     syncCustomSelect();
     trackEvent("mode_change", { mode });
     if (els.auto.checked) {
@@ -639,6 +642,67 @@
     return values.join(format === "codepoint-binary-lines" ? "\n" : " ");
   }
 
+  function unicodeScalarWarning(values) {
+    if (values.some((value) => value >= 0xd800 && value <= 0xdfff)) return "warningUnicodeSurrogate";
+    if (values.some((value) => !Number.isInteger(value) || value < 0 || value > 0x10ffff)) return "warningUnicodeRange";
+    return "";
+  }
+
+  function parseUnicodeHexCodePoints(input) {
+    const normalized = input.trim().replace(/(?:U\+|0x|\\u\{?)/gi, "").replace(/\}/g, "");
+    if (!normalized || !/^[0-9a-f\s,;:_-]+$/i.test(normalized)) {
+      return { values: [], warning: "warningInvalidUnicodeCodePoint" };
+    }
+    const tokens = normalized.split(/[\s,;:_-]+/).filter(Boolean);
+    if (!tokens.length || tokens.some((token) => token.length > 6)) {
+      return { values: [], warning: "warningInvalidUnicodeCodePoint" };
+    }
+    return { values: tokens.map((token) => Number.parseInt(token, 16)), warning: "" };
+  }
+
+  function hexToUnicode(input, format = "unicode-hex-codepoints") {
+    if (format === "unicode-hex-utf8") return hexToText(input, "hex-utf8");
+    const parsed = parseUnicodeHexCodePoints(input);
+    if (parsed.warning) return { output: "", warning: parsed.warning };
+    const warning = unicodeScalarWarning(parsed.values);
+    if (warning) return { output: "", warning };
+    return { output: parsed.values.map((value) => String.fromCodePoint(value)).join(""), warning: "" };
+  }
+
+  function decimalToUnicode(input, format = "unicode-decimal-codepoints") {
+    if (format === "unicode-decimal-utf8") return decimalToText(input, "decimal-utf8");
+    const parsed = parseSeparatedIntegers(input, 10, "warningInvalidUnicodeCodePoint");
+    if (parsed.warning) return { output: "", warning: parsed.warning };
+    const warning = unicodeScalarWarning(parsed.values);
+    if (warning) return { output: "", warning };
+    return { output: parsed.values.map((value) => String.fromCodePoint(value)).join(""), warning: "" };
+  }
+
+  function unicodeToCodePointDecimal(input, format = "unicode-decimal-space") {
+    const values = Array.from(input, (char) => String(char.codePointAt(0)));
+    const separator = format === "unicode-decimal-comma" ? ", " : (format === "unicode-decimal-lines" ? "\n" : " ");
+    return values.join(separator);
+  }
+
+  function characterToUnicode(input, format = "character-uplus") {
+    if (format === "character-decimal") return unicodeToCodePointDecimal(input, "unicode-decimal-space");
+    if (format === "character-utf8-hex") return utf8ToHex(input, "hex-space");
+    return unicodeToCodePointHex(input, "codepoint-uplus");
+  }
+
+  function hexToBinary(input, format = "hex-binary-nibbles") {
+    const compact = input.trim().replace(/0x/gi, "").replace(/[\s,;:_-]+/g, "");
+    if (!compact || /[^0-9a-f]/i.test(compact)) return { output: "", warning: "warningInvalidHex" };
+    const nibbles = Array.from(compact.toUpperCase(), (digit) => Number.parseInt(digit, 16).toString(2).padStart(4, "0"));
+    if (format === "hex-binary-compact") return { output: nibbles.join(""), warning: "" };
+    if (format === "hex-binary-bytes") {
+      const bits = nibbles.join("");
+      const padded = bits.padStart(Math.ceil(bits.length / 8) * 8, "0");
+      return { output: padded.match(/.{8}/g).join(" "), warning: "" };
+    }
+    return { output: nibbles.join(" "), warning: "" };
+  }
+
   function hexToText(input, format = "hex-utf8") {
     const compact = input
       .replace(/(?:0x|\\x)/gi, "")
@@ -792,6 +856,24 @@
       output = unicodeToCodePointHex(input, format);
     } else if (mode === "unicode-codepoint-binary") {
       output = unicodeToCodePointBinary(input, format);
+    } else if (mode === "hex-to-unicode") {
+      const decoded = hexToUnicode(input, format);
+      output = decoded.output;
+      modeWarning = decoded.warning;
+    } else if (mode === "decimal-to-unicode") {
+      const decoded = decimalToUnicode(input, format);
+      output = decoded.output;
+      modeWarning = decoded.warning;
+    } else if (mode === "unicode-codepoint-decimal") {
+      output = unicodeToCodePointDecimal(input, format);
+    } else if (mode === "unicode-utf8-decimal") {
+      output = utf8ToDecimal(input, format.replace("unicode-", ""));
+    } else if (mode === "character-to-unicode") {
+      output = characterToUnicode(input, format);
+    } else if (mode === "hex-to-binary") {
+      const converted = hexToBinary(input, format);
+      output = converted.output;
+      modeWarning = converted.warning;
     } else if (mode === "hex-to-text") {
       const decoded = hexToText(input, format);
       output = decoded.output;
@@ -804,7 +886,7 @@
 
     return {
       output,
-      warning: warning || modeWarning || (output === input && !["encode", "ascii-binary", "utf8-binary", "ascii-hex", "utf8-hex", "ascii-decimal", "utf8-decimal", "hex-to-text", "binary-to-text", "decimal-to-text", "ascii-octal", "utf8-octal", "octal-to-text", "unicode-codepoint-hex", "unicode-codepoint-binary"].includes(mode) ? "warningNoChange" : "")
+      warning: warning || modeWarning || (output === input && !["encode", "ascii-binary", "utf8-binary", "ascii-hex", "utf8-hex", "ascii-decimal", "utf8-decimal", "hex-to-text", "binary-to-text", "decimal-to-text", "ascii-octal", "utf8-octal", "octal-to-text", "unicode-codepoint-hex", "unicode-codepoint-binary", "hex-to-unicode", "decimal-to-unicode", "unicode-codepoint-decimal", "unicode-utf8-decimal", "character-to-unicode", "hex-to-binary"].includes(mode) ? "warningNoChange" : "")
     };
   }
 
@@ -876,6 +958,10 @@
   function useSample(button) {
     const mode = button.dataset.mode || "decode";
     updateMode(mode);
+    if (button.dataset.format && Array.from(els.format.options).some((option) => option.value === button.dataset.format)) {
+      els.format.value = button.dataset.format;
+      syncCustomSelect();
+    }
     els.input.value = button.dataset.sample || "";
     convertNow();
     document.querySelector("#converter").scrollIntoView({ behavior: "smooth", block: "start" });
@@ -1025,7 +1111,7 @@
       applyLanguage(savedLang);
     }
     const requestedMode = document.body.dataset.defaultMode || "decode";
-    const defaultMode = ["decode", "encode", "entities", "mojibake", "transliterate", "ascii-replace", "ascii-remove", "ascii-binary", "utf8-binary", "ascii-hex", "utf8-hex", "ascii-decimal", "utf8-decimal", "hex-to-text", "binary-to-text", "decimal-to-text", "ascii-octal", "utf8-octal", "octal-to-text", "unicode-codepoint-hex", "unicode-codepoint-binary"].includes(requestedMode)
+    const defaultMode = ["decode", "encode", "entities", "mojibake", "transliterate", "ascii-replace", "ascii-remove", "ascii-binary", "utf8-binary", "ascii-hex", "utf8-hex", "ascii-decimal", "utf8-decimal", "hex-to-text", "binary-to-text", "decimal-to-text", "ascii-octal", "utf8-octal", "octal-to-text", "unicode-codepoint-hex", "unicode-codepoint-binary", "hex-to-unicode", "decimal-to-unicode", "unicode-codepoint-decimal", "unicode-utf8-decimal", "character-to-unicode", "hex-to-binary"].includes(requestedMode)
       ? requestedMode
       : "decode";
     updateMode(defaultMode);
@@ -1048,6 +1134,11 @@
     octalToText,
     unicodeToCodePointHex,
     unicodeToCodePointBinary,
+    hexToUnicode,
+    decimalToUnicode,
+    unicodeToCodePointDecimal,
+    characterToUnicode,
+    hexToBinary,
     hexToText,
     binaryToText,
     transliterateToAscii,
