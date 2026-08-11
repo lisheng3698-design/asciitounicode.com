@@ -173,6 +173,15 @@ test("decimal to Unicode supports code points and UTF-8 decimal bytes", () => {
   assert.equal(tools.convertValue("55296", "decimal-to-unicode", "unicode-decimal-codepoints").warning, "warningUnicodeSurrogate");
 });
 
+test("binary to Unicode separates scalar bit strings from UTF-8 bytes", () => {
+  assert.equal(tools.convertValue("100111101100000 101100101111101", "binary-to-unicode", "unicode-binary-codepoints").output, "你好");
+  assert.equal(tools.convertValue("11111011000000000", "binary-to-unicode", "unicode-binary-codepoints").output, "😀");
+  assert.equal(tools.convertValue("11110000 10011111 10011000 10000000", "binary-to-unicode", "unicode-binary-utf8").output, "😀");
+  assert.equal(tools.convertValue("1101100000000000", "binary-to-unicode", "unicode-binary-codepoints").warning, "warningUnicodeSurrogate");
+  assert.equal(tools.convertValue("100010000000000000000", "binary-to-unicode", "unicode-binary-codepoints").warning, "warningUnicodeRange");
+  assert.equal(tools.convertValue("10102", "binary-to-unicode", "unicode-binary-codepoints").warning, "warningInvalidUnicodeBinary");
+});
+
 test("Unicode to decimal distinguishes scalar values from UTF-8 bytes", () => {
   assert.equal(tools.convertValue("Aé你😀", "unicode-codepoint-decimal", "unicode-decimal-space").output, "65 233 20320 128512");
   assert.equal(tools.convertValue("é", "unicode-codepoint-decimal", "unicode-decimal-comma").output, "233");
@@ -239,6 +248,40 @@ test("decimal to octal keeps large integers exact and rejects unsupported syntax
   assert.equal(tools.convertValue("18446744073709551615", "decimal-to-octal", "decimal-octal-prefix").output, "0o1777777777777777777777");
   assert.equal(tools.convertValue("1_000_000", "decimal-to-octal", "decimal-octal-plain").output, "3641100");
   assert.equal(tools.convertValue("-8", "decimal-to-octal", "decimal-octal-plain").warning, "warningInvalidDecimalInteger");
+});
+
+test("decimal to Gray code uses exact non-negative integer arithmetic", () => {
+  assert.equal(tools.convertValue("10", "decimal-to-gray", "gray-binary").output, "1111");
+  assert.equal(tools.convertValue("15", "decimal-to-gray", "gray-binary").output, "1000");
+  assert.equal(tools.convertValue("10", "decimal-to-gray", "gray-binary-4bit").output, "1111");
+  assert.equal(tools.convertValue("1_000_000", "decimal-to-gray", "gray-binary").output, "10001110001101100000");
+  assert.equal(tools.convertValue("-1", "decimal-to-gray", "gray-binary").warning, "warningInvalidDecimalGray");
+  assert.equal(tools.convertValue("1.5", "decimal-to-gray", "gray-binary").warning, "warningInvalidDecimalGray");
+});
+
+test("Gray code to decimal decodes reflected binary without precision loss", () => {
+  assert.equal(tools.convertValue("1111", "gray-to-decimal", "gray-decimal").output, "10");
+  assert.equal(tools.convertValue("1000", "gray-to-decimal", "gray-decimal").output, "15");
+  assert.equal(tools.convertValue("0b1000", "gray-to-decimal", "gray-decimal").output, "15");
+  assert.equal(tools.convertValue("10_001", "gray-to-decimal", "gray-decimal").output, "30");
+  assert.equal(tools.convertValue("1021", "gray-to-decimal", "gray-decimal").warning, "warningInvalidGrayCode");
+});
+
+test("decimal to BCD encodes each decimal digit and preserves leading zeros", () => {
+  assert.equal(tools.convertValue("042", "decimal-to-bcd", "bcd-groups").output, "0000 0100 0010");
+  assert.equal(tools.convertValue("59", "decimal-to-bcd", "bcd-compact").output, "01011001");
+  assert.equal(tools.convertValue("1_234", "decimal-to-bcd", "bcd-groups").output, "0001 0010 0011 0100");
+  assert.equal(tools.convertValue("-42", "decimal-to-bcd", "bcd-groups").warning, "warningInvalidDecimalBcd");
+  assert.equal(tools.convertValue("4.2", "decimal-to-bcd", "bcd-groups").warning, "warningInvalidDecimalBcd");
+});
+
+test("BCD to decimal validates every four-bit decimal digit", () => {
+  assert.equal(tools.convertValue("0000 0100 0010", "bcd-to-decimal", "bcd-decimal").output, "042");
+  assert.equal(tools.convertValue("01011001", "bcd-to-decimal", "bcd-decimal").output, "59");
+  assert.equal(tools.convertValue("0001_0010_0011_0100", "bcd-to-decimal", "bcd-decimal").output, "1234");
+  assert.equal(tools.convertValue("0101 1010", "bcd-to-decimal", "bcd-decimal").warning, "warningInvalidBcdDigit");
+  assert.equal(tools.convertValue("101", "bcd-to-decimal", "bcd-decimal").warning, "warningInvalidBcd");
+  assert.equal(tools.convertValue("0002", "bcd-to-decimal", "bcd-decimal").warning, "warningInvalidBcd");
 });
 
 test("octal to binary maps every octal digit to exactly three bits", () => {

@@ -680,6 +680,68 @@ test("2026-08-11 five pages have independent intent, deep source content, i18n, 
   }
 });
 
+test("2026-08-12 five pages have unique intent, real tools, full locale keys, and crawl paths", () => {
+  const definitions = [
+    ["binary-to-unicode", "Binary to Unicode", "binary-to-unicode", "binaryToUnicode"],
+    ["decimal-to-gray-code", "Decimal to Gray Code", "decimal-to-gray", "decimalToGray"],
+    ["gray-code-to-decimal", "Gray Code to Decimal", "gray-to-decimal", "grayToDecimal"],
+    ["decimal-to-bcd", "Decimal to BCD", "decimal-to-bcd", "decimalToBcd"],
+    ["bcd-to-decimal", "BCD to Decimal", "bcd-to-decimal", "bcdToDecimal"],
+  ];
+  const homepage = read("index.html");
+  const sitemap = read("sitemap.xml");
+  for (const [slug, keyword, mode, pageKey] of definitions) {
+    const html = read(`${slug}/index.html`);
+    const title = html.match(/<title>([^<]+)<\/title>/)?.[1];
+    const description = html.match(/<meta name="description" content="([^"]+)">/)?.[1];
+    assert.ok(title.includes(keyword) && title.length <= 60, `${slug} title`);
+    assert.ok(description.length >= 110 && description.length <= 160, `${slug} description`);
+    assert.equal(countMatches(html, /<h1\b/g), 1, `${slug} one H1`);
+    assert.ok(countMatches(html, /<h2\b/g) >= 4, `${slug} source content depth`);
+    assert.match(html, new RegExp(`<link rel="canonical" href="https:\\/\\/asciitounicode\\.com\\/${slug}\\/">`));
+    assert.match(html, new RegExp(`data-page="${pageKey}"[^>]+data-default-mode="${mode}"`));
+    assert.match(html, /<meta name="robots" content="index, follow">/);
+    assert.match(html, /id="input-text"/);
+    assert.match(html, /id="output-text"/);
+    assert.match(html, /<table/);
+    assert.match(html, /<pre><code>/);
+    assert.match(html, /href="\.\.\/"/);
+    assert.match(html, /encoding-page-translations\.js/);
+    assert.match(html, /googletagmanager\.com\/gtag\/js\?id=G-44TJT1E80H/);
+    assert.match(homepage, new RegExp(`href="${slug}\\/"`));
+    assert.match(sitemap, new RegExp(`<loc>https:\\/\\/asciitounicode\\.com\\/${slug}\\/<\\/loc>[\\s\\S]*?<lastmod>2026-08-12<\\/lastmod>`));
+    const graph = JSON.parse(html.match(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/)[1])["@graph"];
+    const types = new Set(graph.map((node) => node["@type"]));
+    for (const type of ["Organization", "WebSite", "WebApplication", "Article", "BreadcrumbList"]) assert.ok(types.has(type), `${slug} ${type}`);
+  }
+
+  const context = { window: {} };
+  vm.runInNewContext(read("translations.js"), context);
+  vm.runInNewContext(read("encoding-page-translations.js"), context);
+  const config = context.window.asciiUnicodeI18n;
+  for (const [slug, , , pageKey] of definitions) {
+    const page = config.pages[pageKey];
+    const html = read(`${slug}/index.html`);
+    const usedKeys = [...html.matchAll(/data-i18n="([^"]+)"/g)].map((match) => match[1]);
+    const expectedKeys = Object.keys(page.zh);
+    for (const lang of ["zh", "es", "pt", "fr", "de", "ja", "ko"]) {
+      assert.deepEqual(Object.keys(page[lang]).sort(), expectedKeys.slice().sort(), `${pageKey}/${lang} key parity`);
+      assert.ok(Object.values(page[lang]).every(Boolean), `${pageKey}/${lang} no blanks`);
+      assert.ok(usedKeys.every((key) => page[lang][key] || config.common[lang][key]), `${pageKey}/${lang} translates every visible key`);
+      assert.notEqual(config.meta[pageKey][lang].title, html.match(/<title>([^<]+)<\/title>/)[1], `${pageKey}/${lang} localized title`);
+      assert.ok(config.meta[pageKey][lang].description.length >= 40, `${pageKey}/${lang} localized description`);
+    }
+  }
+  for (const lang of ["es", "pt", "fr", "de", "ja", "ko"]) {
+    for (const key of ["relatedBinaryUnicodeText", "relatedDecimalGrayText", "relatedGrayDecimalText", "relatedDecimalBcdText", "relatedBcdDecimalText"]) {
+      assert.ok(config.home[lang][key], `${lang} homepage ${key}`);
+    }
+  }
+  for (const key of ["relatedBinaryUnicodeText", "relatedDecimalGrayText", "relatedGrayDecimalText", "relatedDecimalBcdText", "relatedBcdDecimalText"]) {
+    assert.match(read("app.js"), new RegExp(`${key}: "[^"]+"`), `zh homepage ${key}`);
+  }
+});
+
 test("all indexable inner pages include Organization, WebSite, and Article structured data", () => {
   for (const file of ["unicode-to-ascii/index.html", "ascii-to-binary/index.html", "hex-to-ascii/index.html", "ascii-to-hex/index.html", "binary-to-ascii/index.html", "ascii-to-decimal/index.html", "decimal-to-ascii/index.html", "ascii-to-octal/index.html", "octal-to-ascii/index.html", "unicode-to-hex/index.html", "unicode-to-binary/index.html", "hex-to-unicode/index.html", "character-to-unicode/index.html", "decimal-to-unicode/index.html", "unicode-to-decimal/index.html", "hex-to-binary/index.html", "binary-to-hex/index.html", "hex-to-decimal/index.html", "octal-to-decimal/index.html", "octal-to-hex/index.html", "hex-to-octal/index.html", "base-converter/index.html", "binary-to-octal/index.html", "ascii-table/index.html", "decimal-to-octal/index.html", "octal-to-binary/index.html"]) {
     const html = read(file);
