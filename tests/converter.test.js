@@ -227,6 +227,36 @@ test("hex to octal converts exact integers and rejects unsupported signs", () =>
   assert.equal(tools.convertValue("+FF", "hex-to-octal", "hex-octal-plain").warning, "warningInvalidHexInteger");
 });
 
+test("binary to octal preserves three-bit groups and rejects invalid digits", () => {
+  assert.equal(tools.convertValue("111 101 101", "binary-to-octal", "binary-octal-plain").output, "755");
+  assert.equal(tools.convertValue("0b000001", "binary-to-octal", "binary-octal-prefix").output, "0o01");
+  assert.equal(tools.convertValue("10_101", "binary-to-octal", "binary-octal-plain").output, "25");
+  assert.equal(tools.convertValue("10201", "binary-to-octal", "binary-octal-plain").warning, "warningInvalidBinaryInteger");
+});
+
+test("decimal to octal keeps large integers exact and rejects unsupported syntax", () => {
+  assert.equal(tools.convertValue("493", "decimal-to-octal", "decimal-octal-plain").output, "755");
+  assert.equal(tools.convertValue("18446744073709551615", "decimal-to-octal", "decimal-octal-prefix").output, "0o1777777777777777777777");
+  assert.equal(tools.convertValue("1_000_000", "decimal-to-octal", "decimal-octal-plain").output, "3641100");
+  assert.equal(tools.convertValue("-8", "decimal-to-octal", "decimal-octal-plain").warning, "warningInvalidDecimalInteger");
+});
+
+test("octal to binary maps every octal digit to exactly three bits", () => {
+  assert.equal(tools.convertValue("755", "octal-to-binary", "octal-binary-compact").output, "111101101");
+  assert.equal(tools.convertValue("0o17", "octal-to-binary", "octal-binary-groups").output, "001 111");
+  assert.equal(tools.convertValue("007", "octal-to-binary", "octal-binary-prefix").output, "0b000000111");
+  assert.equal(tools.convertValue("128", "octal-to-binary", "octal-binary-compact").warning, "warningInvalidOctalInteger");
+});
+
+test("base converter validates digits and converts exact integers across bases 2-36", () => {
+  assert.equal(tools.convertValue("Z", "base-converter", "base-upper", { sourceBase: 36, targetBase: 10 }).output, "35");
+  assert.equal(tools.convertValue("18446744073709551615", "base-converter", "base-upper", { sourceBase: 10, targetBase: 16 }).output, "FFFFFFFFFFFFFFFF");
+  assert.equal(tools.convertValue("0b111101101", "base-converter", "base-lower", { sourceBase: 2, targetBase: 8 }).output, "755");
+  assert.equal(tools.convertValue("2", "base-converter", "base-upper", { sourceBase: 2, targetBase: 10 }).warning, "warningInvalidBaseInteger");
+  assert.equal(tools.convertValue("@", "base-converter", "base-upper", { sourceBase: 10, targetBase: 2 }).warning, "warningInvalidBaseInteger");
+  assert.equal(tools.convertValue("10", "base-converter", "base-upper", { sourceBase: 1, targetBase: 10 }).warning, "warningInvalidBaseRange");
+});
+
 test("hex to text mode parses common byte formats and decodes UTF-8", () => {
   assert.equal(tools.convertValue("48 65 6C 6C 6F", "hex-to-text", "hex-utf8").output, "Hello");
   assert.equal(tools.convertValue("48656c6c6f", "hex-to-text", "hex-utf8").output, "Hello");

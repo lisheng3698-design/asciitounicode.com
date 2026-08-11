@@ -19,6 +19,77 @@
   --sans: var(--mono);
 }
 
+/* 2026-08-11 number-base and ASCII table tools */
+.base-selectors,
+.ascii-search-controls {
+  display: flex;
+  align-items: end;
+  gap: 14px;
+  flex-wrap: wrap;
+  margin: 18px 0;
+}
+
+.base-selectors label,
+.ascii-search-controls label {
+  display: grid;
+  gap: 7px;
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+}
+
+.base-select,
+.ascii-search-controls input,
+.ascii-search-controls select {
+  min-height: 44px;
+  border: 1px solid rgba(50, 255, 102, 0.5);
+  background: #080b0a;
+  color: var(--text);
+  padding: 10px 12px;
+  font: inherit;
+}
+
+.base-select { min-width: 120px; }
+.base-arrow { align-self: center; color: var(--amber); font-size: 1.4rem; }
+.ascii-table-hero { grid-template-columns: minmax(0, 1fr); }
+.ascii-search-controls input { width: min(520px, 80vw); }
+
+.ascii-table-wrap {
+  max-height: 720px;
+  overflow: auto;
+  border: 1px solid rgba(50, 255, 102, 0.24);
+}
+
+.ascii-reference-table { min-width: 820px; margin: 0; }
+.ascii-reference-table thead { position: sticky; top: 0; z-index: 2; background: #0b120e; }
+.ascii-reference-table td,
+.ascii-reference-table th { white-space: nowrap; }
+
+.table-copy {
+  border: 1px solid rgba(50, 255, 102, 0.45);
+  background: transparent;
+  color: var(--green);
+  padding: 6px 10px;
+  font: inherit;
+  cursor: pointer;
+}
+
+.table-copy:hover,
+.table-copy:focus-visible { background: rgba(50, 255, 102, 0.1); }
+
+@media (max-width: 520px) {
+  .base-selectors,
+  .ascii-search-controls { align-items: stretch; }
+  .base-selectors label,
+  .ascii-search-controls label { width: 100%; }
+  .base-select,
+  .ascii-search-controls input,
+  .ascii-search-controls select { width: 100%; max-width: 100%; }
+  .base-arrow { display: none; }
+  .ascii-table-wrap { max-width: 100%; }
+}
+
 * {
   box-sizing: border-box;
 }
