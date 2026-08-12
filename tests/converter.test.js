@@ -267,6 +267,30 @@ test("Gray code to decimal decodes reflected binary without precision loss", () 
   assert.equal(tools.convertValue("1021", "gray-to-decimal", "gray-decimal").warning, "warningInvalidGrayCode");
 });
 
+test("Gray and binary conversion keeps exact bit width and validates digits", () => {
+  assert.equal(JSON.stringify(tools.grayToBinary("1111")), JSON.stringify({ output: "1010", warning: "" }));
+  assert.equal(JSON.stringify(tools.grayToBinary("0b0011", "gray-binary-prefix")), JSON.stringify({ output: "0b0010", warning: "" }));
+  assert.equal(tools.grayToBinary("1".repeat(80)).output.length, 80);
+  assert.equal(tools.grayToBinary("1021").warning, "warningInvalidGrayCode");
+
+  assert.equal(JSON.stringify(tools.binaryToGray("1010")), JSON.stringify({ output: "1111", warning: "" }));
+  assert.equal(JSON.stringify(tools.binaryToGray("0b0010", "binary-gray-prefix")), JSON.stringify({ output: "0b0011", warning: "" }));
+  assert.equal(tools.binaryToGray("1".repeat(80)).output.length, 80);
+  assert.equal(tools.binaryToGray("1201").warning, "warningInvalidBinaryInteger");
+});
+
+test("Gray code converts exactly to octal and hex, and octal converts to Gray", () => {
+  assert.equal(JSON.stringify(tools.grayToOctal("1111")), JSON.stringify({ output: "12", warning: "" }));
+  assert.equal(JSON.stringify(tools.grayToOctal("0b0011", "gray-octal-prefix")), JSON.stringify({ output: "0o2", warning: "" }));
+  assert.equal(JSON.stringify(tools.grayToHex("1111")), JSON.stringify({ output: "A", warning: "" }));
+  assert.equal(JSON.stringify(tools.grayToHex("0b0011", "gray-hex-prefix")), JSON.stringify({ output: "0x2", warning: "" }));
+  assert.equal(tools.grayToHex("10x1").warning, "warningInvalidGrayCode");
+
+  assert.equal(JSON.stringify(tools.octalToGray("12")), JSON.stringify({ output: "1111", warning: "" }));
+  assert.equal(JSON.stringify(tools.octalToGray("0o17", "octal-gray-prefix")), JSON.stringify({ output: "0b1000", warning: "" }));
+  assert.equal(tools.octalToGray("128").warning, "warningInvalidOctalInteger");
+});
+
 test("decimal to BCD encodes each decimal digit and preserves leading zeros", () => {
   assert.equal(tools.convertValue("042", "decimal-to-bcd", "bcd-groups").output, "0000 0100 0010");
   assert.equal(tools.convertValue("59", "decimal-to-bcd", "bcd-compact").output, "01011001");

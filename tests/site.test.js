@@ -742,6 +742,48 @@ test("2026-08-12 five pages have unique intent, real tools, full locale keys, an
   }
 });
 
+test("2026-08-13 five Gray code pages have independent tools, SEO, locales, and crawl paths", () => {
+  const definitions = [
+    ["gray-code-to-octal", "Gray Code to Octal", "gray-to-octal", "grayToOctal"],
+    ["octal-to-gray-code", "Octal to Gray Code", "octal-to-gray", "octalToGray"],
+    ["gray-code-to-hex", "Gray Code to Hex", "gray-to-hex", "grayToHex"],
+    ["gray-code-to-binary", "Gray Code to Binary", "gray-to-binary", "grayToBinary"],
+    ["binary-to-gray-code", "Binary to Gray Code", "binary-to-gray", "binaryToGray"]
+  ];
+  const homepage = read("index.html");
+  const sitemap = read("sitemap.xml");
+  const context = { window: { asciiUnicodeI18n: { pages: {}, meta: {}, home: {} } } };
+  vm.runInNewContext(read("gray-page-translations.js"), context);
+  vm.runInNewContext(read("gray-page-locale-overrides.js"), context);
+  for (const [slug, keyword, mode, pageKey] of definitions) {
+    const html = read(`${slug}/index.html`);
+    const title = html.match(/<title>([^<]+)<\/title>/)?.[1];
+    const description = html.match(/<meta name="description" content="([^"]+)">/)?.[1];
+    assert.ok(title.includes(keyword) && title.length <= 60, `${slug} title`);
+    assert.ok(description.length >= 110 && description.length <= 160, `${slug} description`);
+    assert.equal(countMatches(html, /<h1\b/g), 1, `${slug} one H1`);
+    assert.match(html, new RegExp(`<link rel="canonical" href="https:\\/\\/asciitounicode\\.com\\/${slug}\\/">`));
+    assert.match(html, new RegExp(`data-page="${pageKey}"[^>]+data-default-mode="${mode}"`));
+    assert.match(html, /<meta name="robots" content="index, follow">/);
+    assert.match(html, /id="input-text"/);
+    assert.match(html, /id="output-text"/);
+    assert.match(html, /<table/);
+    assert.match(html, /<pre><code>/);
+    assert.match(html, /id="limits"/);
+    assert.match(html, /gray-page-translations\.js/);
+    assert.match(homepage, new RegExp(`href="${slug}\\/"`));
+    assert.match(sitemap, new RegExp(`<loc>https:\\/\\/asciitounicode\\.com\\/${slug}\\/<\\/loc>[\\s\\S]*?<lastmod>2026-08-13<\\/lastmod>`));
+    const page = context.window.asciiUnicodeI18n.pages[pageKey];
+    const keys = Object.keys(page.zh);
+    for (const lang of ["zh", "es", "pt", "fr", "de", "ja", "ko"]) {
+      assert.equal(Object.keys(page[lang]).length, keys.length, `${pageKey}/${lang} keys`);
+      assert.ok(Object.values(page[lang]).every(Boolean), `${pageKey}/${lang} translations`);
+      assert.ok(context.window.asciiUnicodeI18n.meta[pageKey][lang].title, `${pageKey}/${lang} title`);
+      assert.ok(context.window.asciiUnicodeI18n.meta[pageKey][lang].description, `${pageKey}/${lang} description`);
+    }
+  }
+});
+
 test("all indexable inner pages include Organization, WebSite, and Article structured data", () => {
   for (const file of ["unicode-to-ascii/index.html", "ascii-to-binary/index.html", "hex-to-ascii/index.html", "ascii-to-hex/index.html", "binary-to-ascii/index.html", "ascii-to-decimal/index.html", "decimal-to-ascii/index.html", "ascii-to-octal/index.html", "octal-to-ascii/index.html", "unicode-to-hex/index.html", "unicode-to-binary/index.html", "hex-to-unicode/index.html", "character-to-unicode/index.html", "decimal-to-unicode/index.html", "unicode-to-decimal/index.html", "hex-to-binary/index.html", "binary-to-hex/index.html", "hex-to-decimal/index.html", "octal-to-decimal/index.html", "octal-to-hex/index.html", "hex-to-octal/index.html", "base-converter/index.html", "binary-to-octal/index.html", "ascii-table/index.html", "decimal-to-octal/index.html", "octal-to-binary/index.html"]) {
     const html = read(file);
