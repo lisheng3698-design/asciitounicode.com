@@ -784,6 +784,44 @@ test("2026-08-13 five Gray code pages have independent tools, SEO, locales, and 
   }
 });
 
+test("2026-08-14 five representation pages have unique tools, deep HTML, locales, and crawl paths", () => {
+  const pages = [
+    ["hex-to-gray-code", "Hex to Gray Code", "hex-to-gray", "hexToGray"],
+    ["bcd-to-gray-code", "BCD to Gray Code", "bcd-to-gray", "bcdToGray"],
+    ["gray-code-to-bcd", "Gray Code to BCD", "gray-to-bcd", "grayToBcd"],
+    ["bcd-to-hex", "BCD to Hex", "bcd-to-hex", "bcdToHex"],
+    ["binary-to-bcd", "Binary to BCD", "binary-to-bcd", "binaryToBcd"],
+  ];
+  const home = read("index.html");
+  const sitemap = read("sitemap.xml");
+  const translations = read("representation-page-translations.js");
+  for (const [slug, keyword, mode, key] of pages) {
+    const html = read(`${slug}/index.html`);
+    assert.equal((html.match(/<h1\b/g) || []).length, 1);
+    assert.match(html, new RegExp(`<title>${keyword.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}`));
+    assert.match(html, new RegExp(`canonical[^>]+https://asciitounicode\\.com/${slug}/`));
+    assert.match(html, new RegExp(`data-default-mode="${mode}"`));
+    assert.match(html, /<meta name="robots" content="index, follow">/);
+    assert.match(html, /<h2[^>]*>.*<\/h2>/s);
+    assert.match(html, /<table class="conversion-table">/);
+    assert.match(html, /<pre><code>/);
+    assert.match(html, /"@type":"WebApplication"/);
+    assert.match(html, /"@type":"Article"/);
+    assert.match(html, /G-44TJT1E80H/);
+    assert.match(html, /href="\.\.\/"/);
+    assert.match(home, new RegExp(`href="${slug}/"`));
+    assert.match(sitemap, new RegExp(`https://asciitounicode\\.com/${slug}/`));
+    assert.match(translations, new RegExp(`"${key}"`));
+    for (const lang of ["zh", "es", "pt", "fr", "de", "ja", "ko"]) {
+      assert.match(translations, new RegExp(`"${lang}"`));
+    }
+  }
+  const titles = pages.map(([slug]) => read(`${slug}/index.html`).match(/<title>([^<]+)<\/title>/)[1]);
+  const descriptions = pages.map(([slug]) => read(`${slug}/index.html`).match(/<meta name="description" content="([^"]+)"/)[1]);
+  assert.equal(new Set(titles).size, pages.length);
+  assert.equal(new Set(descriptions).size, pages.length);
+});
+
 test("all indexable inner pages include Organization, WebSite, and Article structured data", () => {
   for (const file of ["unicode-to-ascii/index.html", "ascii-to-binary/index.html", "hex-to-ascii/index.html", "ascii-to-hex/index.html", "binary-to-ascii/index.html", "ascii-to-decimal/index.html", "decimal-to-ascii/index.html", "ascii-to-octal/index.html", "octal-to-ascii/index.html", "unicode-to-hex/index.html", "unicode-to-binary/index.html", "hex-to-unicode/index.html", "character-to-unicode/index.html", "decimal-to-unicode/index.html", "unicode-to-decimal/index.html", "hex-to-binary/index.html", "binary-to-hex/index.html", "hex-to-decimal/index.html", "octal-to-decimal/index.html", "octal-to-hex/index.html", "hex-to-octal/index.html", "base-converter/index.html", "binary-to-octal/index.html", "ascii-table/index.html", "decimal-to-octal/index.html", "octal-to-binary/index.html"]) {
     const html = read(file);

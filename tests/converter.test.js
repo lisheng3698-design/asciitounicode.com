@@ -308,6 +308,17 @@ test("BCD to decimal validates every four-bit decimal digit", () => {
   assert.equal(tools.convertValue("0002", "bcd-to-decimal", "bcd-decimal").warning, "warningInvalidBcd");
 });
 
+test("2026-08-14 Gray, BCD, binary, and hex conversions stay exact", () => {
+  assert.equal(tools.convertValue("A", "hex-to-gray", "hex-gray-prefix").output, "0b1111");
+  assert.equal(tools.convertValue("1111", "gray-to-bcd", "gray-bcd-groups").output, "0001 0000");
+  assert.equal(tools.convertValue("0001 0000", "bcd-to-gray", "bcd-gray-prefix").output, "0b1111");
+  assert.equal(tools.convertValue("0101 1001", "bcd-to-hex", "bcd-hex-upper").output, "3B");
+  assert.equal(tools.convertValue("111011", "binary-to-bcd", "binary-bcd-groups").output, "0101 1001");
+  assert.equal(tools.convertValue("G", "hex-to-gray", "hex-gray-plain").warning, "warningInvalidHexInteger");
+  assert.equal(tools.convertValue("1010", "bcd-to-gray", "bcd-gray-plain").warning, "warningInvalidBcdDigit");
+  assert.equal(tools.convertValue("102", "binary-to-bcd", "binary-bcd-groups").warning, "warningInvalidBinaryInteger");
+});
+
 test("octal to binary maps every octal digit to exactly three bits", () => {
   assert.equal(tools.convertValue("755", "octal-to-binary", "octal-binary-compact").output, "111101101");
   assert.equal(tools.convertValue("0o17", "octal-to-binary", "octal-binary-groups").output, "001 111");
