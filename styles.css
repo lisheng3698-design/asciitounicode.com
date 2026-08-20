@@ -1297,6 +1297,74 @@ details p {
   padding: 18px;
 }
 
+.adsterra-zone {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 160px;
+  gap: 20px;
+  align-items: start;
+  width: var(--page);
+  margin: 28px auto 34px;
+}
+
+.adsterra-native {
+  min-width: 0;
+  min-height: 150px;
+  padding: 14px;
+  overflow: hidden;
+  border: 1px solid var(--line-soft);
+  background: rgba(0, 0, 0, 0.3);
+}
+
+.adsterra-label {
+  margin: 0 0 10px;
+  color: var(--muted);
+  font-size: 0.7rem;
+  letter-spacing: 0.12em;
+  line-height: 1.4;
+  text-transform: uppercase;
+}
+
+#container-e461d4af3610582a106c32482d369235 {
+  min-height: 90px;
+  overflow: hidden;
+}
+
+.adsterra-smart-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 40px;
+  margin-top: 12px;
+  padding: 8px 14px;
+  border: 1px solid rgba(50, 255, 102, 0.5);
+  color: var(--green);
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-decoration: none;
+}
+
+.adsterra-smart-link:hover,
+.adsterra-smart-link:focus-visible {
+  border-color: var(--green);
+  background: rgba(50, 255, 102, 0.08);
+}
+
+.adsterra-tower {
+  width: 160px;
+  min-width: 160px;
+  justify-self: end;
+}
+
+.adsterra-tower-frame {
+  width: 160px;
+  height: 600px;
+  overflow: hidden;
+  background: rgba(0, 0, 0, 0.3);
+}
+
 @media (max-width: 1340px) {
   .code-stream {
     display: none;
@@ -1373,8 +1441,13 @@ details p {
   .use-grid,
   .trust-section,
   .related-links,
-  .legal-grid {
+  .legal-grid,
+  .adsterra-zone {
     grid-template-columns: 1fr;
+  }
+
+  .adsterra-tower {
+    justify-self: center;
   }
 
   textarea {
@@ -1390,7 +1463,8 @@ details p {
   .breadcrumb,
   .site-footer,
   .not-found-page,
-  .legal-page {
+  .legal-page,
+  .adsterra-zone {
     width: min(100% - 24px, 1180px);
   }
 

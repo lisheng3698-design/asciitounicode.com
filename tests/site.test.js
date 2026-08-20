@@ -854,6 +854,43 @@ test("GA4 is installed on every public page and custom events exclude text conte
   assert.doesNotMatch(read("privacy.html"), /If analytics is enabled later/);
 });
 
+test("Adsterra units are installed once on indexable pages and excluded from trust and error pages", () => {
+  const indexablePages = [
+    "index.html",
+    ...fs.readdirSync(root, { withFileTypes: true })
+      .filter((entry) => entry.isDirectory() && fs.existsSync(path.join(root, entry.name, "index.html")))
+      .map((entry) => `${entry.name}/index.html`)
+      .filter((file) => /<meta name="robots" content="index, follow">/.test(read(file)))
+      .sort()
+  ];
+
+  assert.equal(indexablePages.length, 42);
+  for (const file of indexablePages) {
+    const html = read(file);
+    assert.equal(countMatches(html, /5d2a09f34441d80c4a5995ae3e54b536\.js/g), 1, `${file} pop-under`);
+    assert.equal(countMatches(html, /e461d4af3610582a106c32482d369235\/invoke\.js/g), 1, `${file} native loader`);
+    assert.equal(countMatches(html, /id="container-e461d4af3610582a106c32482d369235"/g), 1, `${file} native container`);
+    assert.equal(countMatches(html, /xy8zg4ej\?key=282d2d4e1c52fa187575a744758bc9b7/g), 1, `${file} smart link`);
+    assert.equal(countMatches(html, /2923dcc7f61626eb194c14860c70a4e7\.js/g), 1, `${file} social bar`);
+    assert.equal(countMatches(html, /dcab946f2471e698948f018c75a3a664\/invoke\.js/g), 1, `${file} 160x600 loader`);
+    assert.match(html, /rel="sponsored nofollow noopener noreferrer"/, `${file} sponsored relationship`);
+    assert.ok(html.indexOf("5d2a09f34441d80c4a5995ae3e54b536.js") < html.indexOf("</head>"), `${file} pop-under in head`);
+    assert.ok(html.indexOf("class=\"adsterra-zone\"") < html.indexOf("<footer class=\"site-footer\">"), `${file} ad units before footer`);
+    assert.ok(html.indexOf("2923dcc7f61626eb194c14860c70a4e7.js") < html.indexOf("</body>"), `${file} social bar before body end`);
+  }
+
+  for (const file of ["privacy.html", "terms.html", "contact.html", "404.html"]) {
+    assert.doesNotMatch(read(file), /incompatibletorchvulture\.com/, `${file} must remain ad-free`);
+  }
+
+  const privacy = read("privacy.html");
+  assert.match(privacy, /Third-Party Advertising/);
+  assert.match(privacy, /data-i18n="advertisingText"/);
+  assert.match(read("translations.js"), /advertisingPrivacyCopy/);
+  assert.match(read("index.html"), /public converter pages load third-party advertising scripts/i);
+  assert.doesNotMatch(read("index.html"), /Yes\. The converter runs locally in your browser/);
+});
+
 test("public pages do not expose internal strategy wording", () => {
   const combined = [
     "index.html",
