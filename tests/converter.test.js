@@ -36,6 +36,49 @@ function loadTools() {
 
 const tools = loadTools();
 
+test("BCD to binary validates each decimal nibble and does not reinterpret packed bits", () => {
+  assert.equal(tools.convertValue("0101 1001", "bcd-to-binary", "bcd-binary-plain").output, "111011");
+  assert.equal(tools.convertValue("0000", "bcd-to-binary", "bcd-binary-plain").output, "0");
+  assert.equal(tools.convertValue("0001 0000", "bcd-to-binary", "bcd-binary-prefix").output, "0b1010");
+  for (const input of ["1010", "1111", "010 11001", "0101 Z001", "-0001", "0001.0000", ""]) {
+    const result=tools.convertValue(input,"bcd-to-binary","bcd-binary-plain");
+    assert.equal(result.output, "");assert.ok(result.warning);
+  }
+});
+
+test("hex to BCD encodes the integer value with grouped, compact, and packed output", () => {
+  assert.equal(tools.convertValue("0x3B", "hex-to-bcd", "hex-bcd-groups").output, "0101 1001");
+  assert.equal(tools.convertValue("3B", "hex-to-bcd", "hex-bcd-compact").output, "01011001");
+  assert.equal(tools.convertValue("3B", "hex-to-bcd", "hex-bcd-packed").output, "0x59");
+  assert.equal(tools.convertValue("59", "hex-to-bcd", "hex-bcd-packed").output, "0x89");
+  assert.equal(tools.convertValue("0", "hex-to-bcd", "hex-bcd-groups").output, "0000");
+  for (const input of ["G", "0x0x3B", "-A", "3.B", ""]) {
+    const result=tools.convertValue(input,"hex-to-bcd","hex-bcd-groups");assert.equal(result.output, "");assert.ok(result.warning);
+  }
+});
+
+test("decimal/hex/binary routes retain exact values above Number's safe integer range", () => {
+  assert.equal(tools.convertValue("9007199254740993", "decimal-to-hex", "decimal-hex-upper").output, "20000000000001");
+  assert.equal(tools.convertValue("255", "decimal-to-hex", "decimal-hex-lower").output, "ff");
+  assert.equal(tools.convertValue("255", "decimal-to-hex", "decimal-hex-prefix").output, "0xFF");
+  assert.equal(tools.convertValue("59", "decimal-to-binary", "decimal-binary-prefix").output, "0b111011");
+  for (const value of [0n,1n,59n,255n,9007199254740993n,(1n<<200n)+17n]) {
+    const bits=tools.convertValue(value.toString(),"decimal-to-binary","decimal-binary-plain").output;
+    assert.equal(bits,value.toString(2));
+    assert.equal(tools.convertValue(bits,"binary-to-decimal","binary-decimal-plain").output,value.toString());
+  }
+  assert.equal(tools.convertValue("0b0011_1011","binary-to-decimal","binary-decimal-plain").output,"59");
+});
+
+test("new integer routes reject fractional, signed, malformed, and exponent notation", () => {
+  for(const mode of ["decimal-to-hex","decimal-to-binary"]){
+    for(const input of ["-1","+1","0.5","1e3","0xFF","1,000",""]){
+      const result=tools.convertValue(input,mode,mode==='decimal-to-hex'?'decimal-hex-upper':'decimal-binary-plain');assert.equal(result.output,"");assert.ok(result.warning);
+    }
+  }
+  for(const input of ["102","-1","0.1","0b0b1","1,0",""]){const result=tools.convertValue(input,"binary-to-decimal","binary-decimal-plain");assert.equal(result.output,"");assert.ok(result.warning);}
+});
+
 test("decode mode converts Unicode escape sequences", () => {
   assert.equal(tools.convertValue("\\u0048\\u0069", "decode", "js-short").output, "Hi");
   assert.equal(tools.convertValue("\\u4F60\\u597D", "decode", "js-short").output, "你好");

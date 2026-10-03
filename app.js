@@ -311,7 +311,7 @@
       btn.classList.toggle("is-active", active);
       btn.setAttribute("aria-selected", String(active));
     });
-    els.format.disabled = !["encode", "entities", "ascii-binary", "utf8-binary", "ascii-hex", "utf8-hex", "ascii-decimal", "utf8-decimal", "hex-to-text", "binary-to-text", "decimal-to-text", "ascii-octal", "utf8-octal", "octal-to-text", "unicode-codepoint-hex", "unicode-codepoint-binary", "hex-to-unicode", "decimal-to-unicode", "binary-to-unicode", "unicode-codepoint-decimal", "unicode-utf8-decimal", "character-to-unicode", "hex-to-binary", "binary-to-hex", "octal-to-hex", "hex-to-octal", "binary-to-octal", "decimal-to-octal", "decimal-to-gray", "gray-to-decimal", "gray-to-binary", "binary-to-gray", "gray-to-octal", "gray-to-hex", "octal-to-gray", "hex-to-gray", "decimal-to-bcd", "bcd-to-decimal", "gray-to-bcd", "bcd-to-gray", "bcd-to-hex", "binary-to-bcd", "octal-to-binary", "base-converter"].includes(mode);
+    els.format.disabled = !["encode", "entities", "ascii-binary", "utf8-binary", "ascii-hex", "utf8-hex", "ascii-decimal", "utf8-decimal", "hex-to-text", "binary-to-text", "decimal-to-text", "ascii-octal", "utf8-octal", "octal-to-text", "unicode-codepoint-hex", "unicode-codepoint-binary", "hex-to-unicode", "decimal-to-unicode", "binary-to-unicode", "unicode-codepoint-decimal", "unicode-utf8-decimal", "character-to-unicode", "hex-to-binary", "binary-to-hex", "octal-to-hex", "hex-to-octal", "binary-to-octal", "decimal-to-octal", "decimal-to-gray", "gray-to-decimal", "gray-to-binary", "binary-to-gray", "gray-to-octal", "gray-to-hex", "octal-to-gray", "hex-to-gray", "decimal-to-bcd", "bcd-to-decimal", "gray-to-bcd", "bcd-to-gray", "bcd-to-hex", "binary-to-bcd", "bcd-to-binary", "hex-to-bcd", "decimal-to-hex", "decimal-to-binary", "binary-to-decimal", "octal-to-binary", "base-converter"].includes(mode);
     syncCustomSelect();
     trackEvent("mode_change", { mode });
     if (els.auto.checked) {
@@ -964,6 +964,36 @@
     return { output: format === "octal-binary-prefix" ? "0b" + output : output, warning: "" };
   }
 
+  function bcdToBinary(input, format = "bcd-binary-plain") {
+    const decoded = bcdToDecimal(input);
+    if (decoded.warning) return decoded;
+    const bits = BigInt(decoded.output).toString(2);
+    return { output: format === "bcd-binary-prefix" ? "0b" + bits : bits, warning: "" };
+  }
+
+  function hexToBcd(input, format = "hex-bcd-groups") {
+    const parsed = parseBaseInteger(input, 16, "warningInvalidHexInteger");
+    if (parsed.warning) return { output: "", warning: parsed.warning };
+    if (format === "hex-bcd-packed") return { output: "0x" + parsed.value.toString(10), warning: "" };
+    return { output: decimalDigitsToBcd(parsed.value.toString(10), format), warning: "" };
+  }
+
+  function decimalToRadix(input, radix, format) {
+    const digits = input.trim().replace(/[\s_]+/g, "");
+    if (!digits || /[^0-9]/.test(digits)) return { output: "", warning: "warningInvalidDecimalInteger" };
+    let output = BigInt(digits).toString(radix);
+    if (radix === 16 && format !== "decimal-hex-lower") output = output.toUpperCase();
+    if (format === "decimal-hex-prefix") output = "0x" + output;
+    if (format === "decimal-binary-prefix") output = "0b" + output;
+    return { output, warning: "" };
+  }
+
+  function binaryToDecimal(input) {
+    const parsed = parseBaseInteger(input, 2, "warningInvalidBinaryInteger");
+    if (parsed.warning) return { output: "", warning: parsed.warning };
+    return { output: parsed.value.toString(10), warning: "" };
+  }
+
   function baseConvert(input, format = "base-upper", options = {}) {
     const sourceBase = Number(options.sourceBase);
     const targetBase = Number(options.targetBase);
@@ -1251,6 +1281,22 @@
       const converted = binaryToBcd(input, format);
       output = converted.output;
       modeWarning = converted.warning;
+    } else if (mode === "bcd-to-binary") {
+      const converted = bcdToBinary(input, format);
+      output = converted.output;
+      modeWarning = converted.warning;
+    } else if (mode === "hex-to-bcd") {
+      const converted = hexToBcd(input, format);
+      output = converted.output;
+      modeWarning = converted.warning;
+    } else if (mode === "decimal-to-hex" || mode === "decimal-to-binary") {
+      const converted = decimalToRadix(input, mode === "decimal-to-hex" ? 16 : 2, format);
+      output = converted.output;
+      modeWarning = converted.warning;
+    } else if (mode === "binary-to-decimal") {
+      const converted = binaryToDecimal(input);
+      output = converted.output;
+      modeWarning = converted.warning;
     } else if (mode === "octal-to-binary") {
       const converted = octalToBinary(input, format);
       output = converted.output;
@@ -1271,7 +1317,7 @@
 
     return {
       output,
-      warning: warning || modeWarning || (output === input && !["encode", "ascii-binary", "utf8-binary", "ascii-hex", "utf8-hex", "ascii-decimal", "utf8-decimal", "hex-to-text", "binary-to-text", "decimal-to-text", "ascii-octal", "utf8-octal", "octal-to-text", "unicode-codepoint-hex", "unicode-codepoint-binary", "hex-to-unicode", "decimal-to-unicode", "binary-to-unicode", "unicode-codepoint-decimal", "unicode-utf8-decimal", "character-to-unicode", "hex-to-binary", "binary-to-hex", "hex-to-decimal", "octal-to-decimal", "octal-to-hex", "hex-to-octal", "binary-to-octal", "decimal-to-octal", "decimal-to-gray", "gray-to-decimal", "gray-to-binary", "binary-to-gray", "gray-to-octal", "gray-to-hex", "octal-to-gray", "hex-to-gray", "decimal-to-bcd", "bcd-to-decimal", "gray-to-bcd", "bcd-to-gray", "bcd-to-hex", "binary-to-bcd", "octal-to-binary", "base-converter"].includes(mode) ? "warningNoChange" : "")
+      warning: warning || modeWarning || (output === input && !["encode", "ascii-binary", "utf8-binary", "ascii-hex", "utf8-hex", "ascii-decimal", "utf8-decimal", "hex-to-text", "binary-to-text", "decimal-to-text", "ascii-octal", "utf8-octal", "octal-to-text", "unicode-codepoint-hex", "unicode-codepoint-binary", "hex-to-unicode", "decimal-to-unicode", "binary-to-unicode", "unicode-codepoint-decimal", "unicode-utf8-decimal", "character-to-unicode", "hex-to-binary", "binary-to-hex", "hex-to-decimal", "octal-to-decimal", "octal-to-hex", "hex-to-octal", "binary-to-octal", "decimal-to-octal", "decimal-to-gray", "gray-to-decimal", "gray-to-binary", "binary-to-gray", "gray-to-octal", "gray-to-hex", "octal-to-gray", "hex-to-gray", "decimal-to-bcd", "bcd-to-decimal", "gray-to-bcd", "bcd-to-gray", "bcd-to-hex", "binary-to-bcd", "bcd-to-binary", "hex-to-bcd", "decimal-to-hex", "decimal-to-binary", "binary-to-decimal", "octal-to-binary", "base-converter"].includes(mode) ? "warningNoChange" : "")
     };
   }
 
@@ -1503,7 +1549,7 @@
       applyLanguage(savedLang);
     }
     const requestedMode = document.body.dataset.defaultMode || "decode";
-    const defaultMode = ["decode", "encode", "entities", "mojibake", "transliterate", "ascii-replace", "ascii-remove", "ascii-binary", "utf8-binary", "ascii-hex", "utf8-hex", "ascii-decimal", "utf8-decimal", "hex-to-text", "binary-to-text", "decimal-to-text", "ascii-octal", "utf8-octal", "octal-to-text", "unicode-codepoint-hex", "unicode-codepoint-binary", "hex-to-unicode", "decimal-to-unicode", "binary-to-unicode", "unicode-codepoint-decimal", "unicode-utf8-decimal", "character-to-unicode", "hex-to-binary", "binary-to-hex", "hex-to-decimal", "octal-to-decimal", "octal-to-hex", "hex-to-octal", "binary-to-octal", "decimal-to-octal", "decimal-to-gray", "gray-to-decimal", "gray-to-binary", "binary-to-gray", "gray-to-octal", "gray-to-hex", "octal-to-gray", "hex-to-gray", "decimal-to-bcd", "bcd-to-decimal", "gray-to-bcd", "bcd-to-gray", "bcd-to-hex", "binary-to-bcd", "octal-to-binary", "base-converter"].includes(requestedMode)
+    const defaultMode = ["decode", "encode", "entities", "mojibake", "transliterate", "ascii-replace", "ascii-remove", "ascii-binary", "utf8-binary", "ascii-hex", "utf8-hex", "ascii-decimal", "utf8-decimal", "hex-to-text", "binary-to-text", "decimal-to-text", "ascii-octal", "utf8-octal", "octal-to-text", "unicode-codepoint-hex", "unicode-codepoint-binary", "hex-to-unicode", "decimal-to-unicode", "binary-to-unicode", "unicode-codepoint-decimal", "unicode-utf8-decimal", "character-to-unicode", "hex-to-binary", "binary-to-hex", "hex-to-decimal", "octal-to-decimal", "octal-to-hex", "hex-to-octal", "binary-to-octal", "decimal-to-octal", "decimal-to-gray", "gray-to-decimal", "gray-to-binary", "binary-to-gray", "gray-to-octal", "gray-to-hex", "octal-to-gray", "hex-to-gray", "decimal-to-bcd", "bcd-to-decimal", "gray-to-bcd", "bcd-to-gray", "bcd-to-hex", "binary-to-bcd", "bcd-to-binary", "hex-to-bcd", "decimal-to-hex", "decimal-to-binary", "binary-to-decimal", "octal-to-binary", "base-converter"].includes(requestedMode)
       ? requestedMode
       : "decode";
     updateMode(defaultMode);
@@ -1553,6 +1599,10 @@
     bcdToGray,
     bcdToHex,
     binaryToBcd,
+    bcdToBinary,
+    hexToBcd,
+    decimalToRadix,
+    binaryToDecimal,
     octalToBinary,
     baseConvert,
     hexToText,
