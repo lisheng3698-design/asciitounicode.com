@@ -16,6 +16,8 @@ function loadTools() {
     Number,
     String,
     RegExp,
+    atob,
+    btoa,
     document: {
       addEventListener() {},
       querySelectorAll() {
@@ -33,6 +35,57 @@ function loadTools() {
   vm.runInContext(source, sandbox, { filename: "app.js" });
   return sandbox.window.asciiUnicodeTools;
 }
+
+test("octal to BCD encodes decimal digits and rejects invalid octal", () => {
+  const t = loadTools();
+  assert.equal(t.octalToBcd("73").output, "0101 1001");
+  assert.equal(t.octalToBcd("0o00012", "octal-bcd-compact").output, "00010000");
+  assert.equal(t.octalToBcd("0").output, "0000");
+  assert.ok(t.octalToBcd("18").warning);
+  assert.equal(t.octalToBcd("18").output, "");
+});
+
+test("Base36 directions retain values beyond Number precision and literal 0x", () => {
+  const t = loadTools();
+  const decimal = "9007199254740993";
+  const encoded = t.convertValue(decimal, "decimal-to-base36", "decimal-base36-upper").output;
+  assert.equal(encoded, BigInt(decimal).toString(36).toUpperCase());
+  assert.equal(t.convertValue(encoded.toLowerCase(), "base36-to-decimal").output, decimal);
+  assert.equal(t.convertValue("0x", "base36-to-decimal").output, "33");
+  assert.equal(t.convertValue("46655", "decimal-to-base36", "decimal-base36-lower").output, "zzz");
+  assert.ok(t.convertValue("1e3", "decimal-to-base36").warning);
+  assert.equal(t.convertValue("-Z", "base36-to-decimal").output, "");
+});
+
+test("hex to Base64 preserves binary bytes and validates whole byte pairs", () => {
+  const t = loadTools();
+  assert.equal(t.hexToBase64("41 00 FF").output, "QQD/");
+  assert.equal(t.hexToBase64("0x00ff").output, "AP8=");
+  assert.equal(t.hexToBase64("FFFF", "hex-base64-url").output, "__8");
+  for (const value of ["F", "0x41 0x42", "GG", "41,42", "41_42"]) {
+    assert.equal(t.hexToBase64(value).output, "");
+    assert.ok(t.hexToBase64(value).warning);
+  }
+});
+
+test("Base64 to hex validates padding bits, alphabets and unpadded forms", () => {
+  const t = loadTools();
+  assert.equal(t.base64ToHex("QQD/").output, "4100FF");
+  assert.equal(t.base64ToHex("AA==").output, "00");
+  assert.equal(t.base64ToHex("_w").output, "FF");
+  assert.equal(t.base64ToHex("Zg==", "base64-hex-lower").output, "66");
+  assert.equal(t.base64ToHex(" QQD/\n", "base64-hex-spaces").output, "41 00 FF");
+  for (const value of ["Zh==", "Zg=", "Z===", "A", "AA=A", "+_8=", "data:;base64,Zg=="]) {
+    assert.equal(t.base64ToHex(value).output, "");
+    assert.ok(t.base64ToHex(value).warning);
+  }
+});
+
+test("hex/Base64 round trips all byte values and a payload beyond call stack spread limits", () => {
+  const t = loadTools();
+  const bytes = Array.from({length:256}, (_,i)=>i.toString(16).padStart(2,"0")).join("").repeat(300);
+  assert.equal(t.base64ToHex(t.hexToBase64(bytes).output,"base64-hex-lower").output, bytes);
+});
 
 const tools = loadTools();
 

@@ -864,7 +864,7 @@ test("Adsterra units are installed once on indexable pages and excluded from tru
       .sort()
   ];
 
-  assert.equal(indexablePages.length, 47);
+  assert.equal(indexablePages.length, 52);
   for (const file of indexablePages) {
     const html = read(file);
     assert.equal(countMatches(html, /5d2a09f34441d80c4a5995ae3e54b536\.js/g), 1, `${file} pop-under`);
