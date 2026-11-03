@@ -4,8 +4,19 @@
   const state = {
     mode: "decode",
     lang: "en",
-    warningKey: ""
+    warningKey: "",
+    decodedText: null
   };
+
+  const byteAndUrlModes = Object.freeze({
+    "base64-to-binary": base64ToBinary,
+    "binary-to-base64": binaryToBase64,
+    "base64-to-text": base64ToText,
+    "text-to-base64": textToBase64,
+    "url-decoder": decodePercentText
+  });
+  const binaryFileLimit = 64 * 1024;
+  const byteBits = Array.from({ length: 256 }, (_, i) => i.toString(2).padStart(8, "0"));
 
   const translations = {
     zh: {
@@ -294,6 +305,12 @@
       warningInvalidBaseRange: "Choose source and target bases from 2 through 36.",
       warningInvalidHexBytes: "Enter complete hexadecimal byte pairs (00-FF), with whitespace and one optional leading 0x prefix. Odd digits and other separators are unsupported.",
       warningInvalidBase64Bytes: "Enter valid standard Base64 or Base64url. Check the alphabet, padding, and zero pad bits; do not mix alphabets or include a data URL header.",
+      warningInvalidBitBytes: "Enter complete 8-bit bytes using only 0, 1, and whitespace.",
+      warningInvalidUtf8Bytes: "These bytes are not valid UTF-8 text. Use Base64 to Binary to preserve the original bytes.",
+      warningInvalidUnicodeText: "The input contains an unpaired UTF-16 surrogate. Replace it with a valid character before encoding.",
+      warningInvalidPercentEncoding: "Use two hex digits after each percent sign and valid UTF-8. For a literal percent sign, enter %25.",
+      warningBinaryFileSize: "Choose a nonempty binary file no larger than 64 KiB.",
+      warningBinaryFileRead: "The browser could not read this file. Try opening it again.",
       warningInvalidUnicodeCodePoint: "Enter complete hexadecimal or decimal Unicode scalar values separated by spaces, commas, semicolons, or line breaks.",
       warningInvalidUnicodeBinary: "Enter complete binary Unicode scalar values using 1 to 21 bits per code point.",
       warningUnicodeRange: "Unicode scalar values must be between 0 and U+10FFFF.",
@@ -313,7 +330,7 @@
       btn.classList.toggle("is-active", active);
       btn.setAttribute("aria-selected", String(active));
     });
-    els.format.disabled = !["encode", "entities", "ascii-binary", "utf8-binary", "ascii-hex", "utf8-hex", "ascii-decimal", "utf8-decimal", "hex-to-text", "binary-to-text", "decimal-to-text", "ascii-octal", "utf8-octal", "octal-to-text", "unicode-codepoint-hex", "unicode-codepoint-binary", "hex-to-unicode", "decimal-to-unicode", "binary-to-unicode", "unicode-codepoint-decimal", "unicode-utf8-decimal", "character-to-unicode", "hex-to-binary", "binary-to-hex", "octal-to-hex", "hex-to-octal", "binary-to-octal", "decimal-to-octal", "decimal-to-gray", "gray-to-decimal", "gray-to-binary", "binary-to-gray", "gray-to-octal", "gray-to-hex", "octal-to-gray", "hex-to-gray", "decimal-to-bcd", "bcd-to-decimal", "gray-to-bcd", "bcd-to-gray", "bcd-to-hex", "binary-to-bcd", "bcd-to-binary", "hex-to-bcd", "decimal-to-hex", "decimal-to-binary", "binary-to-decimal", "octal-to-bcd", "decimal-to-base36", "base36-to-decimal", "hex-to-base64", "base64-to-hex", "octal-to-binary", "base-converter"].includes(mode);
+    els.format.disabled = !Object.hasOwn(byteAndUrlModes, mode) && !["encode", "entities", "ascii-binary", "utf8-binary", "ascii-hex", "utf8-hex", "ascii-decimal", "utf8-decimal", "hex-to-text", "binary-to-text", "decimal-to-text", "ascii-octal", "utf8-octal", "octal-to-text", "unicode-codepoint-hex", "unicode-codepoint-binary", "hex-to-unicode", "decimal-to-unicode", "binary-to-unicode", "unicode-codepoint-decimal", "unicode-utf8-decimal", "character-to-unicode", "hex-to-binary", "binary-to-hex", "octal-to-hex", "hex-to-octal", "binary-to-octal", "decimal-to-octal", "decimal-to-gray", "gray-to-decimal", "gray-to-binary", "binary-to-gray", "gray-to-octal", "gray-to-hex", "octal-to-gray", "hex-to-gray", "decimal-to-bcd", "bcd-to-decimal", "gray-to-bcd", "bcd-to-gray", "bcd-to-hex", "binary-to-bcd", "bcd-to-binary", "hex-to-bcd", "decimal-to-hex", "decimal-to-binary", "binary-to-decimal", "octal-to-bcd", "decimal-to-base36", "base36-to-decimal", "hex-to-base64", "base64-to-hex", "octal-to-binary", "base-converter"].includes(mode);
     syncCustomSelect();
     trackEvent("mode_change", { mode });
     if (els.auto.checked) {
@@ -1019,22 +1036,84 @@
   }
 
   function base64ToHex(input, format = "base64-hex-upper") {
+    const bytes = decodeBase64Bytes(input);
+    if (bytes === null) return invalidBase64();
+    const parts = Array.from(bytes, char => char.charCodeAt(0).toString(16).padStart(2, "0"));
+    let output = parts.join(format === "base64-hex-spaces" ? " " : "");
+    if (format !== "base64-hex-lower") output = output.toUpperCase();
+    return { output, warning: "" };
+  }
+
+  function invalidBase64() {
+    return { output: "", warning: "warningInvalidBase64Bytes" };
+  }
+
+  function decodeBase64Bytes(input) {
     const compact = input.replace(/\s+/g, "");
-    const invalid = { output: "", warning: "warningInvalidBase64Bytes" };
-    if (!compact || !/^[A-Za-z0-9+/_-]+={0,2}$/.test(compact)) return invalid;
-    if (/[+\/]/.test(compact) && /[-_]/.test(compact)) return invalid;
+    if (!/^[A-Za-z0-9+/_-]+={0,2}$/.test(compact)) return null;
+    if (/[+\/]/.test(compact) && /[-_]/.test(compact)) return null;
     const body = compact.replace(/=+$/, "").replace(/-/g, "+").replace(/_/g, "/");
-    if (body.length % 4 === 1 || (compact.includes("=") && compact.length % 4 !== 0)) return invalid;
+    if (body.length % 4 === 1 || (compact.includes("=") && compact.length % 4 !== 0)) return null;
     try {
       const bytes = atob(body.padEnd(Math.ceil(body.length / 4) * 4, "="));
       // Enforce canonical zero pad bits as well as alphabet and padding syntax.
-      if (btoa(bytes).replace(/=+$/, "") !== body) return invalid;
-      const parts = Array.from(bytes, char => char.charCodeAt(0).toString(16).padStart(2, "0"));
-      let output = parts.join(format === "base64-hex-spaces" ? " " : "");
-      if (format !== "base64-hex-lower") output = output.toUpperCase();
+      return btoa(bytes).replace(/=+$/, "") === body ? bytes : null;
+    } catch (error) {
+      return null;
+    }
+  }
+
+  function parseBitBytes(input) {
+    const bits = input.replace(/\s+/g, "");
+    if (!bits || bits.length % 8 || /[^01]/.test(bits)) return null;
+    const bytes = new Uint8Array(bits.length / 8);
+    for (let i = 0; i < bytes.length; i++) bytes[i] = parseInt(bits.slice(i * 8, i * 8 + 8), 2);
+    return bytes;
+  }
+
+  function encodeBase64Bytes(bytes, format) {
+    const chunks = [];
+    for (let offset = 0; offset < bytes.length; offset += 8192) {
+      chunks.push(String.fromCharCode(...bytes.subarray(offset, offset + 8192)));
+    }
+    const standard = btoa(chunks.join(""));
+    return format === "base64url" ? standard.replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "") : standard;
+  }
+
+  function base64ToBinary(input, format) {
+    const bytes = decodeBase64Bytes(input);
+    if (bytes === null) return invalidBase64();
+    const parts = Array.from(bytes, char => byteBits[char.charCodeAt(0)]);
+    return { output: parts.join(format === "binary-compact" ? "" : " "), warning: "" };
+  }
+
+  function binaryToBase64(input, format) {
+    const bytes = parseBitBytes(input);
+    return bytes ? { output: encodeBase64Bytes(bytes, format), warning: "" } : { output: "", warning: "warningInvalidBitBytes" };
+  }
+
+  function base64ToText(input) {
+    const bytes = decodeBase64Bytes(input);
+    if (bytes === null) return invalidBase64();
+    try {
+      const output = new TextDecoder("utf-8", { fatal: true, ignoreBOM: true })
+        .decode(Uint8Array.from(bytes, char => char.charCodeAt(0)));
       return { output, warning: "" };
     } catch (error) {
-      return invalid;
+      return { output: "", warning: "warningInvalidUtf8Bytes" };
+    }
+  }
+
+  function textToBase64(input, format) {
+    if (/[\uD800-\uDFFF]/u.test(input)) return { output: "", warning: "warningInvalidUnicodeText" };
+    return { output: encodeBase64Bytes(new TextEncoder().encode(input), format), warning: "" };
+  }
+
+  function decodePercentText(input, format) {
+    try {
+      return { output: decodeURIComponent(format === "url-form" ? input.replace(/\+/g, " ") : input), warning: "" };
+    } catch (error) {
+      return { output: "", warning: "warningInvalidPercentEncoding" };
     }
   }
 
@@ -1164,6 +1243,8 @@
     if (!input) {
       return { output: "", warning: "warningEmpty" };
     }
+
+    if (Object.hasOwn(byteAndUrlModes, mode)) return byteAndUrlModes[mode](input, format);
 
     const warning = isMalformed(input) ? "warningMalformed" : "";
     let modeWarning = "";
@@ -1387,6 +1468,7 @@
       targetBase: els.targetBase ? els.targetBase.value : undefined
     });
     els.output.value = result.output;
+    state.decodedText = state.mode === "base64-to-text" ? result.output : null;
     els.charCount.textContent = Array.from(result.output).length.toString();
     setWarning(result.warning);
     setStatus("statusDone");
@@ -1403,7 +1485,7 @@
       return;
     }
     try {
-      await navigator.clipboard.writeText(els.output.value);
+      await navigator.clipboard.writeText(state.decodedText ?? els.output.value);
     } catch (error) {
       els.output.select();
       document.execCommand("copy");
@@ -1415,12 +1497,14 @@
   function clearAll() {
     els.input.value = "";
     els.output.value = "";
+    state.decodedText = null;
     els.charCount.textContent = "0";
     setWarning("");
     setStatus("statusCleared");
   }
 
   function swapValues() {
+    state.decodedText = null;
     const currentInput = els.input.value;
     els.input.value = els.output.value;
     els.output.value = currentInput;
@@ -1434,17 +1518,29 @@
     if (!els.output.value) {
       return;
     }
-    const blob = new Blob([els.output.value], { type: "text/plain;charset=utf-8" });
+    const blob = new Blob([state.decodedText ?? els.output.value], { type: "text/plain;charset=utf-8" });
+    saveBlob(blob, "ascii-to-unicode-output.txt");
+    setStatus("statusDownloaded");
+    trackEvent("download_output", { mode: state.mode, outputLength: Array.from(els.output.value).length });
+  }
+
+  function downloadBinaryBytes() {
+    const bytes = parseBitBytes(els.output.value);
+    if (!bytes) return;
+    saveBlob(new Blob([bytes], { type: "application/octet-stream" }), "decoded-bytes.bin");
+    setStatus("statusDownloaded");
+    trackEvent("download_output", { mode: state.mode, size: bytes.length });
+  }
+
+  function saveBlob(blob, filename) {
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.href = url;
-    link.download = "ascii-to-unicode-output.txt";
+    link.download = filename;
     document.body.appendChild(link);
     link.click();
     link.remove();
-    URL.revokeObjectURL(url);
-    setStatus("statusDownloaded");
-    trackEvent("download_output", { mode: state.mode, outputLength: Array.from(els.output.value).length });
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
   }
 
   function useSample(button) {
@@ -1556,6 +1652,7 @@
       swapButton.addEventListener("click", swapValues);
     }
     byId("download-btn").addEventListener("click", downloadOutput);
+    byId("download-bytes-btn")?.addEventListener("click", downloadBinaryBytes);
     byId("import-btn").addEventListener("click", () => els.fileInput.click());
     els.input.addEventListener("input", () => {
       if (els.auto.checked) {
@@ -1578,11 +1675,24 @@
       if (!file) {
         return;
       }
-      els.input.value = await file.text();
-      setStatus("statusImported");
-      trackEvent("tool_import", { size: file.size, type: file.type || "text/plain" });
-      convertNow();
-      els.fileInput.value = "";
+      try {
+        const binary = state.mode === "binary-to-base64";
+        if (binary && (file.size === 0 || file.size > binaryFileLimit)) {
+          clearAll();
+          setWarning("warningBinaryFileSize");
+          return;
+        }
+        els.input.value = binary
+          ? Array.from(new Uint8Array(await file.arrayBuffer()), byte => byteBits[byte]).join(" ")
+          : await file.text();
+        setStatus("statusImported");
+        trackEvent("tool_import", { size: file.size, type: binary ? "binary" : "text/plain" });
+        convertNow();
+      } catch (error) {
+        setWarning("warningBinaryFileRead");
+      } finally {
+        els.fileInput.value = "";
+      }
     });
     document.querySelectorAll(".sample-chip, .example-btn").forEach((button) => {
       button.addEventListener("click", () => useSample(button));
@@ -1608,7 +1718,7 @@
       applyLanguage(savedLang);
     }
     const requestedMode = document.body.dataset.defaultMode || "decode";
-    const defaultMode = ["decode", "encode", "entities", "mojibake", "transliterate", "ascii-replace", "ascii-remove", "ascii-binary", "utf8-binary", "ascii-hex", "utf8-hex", "ascii-decimal", "utf8-decimal", "hex-to-text", "binary-to-text", "decimal-to-text", "ascii-octal", "utf8-octal", "octal-to-text", "unicode-codepoint-hex", "unicode-codepoint-binary", "hex-to-unicode", "decimal-to-unicode", "binary-to-unicode", "unicode-codepoint-decimal", "unicode-utf8-decimal", "character-to-unicode", "hex-to-binary", "binary-to-hex", "hex-to-decimal", "octal-to-decimal", "octal-to-hex", "hex-to-octal", "binary-to-octal", "decimal-to-octal", "decimal-to-gray", "gray-to-decimal", "gray-to-binary", "binary-to-gray", "gray-to-octal", "gray-to-hex", "octal-to-gray", "hex-to-gray", "decimal-to-bcd", "bcd-to-decimal", "gray-to-bcd", "bcd-to-gray", "bcd-to-hex", "binary-to-bcd", "bcd-to-binary", "hex-to-bcd", "decimal-to-hex", "decimal-to-binary", "binary-to-decimal", "octal-to-bcd", "decimal-to-base36", "base36-to-decimal", "hex-to-base64", "base64-to-hex", "octal-to-binary", "base-converter"].includes(requestedMode)
+    const defaultMode = Object.hasOwn(byteAndUrlModes, requestedMode) || ["decode", "encode", "entities", "mojibake", "transliterate", "ascii-replace", "ascii-remove", "ascii-binary", "utf8-binary", "ascii-hex", "utf8-hex", "ascii-decimal", "utf8-decimal", "hex-to-text", "binary-to-text", "decimal-to-text", "ascii-octal", "utf8-octal", "octal-to-text", "unicode-codepoint-hex", "unicode-codepoint-binary", "hex-to-unicode", "decimal-to-unicode", "binary-to-unicode", "unicode-codepoint-decimal", "unicode-utf8-decimal", "character-to-unicode", "hex-to-binary", "binary-to-hex", "hex-to-decimal", "octal-to-decimal", "octal-to-hex", "hex-to-octal", "binary-to-octal", "decimal-to-octal", "decimal-to-gray", "gray-to-decimal", "gray-to-binary", "binary-to-gray", "gray-to-octal", "gray-to-hex", "octal-to-gray", "hex-to-gray", "decimal-to-bcd", "bcd-to-decimal", "gray-to-bcd", "bcd-to-gray", "bcd-to-hex", "binary-to-bcd", "bcd-to-binary", "hex-to-bcd", "decimal-to-hex", "decimal-to-binary", "binary-to-decimal", "octal-to-bcd", "decimal-to-base36", "base36-to-decimal", "hex-to-base64", "base64-to-hex", "octal-to-binary", "base-converter"].includes(requestedMode)
       ? requestedMode
       : "decode";
     updateMode(defaultMode);

@@ -89,6 +89,49 @@ test("hex/Base64 round trips all byte values and a payload beyond call stack spr
 
 const tools = loadTools();
 
+test("Base64 and binary preserve all byte values, including leading zero and Base64url", () => {
+  const original = Buffer.from(Array.from({length:256}, (_,i)=>i));
+  const bits = tools.convertValue(original.toString("base64"), "base64-to-binary", "binary-groups").output;
+  assert.ok(bits.startsWith("00000000 00000001"));
+  assert.equal(bits.split(" ").length, 256);
+  assert.equal(tools.convertValue(bits, "binary-to-base64", "base64url").output, original.toString("base64url"));
+  assert.equal(tools.convertValue("_w", "base64-to-binary", "binary-compact").output, "11111111");
+  for (const value of ["AB==", "A", "+_", "data:text/plain;base64,QQ=="]) {
+    const result = tools.convertValue(value, "base64-to-binary");
+    assert.equal(result.output, "");
+    assert.equal(result.warning, "warningInvalidBase64Bytes");
+  }
+  for (const value of ["101", "00000000,11111111", "0b00000000", "00000002"]) {
+    const result = tools.convertValue(value, "binary-to-base64");
+    assert.equal(result.output, "");
+    assert.equal(result.warning, "warningInvalidBitBytes");
+  }
+});
+
+test("Base64 text uses exact UTF-8 and separates invalid encoding from nontext bytes", () => {
+  const original = "\uFEFF 你好😀\r\n";
+  const encoded = Buffer.from(original, "utf8").toString("base64url");
+  assert.equal(tools.convertValue(original, "text-to-base64", "base64url").output, encoded);
+  assert.equal(tools.convertValue(encoded, "base64-to-text").output, original);
+  assert.equal(tools.convertValue("8J+YgA==", "base64-to-text").output, "😀");
+  assert.equal(tools.convertValue("/w==", "base64-to-text").warning, "warningInvalidUtf8Bytes");
+  assert.equal(tools.convertValue("a===", "base64-to-text").warning, "warningInvalidBase64Bytes");
+  assert.equal(tools.convertValue("\uD800", "text-to-base64").warning, "warningInvalidUnicodeText");
+  assert.equal(tools.convertValue(" ".repeat(90000), "text-to-base64").output, Buffer.alloc(90000,32).toString("base64"));
+});
+
+test("URL decoder decodes one UTF-8 layer and distinguishes form plus from literal plus", () => {
+  assert.equal(tools.convertValue("a+b%2B%20%E4%BD%A0", "url-decoder", "url-component").output, "a+b+ 你");
+  assert.equal(tools.convertValue("a+b%2B%20%E4%BD%A0", "url-decoder", "url-form").output, "a b+ 你");
+  assert.equal(tools.convertValue("%252F", "url-decoder").output, "%2F");
+  assert.equal(tools.convertValue("%25", "url-decoder").output, "%");
+  for (const value of ["%ZZ", "%", "%E4", "%C0%AF"]) {
+    const result = tools.convertValue(value, "url-decoder");
+    assert.equal(result.output, "");
+    assert.equal(result.warning, "warningInvalidPercentEncoding");
+  }
+});
+
 test("BCD to binary validates each decimal nibble and does not reinterpret packed bits", () => {
   assert.equal(tools.convertValue("0101 1001", "bcd-to-binary", "bcd-binary-plain").output, "111011");
   assert.equal(tools.convertValue("0000", "bcd-to-binary", "bcd-binary-plain").output, "0");
