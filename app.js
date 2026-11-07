@@ -9,6 +9,7 @@
   };
 
   const byteAndUrlModes = Object.freeze({
+    ...(window.asciiUnicodeUtilities?.converters || {}),
     "base64-to-binary": base64ToBinary,
     "binary-to-base64": binaryToBase64,
     "base64-to-text": base64ToText,
@@ -316,7 +317,7 @@
       warningUnicodeRange: "Unicode scalar values must be between 0 and U+10FFFF.",
       warningUnicodeSurrogate: "Surrogate values U+D800 through U+DFFF are not Unicode scalar values."
     };
-    const text = key ? (t(key) || fallback[key]) : "";
+    const text = key ? (t(key) || window.asciiUnicodeUtilities?.warnings[key] || fallback[key]) : "";
     els.warning.textContent = text || "";
     if (text) {
       trackEvent("error_shown", { mode: state.mode, type: key });
@@ -1468,7 +1469,7 @@
       targetBase: els.targetBase ? els.targetBase.value : undefined
     });
     els.output.value = result.output;
-    state.decodedText = state.mode === "base64-to-text" ? result.output : null;
+    state.decodedText = ["base64-to-text", "base32-decoder", "base58-decoder", "json-to-csv"].includes(state.mode) ? result.output : null;
     els.charCount.textContent = Array.from(result.output).length.toString();
     setWarning(result.warning);
     setStatus("statusDone");
@@ -1519,7 +1520,8 @@
       return;
     }
     const blob = new Blob([state.decodedText ?? els.output.value], { type: "text/plain;charset=utf-8" });
-    saveBlob(blob, "ascii-to-unicode-output.txt");
+    const extension = window.asciiUnicodeUtilities?.downloadExtensions[state.mode];
+    saveBlob(blob, extension ? state.mode + "." + extension : "ascii-to-unicode-output.txt");
     setStatus("statusDownloaded");
     trackEvent("download_output", { mode: state.mode, outputLength: Array.from(els.output.value).length });
   }
