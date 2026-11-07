@@ -772,7 +772,7 @@ test("2026-08-13 five Gray code pages have independent tools, SEO, locales, and 
     assert.match(html, /id="limits"/);
     assert.match(html, /gray-page-translations\.js/);
     assert.match(homepage, new RegExp(`href="${slug}\\/"`));
-    assert.match(sitemap, new RegExp(`<loc>https:\\/\\/asciitounicode\\.com\\/${slug}\\/<\\/loc>[\\s\\S]*?<lastmod>2026-08-13<\\/lastmod>`));
+    assert.match(sitemap, new RegExp(`<loc>https:\\/\\/asciitounicode\\.com\\/${slug}\\/<\\/loc>[\\s\\S]*?<lastmod>2026-11-08<\\/lastmod>`));
     const page = context.window.asciiUnicodeI18n.pages[pageKey];
     const keys = Object.keys(page.zh);
     for (const lang of ["zh", "es", "pt", "fr", "de", "ja", "ko"]) {
@@ -829,7 +829,12 @@ test("2026-11-08 production remediation keeps all fifteen numeric tools usable i
     "hex-to-gray-code", "gray-code-to-bcd", "bcd-to-gray-code", "hex-to-bcd", "bcd-to-hex",
   ];
   for (const slug of slugs) {
-    assert.match(read(`${slug}/index.html`), /integer-pages\.css\?v=20261108-first-screen/, `${slug} compact mobile converter stylesheet`);
+    const html = read(`${slug}/index.html`);
+    assert.match(html, /integer-pages\.css\?v=20261108-first-screen/, `${slug} compact mobile converter stylesheet`);
+    const schema = JSON.parse(html.match(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/)[1]);
+    const article = schema["@graph"].find((node) => node["@type"] === "Article");
+    assert.equal(article.dateModified, "2026-11-08", `${slug} Article dateModified`);
+    assert.match(read("sitemap.xml"), new RegExp(`<loc>https:\\/\\/asciitounicode\\.com\\/${slug}\\/<\\/loc>[\\s\\S]*?<lastmod>2026-11-08<\\/lastmod>`), `${slug} sitemap lastmod`);
   }
   const css = read("integer-pages.css");
   assert.match(css, /@media \(max-width: 520px\)/);
