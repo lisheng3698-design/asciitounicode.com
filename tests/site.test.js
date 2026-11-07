@@ -864,7 +864,10 @@ test("Adsterra units are installed once on indexable pages and excluded from tru
       .sort()
   ];
 
-  assert.equal(indexablePages.length, 57);
+  const sitemapPages = [...read("sitemap.xml").matchAll(/<loc>([^<]+)<\/loc>/g)]
+    .map((match) => new URL(match[1]).pathname.replace(/^\//, "") + "index.html")
+    .sort();
+  assert.deepEqual([...indexablePages].sort(), sitemapPages, "all indexable pages must be in the sitemap");
   for (const file of indexablePages) {
     const html = read(file);
     assert.equal(countMatches(html, /5d2a09f34441d80c4a5995ae3e54b536\.js/g), 1, `${file} pop-under`);
