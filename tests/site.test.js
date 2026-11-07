@@ -822,6 +822,21 @@ test("2026-08-14 five representation pages have unique tools, deep HTML, locales
   assert.equal(new Set(descriptions).size, pages.length);
 });
 
+test("2026-11-08 production remediation keeps all fifteen numeric tools usable in the 390px first screen", () => {
+  const slugs = [
+    "decimal-to-hex", "decimal-to-binary", "binary-to-decimal", "binary-to-gray-code", "gray-code-to-binary",
+    "gray-code-to-hex", "binary-to-bcd", "bcd-to-binary", "octal-to-gray-code", "gray-code-to-octal",
+    "hex-to-gray-code", "gray-code-to-bcd", "bcd-to-gray-code", "hex-to-bcd", "bcd-to-hex",
+  ];
+  for (const slug of slugs) {
+    assert.match(read(`${slug}/index.html`), /integer-pages\.css\?v=20261108-first-screen/, `${slug} compact mobile converter stylesheet`);
+  }
+  const css = read("integer-pages.css");
+  assert.match(css, /@media \(max-width: 520px\)/);
+  assert.match(css, /\.text-grid \{ grid-template-columns: minmax\(0, 1fr\) minmax\(0, 1fr\)/);
+  assert.match(css, /textarea \{ min-height: 120px/);
+});
+
 test("all indexable inner pages include Organization, WebSite, and Article structured data", () => {
   for (const file of ["unicode-to-ascii/index.html", "ascii-to-binary/index.html", "hex-to-ascii/index.html", "ascii-to-hex/index.html", "binary-to-ascii/index.html", "ascii-to-decimal/index.html", "decimal-to-ascii/index.html", "ascii-to-octal/index.html", "octal-to-ascii/index.html", "unicode-to-hex/index.html", "unicode-to-binary/index.html", "hex-to-unicode/index.html", "character-to-unicode/index.html", "decimal-to-unicode/index.html", "unicode-to-decimal/index.html", "hex-to-binary/index.html", "binary-to-hex/index.html", "hex-to-decimal/index.html", "octal-to-decimal/index.html", "octal-to-hex/index.html", "hex-to-octal/index.html", "base-converter/index.html", "binary-to-octal/index.html", "ascii-table/index.html", "decimal-to-octal/index.html", "octal-to-binary/index.html"]) {
     const html = read(file);
