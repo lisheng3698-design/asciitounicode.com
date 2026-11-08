@@ -2,7 +2,7 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://asciitounicode.com/</loc>
-    <lastmod>2026-11-07</lastmod>
+    <lastmod>2026-11-09</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
@@ -282,4 +282,19 @@
 <url><loc>https://asciitounicode.com/whitespace-remover/</loc><lastmod>2026-11-07</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
 <url><loc>https://asciitounicode.com/line-sorter/</loc><lastmod>2026-11-07</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
 <url><loc>https://asciitounicode.com/duplicate-line-remover/</loc><lastmod>2026-11-07</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
+<url><loc>https://asciitounicode.com/base64-to-base64url/</loc><lastmod>2026-11-09</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
+<url><loc>https://asciitounicode.com/base64url-to-base64/</loc><lastmod>2026-11-09</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
+<url><loc>https://asciitounicode.com/unicode-character-counter/</loc><lastmod>2026-11-09</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
+<url><loc>https://asciitounicode.com/case-converter/</loc><lastmod>2026-11-09</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
+<url><loc>https://asciitounicode.com/html-encoder/</loc><lastmod>2026-11-09</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
+<url><loc>https://asciitounicode.com/html-decoder/</loc><lastmod>2026-11-09</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
+<url><loc>https://asciitounicode.com/unicode-character-inspector/</loc><lastmod>2026-11-09</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
+<url><loc>https://asciitounicode.com/utf8-encoder/</loc><lastmod>2026-11-09</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
+<url><loc>https://asciitounicode.com/utf8-decoder/</loc><lastmod>2026-11-09</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
+<url><loc>https://asciitounicode.com/remove-duplicate-words/</loc><lastmod>2026-11-09</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
+<url><loc>https://asciitounicode.com/sort-words/</loc><lastmod>2026-11-09</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
+<url><loc>https://asciitounicode.com/line-counter/</loc><lastmod>2026-11-09</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
+<url><loc>https://asciitounicode.com/query-string-parser/</loc><lastmod>2026-11-09</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
+<url><loc>https://asciitounicode.com/query-string-builder/</loc><lastmod>2026-11-09</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
+<url><loc>https://asciitounicode.com/json-minifier/</loc><lastmod>2026-11-09</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
 </urlset>
