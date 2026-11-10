@@ -2,7 +2,7 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://asciitounicode.com/</loc>
-    <lastmod>2026-11-10</lastmod>
+    <lastmod>2026-11-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
@@ -312,4 +312,19 @@
 <url><loc>https://asciitounicode.com/add-line-numbers/</loc><lastmod>2026-11-10</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
 <url><loc>https://asciitounicode.com/reverse-lines/</loc><lastmod>2026-11-10</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
 <url><loc>https://asciitounicode.com/duplicate-line-finder/</loc><lastmod>2026-11-10</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
+<url><loc>https://asciitounicode.com/uuid-generator/</loc><lastmod>2026-11-11</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
+<url><loc>https://asciitounicode.com/json-validator/</loc><lastmod>2026-11-11</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
+<url><loc>https://asciitounicode.com/regex-tester/</loc><lastmod>2026-11-11</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
+<url><loc>https://asciitounicode.com/xml-validator/</loc><lastmod>2026-11-11</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
+<url><loc>https://asciitounicode.com/email-extractor/</loc><lastmod>2026-11-11</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
+<url><loc>https://asciitounicode.com/url-extractor/</loc><lastmod>2026-11-11</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
+<url><loc>https://asciitounicode.com/remove-line-breaks/</loc><lastmod>2026-11-11</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
+<url><loc>https://asciitounicode.com/find-and-replace-text/</loc><lastmod>2026-11-11</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
+<url><loc>https://asciitounicode.com/random-string-generator/</loc><lastmod>2026-11-11</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
+<url><loc>https://asciitounicode.com/password-generator/</loc><lastmod>2026-11-11</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
+<url><loc>https://asciitounicode.com/json-escape/</loc><lastmod>2026-11-11</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
+<url><loc>https://asciitounicode.com/json-unescape/</loc><lastmod>2026-11-11</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
+<url><loc>https://asciitounicode.com/random-number-generator/</loc><lastmod>2026-11-11</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
+<url><loc>https://asciitounicode.com/csv-validator/</loc><lastmod>2026-11-11</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
+<url><loc>https://asciitounicode.com/xml-escape/</loc><lastmod>2026-11-11</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
 </urlset>
