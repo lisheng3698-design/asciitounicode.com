@@ -216,10 +216,18 @@
     if (rows.at(-1).length === 1 && rows.at(-1)[0] === "" && source.endsWith("\n")) rows.pop();
     const columns = rows[0]?.length || 0;
     if (!columns || rows.some(item => item.length !== columns)) throw new Error("columns");
-    return { rows: rows.length, columns, emptyFields: rows.reduce((sum, item) => sum + item.filter(value => value === "").length, 0) };
+    return {
+      rows: rows.length,
+      columns,
+      emptyFields: rows.reduce((sum, item) => sum + item.filter(value => value === "").length, 0),
+      data: rows,
+    };
   }
   function csvValidator(input) {
-    try { return ok(JSON.stringify({ valid: true, ...parseCsv(input) }, null, 2)); } catch { return bad(); }
+    try {
+      const { data, ...report } = parseCsv(input);
+      return ok(JSON.stringify({ valid: true, ...report }, null, 2));
+    } catch { return bad(); }
   }
 
   function xmlEscape(input, format) {
@@ -229,6 +237,192 @@
     if (format === "xml-attribute-escape") output = output.replace(/"/g, "&quot;").replace(/'/g, "&apos;");
     else if (format !== "xml-text-escape") return bad();
     return ok(output);
+  }
+
+  function xmlUnescape(input, format) {
+    const source = String(input);
+    if (format !== "xml-unescape-strict" || !source || source.length > 200000) return bad();
+    const withoutKnown = source.replace(/&(amp|lt|gt|quot|apos);/g, "");
+    if (withoutKnown.includes("&")) return bad();
+    const entities = { amp: "&", lt: "<", gt: ">", quot: '"', apos: "'" };
+    return ok(source.replace(/&(amp|lt|gt|quot|apos);/g, (_, name) => entities[name]));
+  }
+
+  function base64Validator(input, format) {
+    const source = String(input).trim();
+    if (!source || source.length > 400000 || /\s/.test(source)) return bad();
+    let standard;
+    if (format === "base64-standard") {
+      if (!/^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$/.test(source)) return bad();
+      standard = source;
+    } else if (format === "base64-url") {
+      if (!/^[A-Za-z0-9_-]+={0,2}$/.test(source) || source.length % 4 === 1 || /=[^=]/.test(source)) return bad();
+      standard = source.replace(/-/g, "+").replace(/_/g, "/").replace(/=+$/, "");
+      standard += "=".repeat((4 - standard.length % 4) % 4);
+    } else return bad();
+    try {
+      const decoded = atob(standard);
+      return ok(JSON.stringify({
+        valid: true,
+        alphabet: format === "base64-url" ? "Base64URL" : "Base64",
+        decodedBytes: decoded.length,
+        padded: /=+$/.test(source),
+      }, null, 2));
+    } catch { return bad(); }
+  }
+
+  function urlValidator(input, format) {
+    const source = String(input).trim();
+    if (format !== "url-http" || !source || source.length > 8192 || /\s/.test(source)) return bad();
+    try {
+      const url = new URL(source);
+      if (!["http:", "https:"].includes(url.protocol) || url.username || url.password) return bad();
+      return ok(JSON.stringify({
+        valid: true,
+        normalized: url.href,
+        protocol: url.protocol.slice(0, -1),
+        hostname: url.hostname,
+        port: url.port,
+        path: url.pathname,
+        query: url.search,
+        fragment: url.hash,
+      }, null, 2));
+    } catch { return bad(); }
+  }
+
+  function utf8Validator(input, format) {
+    if (format !== "utf8-hex") return bad();
+    const source = String(input).trim();
+    if (!source || source.length > 600000) return bad();
+    const compact = source.replace(/(?:0x)?([0-9a-f]{2})(?=$|[\s,;:-])/gi, "$1 ").trim().replace(/[\s,;:-]+/g, "");
+    if (!compact || compact.length % 2 || !/^[0-9a-f]+$/i.test(compact)) return bad();
+    const bytes = Uint8Array.from(compact.match(/../g), token => Number.parseInt(token, 16));
+    try {
+      const text = new TextDecoder("utf-8", { fatal: true }).decode(bytes);
+      return ok(JSON.stringify({
+        valid: true,
+        bytes: bytes.length,
+        characters: Array.from(text).length,
+        text,
+      }, null, 2));
+    } catch { return bad(); }
+  }
+
+  function lineAffix(input, format, kind) {
+    if (format !== kind + "-all-lines") return bad();
+    let affix, text;
+    try { [affix, text] = splitToolInput(input, "---TEXT---"); } catch { return bad(); }
+    if (affix.length > 10000 || text.length > 200000) return bad();
+    return ok(lines(text).map(line => kind === "prefix" ? affix + line : line + affix).join("\n"));
+  }
+
+  function uuidValidator(input, format) {
+    const source = String(input).trim();
+    const match = source.match(/^([0-9a-f]{8})-([0-9a-f]{4})-([1-8][0-9a-f]{3})-([89ab][0-9a-f]{3})-([0-9a-f]{12})$/i);
+    if (format !== "uuid-report" || !match) return bad();
+    return ok(JSON.stringify({
+      valid: true,
+      canonical: source.toLowerCase(),
+      version: Number(match[3][0]),
+      variant: "RFC 4122",
+    }, null, 2));
+  }
+
+  function hexValidator(input, format) {
+    if (format !== "hex-bytes") return bad();
+    const source = String(input).trim();
+    if (!source || source.length > 600000) return bad();
+    let tokens;
+    if (/[\s,;:-]/.test(source)) {
+      tokens = source.split(/[\s,;:-]+/).filter(Boolean).map(token => token.replace(/^0x/i, ""));
+      if (!tokens.length || tokens.some(token => !/^[0-9a-f]{2}$/i.test(token))) return bad();
+    } else {
+      const compact = source.replace(/^0x/i, "");
+      if (!/^[0-9a-f]+$/i.test(compact) || compact.length % 2) return bad();
+      tokens = compact.match(/../g);
+    }
+    return ok(JSON.stringify({
+      valid: true,
+      bytes: tokens.length,
+      normalized: tokens.map(token => token.toUpperCase()).join(" "),
+    }, null, 2));
+  }
+
+  const csvCell = value => /[",\r\n]/.test(value) ? '"' + value.replace(/"/g, '""') + '"' : value;
+  const serializeCsv = (rows, ending = "\r\n") => rows.map(row => row.map(csvCell).join(",")).join(ending);
+
+  function csvFormatter(input, format) {
+    if (format !== "csv-format-crlf") return bad();
+    try { return ok(serializeCsv(parseCsv(input).data)); } catch { return bad(); }
+  }
+
+  function jsonFlatten(input, format) {
+    if (format !== "json-pointer" || String(input).length > 200000) return bad();
+    let value;
+    try { value = JSON.parse(String(input)); } catch { return bad(); }
+    const output = {};
+    const visit = (item, pointer) => {
+      if (item !== null && typeof item === "object") {
+        const entries = Array.isArray(item) ? item.entries() : Object.entries(item);
+        let count = 0;
+        for (const [key, child] of entries) {
+          count += 1;
+          const token = String(key).replace(/~/g, "~0").replace(/\//g, "~1");
+          visit(child, pointer + "/" + token);
+        }
+        if (!count) output[pointer || "/"] = Array.isArray(item) ? [] : {};
+      } else output[pointer || "/"] = item;
+    };
+    visit(value, "");
+    return ok(JSON.stringify(output, null, 2));
+  }
+
+  function paragraphCounter(input, format) {
+    const source = String(input);
+    if (format !== "paragraph-report" || !source || source.length > 200000) return bad();
+    const normalized = source.replace(/\r\n?/g, "\n");
+    const paragraphs = normalized.trim().split(/\n[ \t]*\n+/).filter(part => part.trim());
+    const words = normalized.match(/[\p{L}\p{N}]+(?:['’][\p{L}\p{N}]+)*/gu) || [];
+    return ok(JSON.stringify({
+      paragraphs: paragraphs.length,
+      lines: normalized.split("\n").length,
+      words: words.length,
+      characters: Array.from(source).length,
+    }, null, 2));
+  }
+
+  function numberExtractor(input, format) {
+    const source = String(input);
+    if (format !== "number-lines" || !source || source.length > 200000) return bad();
+    const matches = source.match(/(?<![\p{L}\p{N}_])[+-]?(?:\d+(?:\.\d+)?|\.\d+)(?:[eE][+-]?\d+)?(?![\p{L}\p{N}_])/gu) || [];
+    return matches.length ? ok(matches.join("\n")) : bad();
+  }
+
+  function removePunctuation(input, format) {
+    const source = String(input);
+    if (format !== "punctuation-spaces" || !source || source.length > 200000) return bad();
+    return ok(source.replace(/\p{P}+/gu, " ").replace(/[ \t]+/g, " ").replace(/ *\n */g, "\n").trim());
+  }
+
+  function tsvToCsv(input, format) {
+    if (format !== "tsv-csv-crlf") return bad();
+    const source = String(input).replace(/\r\n?/g, "\n");
+    if (!source || source.length > 200000) return bad();
+    const rows = source.split("\n");
+    if (rows.at(-1) === "") rows.pop();
+    const data = rows.map(row => row.split("\t"));
+    const columns = data[0]?.length || 0;
+    if (!columns || data.some(row => row.length !== columns)) return bad();
+    return ok(serializeCsv(data));
+  }
+
+  function csvToTsv(input, format) {
+    if (format !== "csv-tsv-lf") return bad();
+    try {
+      const { data } = parseCsv(input);
+      if (data.some(row => row.some(cell => /[\t\r\n]/.test(cell)))) return bad();
+      return ok(data.map(row => row.join("\t")).join("\n"));
+    } catch { return bad(); }
   }
 
   Object.assign(existing.converters, {
@@ -247,6 +441,21 @@
     "random-number-generator": randomNumberGenerator,
     "csv-validator": csvValidator,
     "xml-escape": xmlEscape,
+    "xml-unescape": xmlUnescape,
+    "base64-validator": base64Validator,
+    "url-validator": urlValidator,
+    "utf-8-validator": utf8Validator,
+    "add-prefix-to-lines": (input, format) => lineAffix(input, format, "prefix"),
+    "add-suffix-to-lines": (input, format) => lineAffix(input, format, "suffix"),
+    "uuid-validator": uuidValidator,
+    "hex-validator": hexValidator,
+    "csv-formatter": csvFormatter,
+    "json-flatten": jsonFlatten,
+    "paragraph-counter": paragraphCounter,
+    "number-extractor": numberExtractor,
+    "remove-punctuation": removePunctuation,
+    "tsv-to-csv": tsvToCsv,
+    "csv-to-tsv": csvToTsv,
   });
   Object.assign(existing.warnings, {
     warningValidation: "Check the documented input format and limits. Invalid, ambiguous or unsupported input is rejected without a partial result.",
@@ -256,6 +465,13 @@
     "regex-tester": "json",
     "xml-validator": "json",
     "csv-validator": "json",
+    "base64-validator": "json",
+    "url-validator": "json",
+    "utf-8-validator": "json",
+    "uuid-validator": "json",
+    "hex-validator": "json",
+    "json-flatten": "json",
+    "paragraph-counter": "json",
   });
   window.asciiUnicodeUtilities = existing;
 })();
